@@ -3,20 +3,21 @@ import { Link } from 'react-router-dom';
 
 const riddles = {
   "3-5":, c: 0 },
-    { q: "Bílý pán na dvorku stojí, teplého sluníčka se bojí. Co je to?", a:, c: 0 },
     { q: "Hlídá dům a štěká k tomu, zloděje nepustí domů. Co je to?", a: ["Pes", "Kočka", "Koza"], c: 0 },
     { q: "Zlaté kolo na obloze svítí, hřeje lidi, stromy, kvítí. Co je to?", a:, c: 0 },
-    { q: "Leze, leze po zahradě, domeček si nosí na zádech. Co je to?", a: ["Šnek", "Ježek", "Žába"], c: 0 }
+    { q: "Leze, leze po zahradě, domeček si nosí na zádech. Co je to?", a: ["Šnek", "Ježek", "Žába"], c: 0 },
+    { q: "Má to klobouček, jednu nožičku, pěkně si sedí v mechu v lesíčku. Co je to?", a: ["Houba", "Květina", "Pařez"], c: 0 }
   ],
-  "6-9":, c: 0 },
+  "6-9": [
     { q: "Nemá nohy, a přece běží, nemá jazyk, a přece šumí. Co je to?", a: ["Potok / Voda", "Vítr", "Auto"], c: 0 },
     { q: "Listy má a strom to není, vypráví a ústa nemá. Co je to?", a:, c: 0 },
-    { q: "Nemá nohy, a přece jde, nemá ruce, a přece ukazuje. Co je to?", a: ["Hodiny", "Kompas", "Cesta"], c: 0 }
+    { q: "Nemá nohy, a přece jde, nemá ruce, a přece ukazuje. Co je to?", a: ["Hodiny", "Kompas", "Cesta"], c: 0 },
+    { q: "Bez barev a bez štětce, v zimě okna maluje lehce. Co je to?", a:, c: 0 }
   ],
   "10-15":, c: 0 },
-    { q: "Slyšíš mě, i když mě nevidíš, odpovím ti, jen když promluvíš. Co jsem?", a:, c: 0 },
     { q: "Dá se to snadno zlomit, i když na to vůbec nesáhneš. Co je to?", a:, c: 0 },
-    { q: "Když vyslovíš mé jméno, v tu ránu mě zničíš. Co jsem?", a:, c: 0 }
+    { q: "Když vyslovíš mé jméno, v tu ránu mě zničíš. Co jsem?", a:, c: 0 },
+    { q: "Čím víc z ní ubíráš, tím větší se stává. Co je to?", a:, c: 0 }
   ]
 };
 
@@ -175,7 +176,7 @@ export default function Library() {
             🌙
           </div>
           <h1 className="serif text-4xl font-semibold tracking-wide text-white mb-2">Noční knihovna</h1>
-          <p class="text-[#94a3b8] text-sm max-w-md mx-auto leading-relaxed">
+          <p className="text-[#94a3b8] text-sm max-w-md mx-auto leading-relaxed">
             Klidné pohádky pro usínání dětí, lidová říkadla a bonusové písničky. Doprovázené hřejivou perokresbou.
           </p>
         </header>
