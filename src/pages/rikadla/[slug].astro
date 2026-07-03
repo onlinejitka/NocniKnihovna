@@ -8,7 +8,7 @@ export async function getStaticPaths() {
   if (rikadla.length === 0) {
     return [{
       params: { slug: 'pripravujeme' },
-      props: { r: { title: 'Říkadla připravujeme', content: 'Již brzy zde najdete první říkadla.', isPlaceholder: true } }
+      props: { r: { title: 'Říkadla připravujeme', content: 'Již brzy zde najdete první říkadla a básničky.', category: 'Připravujeme' } }
     }];
   }
   
