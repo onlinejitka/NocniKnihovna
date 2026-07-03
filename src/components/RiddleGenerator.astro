@@ -1,0 +1,144 @@
+---
+---
+<div class="w-full bg-[#131520] border border-[#c084fc]/10 p-6 rounded-3xl shadow-xl text-center">
+  <span class="text-3xl">🧩</span>
+  <h2 class="serif text-2xl font-semibold text-white mt-2 mb-4">Noční hádankář</h2>
+  <p class="text-xs text-[#94a3b8] mb-6">Vyberte věk dítěte a potrapte bystré hlavičky!</p>
+
+  <div class="flex justify-center gap-2 mb-8" id="age-selector">
+    <button onclick="selectAge('3-5')" class="age-btn px-4 py-2 bg-[#1b1e2e] text-[#94a3b8] border border-[#c084fc]/5 rounded-xl hover:border-[#c084fc]/40 text-xs font-semibold transition-all">3 - 5 let</button>
+    <button onclick="selectAge('6-9')" class="age-btn px-4 py-2 bg-[#1b1e2e] text-[#94a3b8] border border-[#c084fc]/5 rounded-xl hover:border-[#c084fc]/40 text-xs font-semibold transition-all">6 - 9 let</button>
+    <button onclick="selectAge('10-15')" class="age-btn px-4 py-2 bg-[#1b1e2e] text-[#94a3b8] border border-[#c084fc]/5 rounded-xl hover:border-[#c084fc]/40 text-xs font-semibold transition-all">10 - 15 let</button>
+  </div>
+
+  <div id="game-box" class="hidden min-h-[200px] flex flex-col justify-between">
+    <div class="mb-6">
+      <span class="text-xs text-[#c084fc] font-semibold uppercase tracking-wider" id="question-number">Hádanka 1 z 5</span>
+      <p class="serif text-lg text-white mt-2 leading-relaxed" id="riddle-text">Načítání hádanky...</p>
+    </div>
+
+    <div class="grid grid-cols-1 gap-2 mb-6" id="options-box"></div>
+
+    <div id="feedback-box" class="hidden text-sm font-semibold mb-4"></div>
+    <button id="next-btn" onclick="nextQuestion()" class="hidden w-full py-3 bg-[#c084fc] text-[#090a10] font-bold rounded-xl hover:bg-[#d8b4fe] transition-colors">Další hádanka →</button>
+  </div>
+
+  <div id="result-box" class="hidden py-8">
+    <span class="text-4xl">🏆</span>
+    <h3 class="serif text-2xl font-bold text-white mt-2">Hádanky jsou u konce!</h3>
+    <p class="text-sm text-[#94a3b8] mt-2" id="score-text">Získal jsi 5 z 5 bodů.</p>
+    <button onclick="restartGame()" class="mt-6 px-6 py-2.5 bg-[#1b1e2e] text-white border border-[#c084fc]/20 rounded-xl hover:bg-[#c084fc] hover:text-[#090a10] text-xs font-bold transition-all">Hrát znovu</button>
+  </div>
+</div>
+
+<script is:inline>
+  const riddles = {
+    "3-5":, c: 0 },
+      { q: "Stojí v poli hůlka, na té hůlce kulka a v té kulce plno černých kuliček. Co je to?", a:, c: 0 },
+      { q: "Zlaté kolo na obloze svítí, hřeje lidi, stromy, kvítí. Co je to?", a:, c: 0 },
+      { q: "Bílý pán na dvorku stojí, teplého sluníčka se bojí. Co je to?", a:, c: 0 },
+      { q: "Hlídá dům a štěká k tomu, zloděje nepustí domů. Co je to?", a: ["Pes", "Kočka", "Koza"], c: 0 }
+    ],
+    "6-9":, c: 0 },
+      { q: "Jede kočí, má sto očí, do každého něco strčí. Co je to?", a:, c: 0 },
+      { q: "Nemá nohy, a přece běží, nemá jazyk, a přece šumí. Co je to?", a: ["Potok / Voda", "Vítr", "Auto"], c: 0 },
+      { q: "Listy má a strom to není, vypráví a ústa nemá. Co je to?", a:, c: 0 },
+      { q: "Nemá nohy, a přece jde, nemá ruce, a přece ukazuje. Co je to?", a: ["Hodiny", "Kompas", "Cesta"], c: 0 }
+    ],
+    "10-15":, c: 0 },
+      { q: "Čím víc jí v místnosti nebo v lese je, tím méně toho vidíš. Co je to?", a:, c: 0 },
+      { q: "Slyšíš mě, i když mě nevidíš, odpovím ti, jen když promluvíš. Co jsem?", a:, c: 0 },
+      { q: "Dá se to snadno zlomit, i když na to vůbec nesáhneš. Co je to?", a:, c: 0 },
+      { q: "Když vyslovíš mé jméno, v tu ránu mě zničíš. Co jsem?", a:, c: 0 }
+    ]
+  };
+
+  let currentCategory = "";
+  let currentQuestions =;
+  let currentIndex = 0;
+  let score = 0;
+
+  function selectAge(category) {
+    currentCategory = category;
+    currentQuestions = [...riddles[category]].sort(() => 0.5 - Math.random()).slice(0, 5); // Náhodných 5
+    currentIndex = 0;
+    score = 0;
+
+    document.querySelectorAll(".age-btn").forEach(btn => btn.classList.remove("bg-[#c084fc]", "text-[#090a10]"));
+    event.target.classList.add("bg-[#c084fc]", "text-[#090a10]");
+
+    document.getElementById("game-box").classList.remove("hidden");
+    document.getElementById("result-box").classList.add("hidden");
+    
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const q = currentQuestions[currentIndex];
+    document.getElementById("question-number").innerText = `Hádanka ${currentIndex + 1} z 5`;
+    document.getElementById("riddle-text").innerText = q.q;
+
+    const optionsBox = document.getElementById("options-box");
+    optionsBox.innerHTML = "";
+
+    q.a.forEach((option, idx) => {
+      const btn = document.createElement("button");
+      btn.innerText = option;
+      btn.className = "w-full p-4 bg-[#1b1e2e] text-white border border-[#c084fc]/5 rounded-xl text-sm text-left hover:bg-[#252a3f] transition-all";
+      btn.onclick = () => checkAnswer(idx);
+      optionsBox.appendChild(btn);
+    });
+
+    document.getElementById("feedback-box").classList.add("hidden");
+    document.getElementById("next-btn").classList.add("hidden");
+  }
+
+  function checkAnswer(selectedIndex) {
+    const q = currentQuestions[currentIndex];
+    const optionsBox = document.getElementById("options-box");
+    const feedback = document.getElementById("feedback-box");
+
+    // Vypnutí tlačítek po kliknutí
+    Array.from(optionsBox.children).forEach((btn, idx) => {
+      btn.disabled = true;
+      if (idx === q.c) {
+        btn.classList.add("bg-emerald-500/20", "border-emerald-500", "text-emerald-300");
+      } else if (idx === selectedIndex) {
+        btn.classList.add("bg-rose-500/20", "border-rose-500", "text-rose-300");
+      }
+    });
+
+    feedback.classList.remove("hidden");
+    if (selectedIndex === q.c) {
+      score++;
+      feedback.innerText = "🎉 Správně! Jsi šikula.";
+      feedback.className = "text-emerald-400 text-sm font-semibold mb-4 text-center";
+    } else {
+      feedback.innerText = `😢 Nevadí. Správná odpověď byla: ${q.a[q.c]}.`;
+      feedback.className = "text-rose-400 text-sm font-semibold mb-4 text-center";
+    }
+
+    document.getElementById("next-btn").classList.remove("hidden");
+  }
+
+  function nextQuestion() {
+    currentIndex++;
+    if (currentIndex < 5) {
+      renderQuestion();
+    } else {
+      showResults();
+    }
+  }
+
+  function showResults() {
+    document.getElementById("game-box").classList.add("hidden");
+    const resultBox = document.getElementById("result-box");
+    resultBox.classList.remove("hidden");
+    document.getElementById("score-text").innerText = `Dokončil jsi hádanky se skóre ${score} z 5 bodů.`;
+  }
+
+  function restartGame() {
+    document.getElementById("result-box").classList.add("hidden");
+    document.getElementById("age-selector").firstElementChild.click();
+  }
+</script>
