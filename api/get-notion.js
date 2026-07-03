@@ -61,8 +61,8 @@ export default async function handler(req, res) {
          .map(block => block.paragraph.rich_text.map(t => t.plain_text).join(""))
          .join("\n\n");
 
-        const title = props.Název?.title?.map(t => t.plain_text).join("") || "Bez názvu";
-        const customSlug = props.Slug?.rich_text?.map(t => t.plain_text).join("");
+        const title = props["Název"]?.title?.map(t => t.plain_text).join("") || "Bez názvu";
+        const customSlug = props?.rich_text?.map(t => t.plain_text).join("");
         const slug = customSlug? slugify(customSlug) : slugify(title);
 
         const youtubeLink = props?.url || "";
@@ -80,8 +80,8 @@ export default async function handler(req, res) {
           herohero: props["Herohero Link"]?.url || "",
           etsy: props["Etsy Link"]?.url || "",
           alza: props["Alza Link"]?.url || "",
-          type: props.Typ?.select?.name || "Pohádka",
-          category: props.Kategorie?.select?.name || "Obecné",
+          type: props?.select?.name || "Pohádka",
+          category: props["Kategorie"]?.select?.name || "Obecné",
           content: contentText || "Tento příspěvek zatím nemá žádný doprovodný text.",
         };
       })
