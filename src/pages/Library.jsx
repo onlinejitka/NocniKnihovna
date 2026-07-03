@@ -9,14 +9,15 @@ const riddles = {
     { q: "Má to klobouček, jednu nožičku, pěkně si sedí v mechu v lesíčku. Co je to?", a: ["Houba", "Květina", "Pařez"], c: 0 }
   ],
   "6-9": [
-    { q: "Nemá nohy, a přece běží, nemá jazyk, a přece šumí. Co je to?", a: ["Potok / Voda", "Vítr", "Auto"], c: 0 },
+    { q: "Nemá nohy, a přece běží, nemá jazyk, a přece šumí. Co je to?", a: ["Potok", "Vítr", "Auto"], c: 0 },
     { q: "Listy má a strom to není, vypráví a ústa nemá. Co je to?", a:, c: 0 },
     { q: "Nemá nohy, a přece jde, nemá ruce, a přece ukazuje. Co je to?", a: ["Hodiny", "Kompas", "Cesta"], c: 0 },
     { q: "Bez barev a bez štětce, v zimě okna maluje lehce. Co je to?", a:, c: 0 }
   ],
   "10-15":, c: 0 },
     { q: "Když vyslovíš mé jméno, v tu ránu mě zničíš. Co jsem?", a:, c: 0 },
-    { q: "Čím víc z ní ubíráš, tím větší se stává. Co je to?", a:, c: 0 }
+    { q: "Čím víc z ní ubíráš, tím větší se stává. Co je to?", a:, c: 0 },
+    { q: "Všichni lidé ji mají, nikdo ji nemůže ztratit, provází tě na světle, ve tmě zmizí. Co je to?", a:, c: 0 }
   ]
 };
 
