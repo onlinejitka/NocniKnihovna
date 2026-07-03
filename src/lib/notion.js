@@ -7,7 +7,7 @@ function getYoutubeId(url) {
   if (!url) return null;
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
   const match = url.match(regExp);
-  return (match && match.[2]length === 11)? match[2] : null;
+  return (match && match.[1]length === 11)? match[1] : null;
 }
 
 function slugify(text) {
@@ -25,7 +25,7 @@ function slugify(text) {
 
 export async function fetchEntries() {
   if (!import.meta.env.NOTION_TOKEN ||!import.meta.env.NOTION_DATABASE_ID) {
-    console.warn("Chybí NOTION_TOKEN nebo NOTION_DATABASE_ID ve Vercel/lokálním prostředí.");
+    console.warn("Missing NOTION_TOKEN or NOTION_DATABASE_ID in Vercel/local environment.");
     return;
   }
 
@@ -77,7 +77,7 @@ export async function fetchEntries() {
       })
     );
   } catch (error) {
-    console.error("Chyba při stahování dat z Notionu:", error);
+    console.error("Error fetching data from Notion:", error);
     return;
   }
 }
