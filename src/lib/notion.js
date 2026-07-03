@@ -3,15 +3,13 @@ import { Client } from "@notionhq/client";
 const notion = new Client({ auth: import.meta.env.NOTION_TOKEN });
 const databaseId = import.meta.env.NOTION_DATABASE_ID;
 
-// Pomocná funkce pro extrakci YouTube ID z odkazu
 function getYoutubeId(url) {
   if (!url) return null;
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
   const match = url.match(regExp);
-  return (match && match.[1]length === 11)? match[1] : null;
+  return (match && match.[2]length === 11)? match[2] : null;
 }
 
-// Funkce pro převod textu na SEO přívětivý tvar (slugify)
 function slugify(text) {
   return text
    .toString()
@@ -26,6 +24,11 @@ function slugify(text) {
 }
 
 export async function fetchEntries() {
+  if (!import.meta.env.NOTION_TOKEN ||!import.meta.env.NOTION_DATABASE_ID) {
+    console.warn("Chybí NOTION_TOKEN nebo NOTION_DATABASE_ID ve Vercel/lokálním prostředí.");
+    return;
+  }
+
   try {
     const response = await notion.databases.query({
       database_id: databaseId,
@@ -42,15 +45,14 @@ export async function fetchEntries() {
         const id = page.id;
         const props = page.properties;
 
-        // Stažení odstavců textu přímo z vnitřku Notion stránky
         const blocksResponse = await notion.blocks.children.list({ block_id: id });
         const contentText = blocksResponse.results
          .filter(block => block.type === "paragraph")
          .map(block => block.paragraph.rich_text.map(t => t.plain_text).join(""))
          .join("\n\n");
 
-        const title = props.Název?.title?.plain_text || "Bez názvu";
-        const customSlug = props.Slug?.rich_text?.plain_text;
+        const title = props.Název?.title?.?.plain_text || "Bez názvu";
+        const customSlug = props.Slug?.rich_text?.?.plain_text;
         const slug = customSlug? slugify(customSlug) : slugify(title);
 
         const youtubeLink = props?.url || "";
@@ -70,7 +72,7 @@ export async function fetchEntries() {
           alza: props["Alza Link"]?.url || "",
           type: props.Typ?.select?.name || "Pohádka",
           category: props.Kategorie?.select?.name || "Obecné",
-          content: contentText,
+          content: contentText || "Tento příspěvek zatím nemá žádný text v těle stránky.",
         };
       })
     );
