@@ -1,11 +1,11 @@
 ---
 ---
-<div class="w-full bg-[#131520] border border-[#c084fc]/10 p-6 rounded-3xl shadow-xl text-center">
+<div class="w-full bg-[#131520] border border-[#c084fc]/10 p-6 rounded-3xl shadow-xl text-center max-w-2xl mx-auto">
   <span class="text-3xl">🧩</span>
   <h2 class="serif text-2xl font-semibold text-white mt-2 mb-4">Noční hádankář</h2>
-  <p class="text-xs text-[#94a3b8] mb-6">Vyberte věk dítěte a potrapte bystré hlavičky!</p>
+  <p class="text-xs text-[#94a3b8] mb-6">Vyberte věk děťátka a potrapte bystré hlavičky!</p>
 
-  <div class="flex justify-center gap-2 mb-8" id="age-selector">
+  <div class="flex flex-wrap justify-center gap-2 mb-8" id="age-selector">
     <button onclick="selectAge('3-5')" class="age-btn px-4 py-2 bg-[#1b1e2e] text-[#94a3b8] border border-[#c084fc]/5 rounded-xl hover:border-[#c084fc]/40 text-xs font-semibold transition-all">3 - 5 let</button>
     <button onclick="selectAge('6-9')" class="age-btn px-4 py-2 bg-[#1b1e2e] text-[#94a3b8] border border-[#c084fc]/5 rounded-xl hover:border-[#c084fc]/40 text-xs font-semibold transition-all">6 - 9 let</button>
     <button onclick="selectAge('10-15')" class="age-btn px-4 py-2 bg-[#1b1e2e] text-[#94a3b8] border border-[#c084fc]/5 rounded-xl hover:border-[#c084fc]/40 text-xs font-semibold transition-all">10 - 15 let</button>
@@ -34,22 +34,22 @@
 <script is:inline>
   const riddles = {
     "3-5":, c: 0 },
-      { q: "Stojí v poli hůlka, na té hůlce kulka a v té kulce plno černých kuliček. Co je to?", a:, c: 0 },
+      { q: "Hlídá dům a štěká k tomu, zloděje nepustí domů. Co je to?", a: ["Pes", "Kočka", "Koza"], c: 0 },
       { q: "Zlaté kolo na obloze svítí, hřeje lidi, stromy, kvítí. Co je to?", a:, c: 0 },
-      { q: "Bílý pán na dvorku stojí, teplého sluníčka se bojí. Co je to?", a:, c: 0 },
-      { q: "Hlídá dům a štěká k tomu, zloděje nepustí domů. Co je to?", a: ["Pes", "Kočka", "Koza"], c: 0 }
+      { q: "Leze, leze po zahradě, domeček si nosí na zádech. Co je to?", a: ["Šnek", "Ježek", "Žába"], c: 0 },
+      { q: "Má to klobouček, jednu nožičku, pěkně si sedí v mechu v lesíčku. Co je to?", a: ["Houba", "Květina", "Pařez"], c: 0 }
     ],
     "6-9":, c: 0 },
-      { q: "Jede kočí, má sto očí, do každého něco strčí. Co je to?", a:, c: 0 },
-      { q: "Nemá nohy, a přece běží, nemá jazyk, a přece šumí. Co je to?", a: ["Potok / Voda", "Vítr", "Auto"], c: 0 },
+      { q: "Nemá nohy, a přece běží, nemá jazyk, a přece šumí. Co je to?", a: ["Potok", "Vítr", "Auto"], c: 0 },
       { q: "Listy má a strom to není, vypráví a ústa nemá. Co je to?", a:, c: 0 },
-      { q: "Nemá nohy, a přece jde, nemá ruce, a přece ukazuje. Co je to?", a: ["Hodiny", "Kompas", "Cesta"], c: 0 }
+      { q: "Nemá nohy, a přece jde, nemá ruce, a přece ukazuje. Co je to?", a: ["Hodiny", "Kompas", "Cesta"], c: 0 },
+      { q: "Bez barev a bez štětce, v zimě okna maluje lehce. Co je to?", a:, c: 0 }
     ],
     "10-15":, c: 0 },
-      { q: "Čím víc jí v místnosti nebo v lese je, tím méně toho vidíš. Co je to?", a:, c: 0 },
-      { q: "Slyšíš mě, i když mě nevidíš, odpovím ti, jen když promluvíš. Co jsem?", a:, c: 0 },
       { q: "Dá se to snadno zlomit, i když na to vůbec nesáhneš. Co je to?", a:, c: 0 },
-      { q: "Když vyslovíš mé jméno, v tu ránu mě zničíš. Co jsem?", a:, c: 0 }
+      { q: "Když vyslovíš mé jméno, v tu ránu mě zničíš. Co jsem?", a:, c: 0 },
+      { q: "Čím víc z ní ubíráš, tím větší se stává. Co je to?", a:, c: 0 },
+      { q: "Všichni lidé ji mají, nikdo ji nemůže ztratit, provází tě na světle, ve tmě zmizí. Co je to?", a:, c: 0 }
     ]
   };
 
@@ -58,14 +58,15 @@
   let currentIndex = 0;
   let score = 0;
 
-  function selectAge(category) {
+  window.selectAge = function(category) {
     currentCategory = category;
-    currentQuestions = [...riddles[category]].sort(() => 0.5 - Math.random()).slice(0, 5); // Náhodných 5
+    currentQuestions = [...riddles[category]].sort(() => 0.5 - Math.random()).slice(0, 5);
     currentIndex = 0;
     score = 0;
 
-    document.querySelectorAll(".age-btn").forEach(btn => btn.classList.remove("bg-[#c084fc]", "text-[#090a10]"));
-    event.target.classList.add("bg-[#c084fc]", "text-[#090a10]");
+    document.querySelectorAll(".age-btn").forEach(btn => btn.classList.remove("bg-[#c084fc]", "text-[#090a10]", "border-[#c084fc]"));
+    const activeBtn = Array.from(document.querySelectorAll(".age-btn")).find(btn => btn.textContent.includes(category === "3-5"? "3 - 5" : category === "6-9"? "6 - 9" : "10 - 15"));
+    if (activeBtn) activeBtn.classList.add("bg-[#c084fc]", "text-[#090a10]", "border-[#c084fc]");
 
     document.getElementById("game-box").classList.remove("hidden");
     document.getElementById("result-box").classList.add("hidden");
@@ -98,7 +99,6 @@
     const optionsBox = document.getElementById("options-box");
     const feedback = document.getElementById("feedback-box");
 
-    // Vypnutí tlačítek po kliknutí
     Array.from(optionsBox.children).forEach((btn, idx) => {
       btn.disabled = true;
       if (idx === q.c) {
@@ -121,7 +121,7 @@
     document.getElementById("next-btn").classList.remove("hidden");
   }
 
-  function nextQuestion() {
+  window.nextQuestion = function() {
     currentIndex++;
     if (currentIndex < 5) {
       renderQuestion();
@@ -137,8 +137,8 @@
     document.getElementById("score-text").innerText = `Dokončil jsi hádanky se skóre ${score} z 5 bodů.`;
   }
 
-  function restartGame() {
+  window.restartGame = function() {
     document.getElementById("result-box").classList.add("hidden");
-    document.getElementById("age-selector").firstElementChild.click();
+    window.selectAge(currentCategory);
   }
 </script>
