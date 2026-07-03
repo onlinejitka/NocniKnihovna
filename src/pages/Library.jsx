@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const riddles = {
-  "3-5":, c: 0 },
+  "3-5": [
     { q: "Hlídá dům a štěká k tomu, zloděje nepustí domů. Co je to?", a: ["Pes", "Kočka", "Koza"], c: 0 },
     { q: "Zlaté kolo na obloze svítí, hřeje lidi, stromy, kvítí. Co je to?", a:, c: 0 },
     { q: "Leze, leze po zahradě, domeček si nosí na zádech. Co je to?", a: ["Šnek", "Ježek", "Žába"], c: 0 },
@@ -15,7 +15,6 @@ const riddles = {
     { q: "Bez barev a bez štětce, v zimě okna maluje lehce. Co je to?", a:, c: 0 }
   ],
   "10-15":, c: 0 },
-    { q: "Dá se to snadno zlomit, i když na to vůbec nesáhneš. Co je to?", a:, c: 0 },
     { q: "Když vyslovíš mé jméno, v tu ránu mě zničíš. Co jsem?", a:, c: 0 },
     { q: "Čím víc z ní ubíráš, tím větší se stává. Co je to?", a:, c: 0 }
   ]
