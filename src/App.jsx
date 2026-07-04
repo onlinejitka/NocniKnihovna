@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Music, Sparkles, Youtube, ArrowLeft, HelpCircle, CheckCircle2, XCircle, Award } from 'lucide-react';
 
-// Databáze hádanek přímo v kódu pro bleskové načítání bez nutnosti další DB v Notion
+// Slovník pro správné české názvy záložek (odstranění chyb typu Pohádkay)
+const TAB_LABELS = {
+  'vse': 'Vše z knihovny',
+  'Pohádka': 'Pohádky',
+  'Říkadlo': 'Říkadla',
+  'Písnička': 'Písničky'
+};
+
 const RIDDLES_DATA = {
   '3-5': [
     {
@@ -13,11 +20,6 @@ const RIDDLES_DATA = {
       question: 'Červená je, sladká je, na sluníčku v trávě zraje. Trháme ji do pusinky. Co je to?',
       options: ['Švestka', 'Okurka', 'Jahůdka', 'Mrkev'],
       answer: 'Jahůdka'
-    },
-    {
-      question: 'Nemá nohy, nemá ruce, a přece skáče ze stromu na strom a nosí zrzavý kožíšek. Kdo je to?',
-      options: ['Veverka', 'Ptáček', 'Kočka', 'Žába'],
-      answer: 'Veverka'
     }
   ],
   '6-9': [
@@ -30,11 +32,6 @@ const RIDDLES_DATA = {
       question: 'Zuby má a nekouše, do vlásků se rád pouští, aby je učesal. Co je to?',
       options: ['Kartáček', 'Hřeben', 'Nůžky', 'Pila'],
       answer: 'Hřeben'
-    },
-    {
-      question: 'Leze, leze po zahradě, slizkou cestu nechává za sebou a domeček si nese na zádech. Co je to?',
-      options: ['Hlemýžď', 'Žížala', 'Pavouk', 'Brouk'],
-      answer: 'Hlemýžď'
     }
   ],
   '10+': [
@@ -42,16 +39,6 @@ const RIDDLES_DATA = {
       question: 'Čím víc z ní ubíráš a kopeš do hloubky, tím větší začíná být. Co je to?',
       options: ['Hora', 'Díra', 'Zeď', 'Písek'],
       answer: 'Díra'
-    },
-    {
-      question: 'Slyšíš mě dobře, ale nikdy mě nevidíš. Mluvím jen tehdy, když promluvíš ty jako první. Co jsem?',
-      options: ['Vítr', 'Rádio', 'Ozvěna', 'Duch'],
-      answer: 'Ozvěna'
-    },
-    {
-      question: 'Nemá to plíce, a přece to dýchá a potřebuje vzduch. Nemá to život, ale pokud to nakrmíš dřevem, roste to. Vody se to bojí. Co je to?',
-      options: ['Oheň', 'Strom', 'Hrnec', 'Lokomotiva'],
-      answer: 'Oheň'
     }
   ]
 };
@@ -64,14 +51,40 @@ export default function App() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Stavy pro generátor hádanek
+  // Stavy pro hádanky
   const [riddleAge, setRiddleAge] = useState('3-5');
   const [currentRiddleIndex, setCurrentRiddleIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [score, setScore] = useState(0);
   const [quizFinished, setQuizFinished] = useState(false);
 
-  // Načtení dat z Notion API
+  // Funkce pro bezpečnou navigaci se změnou URL v prohlížeči
+  const navigateTo = (path) => {
+    window.history.pushState({}, '', '/' + path);
+    window.dispatchEvent(new Event('popstate'));
+  };
+
+  // Načtení detailu podle slugu
+  const loadItemBySlug = (slug) => {
+    setLoading(true);
+    fetch(`/api/get-library?slug=${slug}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Nenalezeno');
+        return res.json();
+      })
+      .then(data => {
+        setSelectedItem(data);
+        setLoading(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      })
+      .catch(err => {
+        console.error(err);
+        setSelectedItem(null);
+        setLoading(false);
+      });
+  };
+
+  // Načtení seznamu z Notion a obsluha vestavěného směrování (URL)
   useEffect(() => {
     fetch('/api/get-library')
       .then(res => res.json())
@@ -80,15 +93,35 @@ export default function App() {
           setItems(data);
           setFilteredItems(data);
         }
-        setLoading(false);
+        
+        // Router: Zjistíme, co je napsané v URL adrese za lomítkem
+        const handleRouting = () => {
+          const path = window.location.pathname.replace(/^\/|\/$/g, '');
+          
+          if (path === 'hadanky') {
+            setCurrentSection('riddles');
+            setSelectedItem(null);
+          } else if (path === '' || path === 'knihovna') {
+            setCurrentSection('library');
+            setSelectedItem(null);
+          } else {
+            // Pokud je v URL cokoliv jiného, bereme to jako slug pohádky
+            setCurrentSection('library');
+            loadItemBySlug(path);
+          }
+        };
+
+        handleRouting();
+        window.addEventListener('popstate', handleRouting);
+        return () => window.removeEventListener('popstate', handleRouting);
       })
       .catch(err => {
-        console.error("Chyba při načítání:", err);
+        console.error("Chyba při inicializaci dat:", err);
         setLoading(false);
       });
   }, []);
 
-  // Filtrování knihovny podle typu
+  // Filtrování knihovny
   useEffect(() => {
     if (activeTab === 'vse') {
       setFilteredItems(items);
@@ -97,31 +130,14 @@ export default function App() {
     }
   }, [activeTab, items]);
 
-  const openItem = (slug) => {
-    setLoading(true);
-    fetch(`/api/get-library?slug=${slug}`)
-      .then(res => res.json())
-      .then(data => {
-        setSelectedItem(data);
-        setLoading(false);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
-  };
-
-  // Logika kvízu hádanek
+  // Logika hádanek
   const currentRiddles = RIDDLES_DATA[riddleAge];
-  const currentRiddle = currentRiddles[currentRiddleIndex];
+  const currentRiddle = currentRiddles?.[currentRiddleIndex];
 
   const handleAnswerClick = (option) => {
-    if (selectedAnswer !== null) return; // Zabránit dvojímu kliknutí
+    if (selectedAnswer !== null) return;
     setSelectedAnswer(option);
-    if (option === currentRiddle.answer) {
-      setScore(score + 1);
-    }
+    if (option === currentRiddle.answer) setScore(score + 1);
   };
 
   const handleNextRiddle = () => {
@@ -143,10 +159,10 @@ export default function App() {
 
   return (
     <div class="min-h-screen text-slate-200 selection:bg-amber-500/30 selection:text-amber-200">
-      {/* Hlavní menu / Hlavička */}
+      {/* Hlavička */}
       <header class="border-b border-slate-800/60 bg-slate-950/40 backdrop-blur sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
-          <div class="flex items-center space-x-3 cursor-pointer" onClick={() => { setSelectedItem(null); setCurrentSection('library'); }}>
+          <div class="flex items-center space-x-3 cursor-pointer" onClick={() => navigateTo('')}>
             <span class="text-3xl">🌙</span>
             <div>
               <h1 class="text-xl font-bold tracking-wide text-amber-400">Noční Knihovna</h1>
@@ -154,15 +170,15 @@ export default function App() {
             </div>
           </div>
           
-          <nav class="flex items-center space-x-1 md:space-x-4 bg-slate-900/60 p-1.5 rounded-full border border-slate-800">
+          <nav class="flex items-center space-x-2 bg-slate-900/60 p-1.5 rounded-full border border-slate-800">
             <button 
-              onClick={() => { setCurrentSection('library'); setSelectedItem(null); }}
+              onClick={() => navigateTo('')}
               class={`px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition flex items-center space-x-1.5 ${currentSection === 'library' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}
             >
               <BookOpen size={14} /> <span>Knihovna</span>
             </button>
             <button 
-              onClick={() => { setCurrentSection('riddles'); resetQuiz('3-5'); }}
+              onClick={() => navigateTo('hadanky')}
               class={`px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition flex items-center space-x-1.5 ${currentSection === 'riddles' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}
             >
               <HelpCircle size={14} /> <span>Hádanky</span>
@@ -173,12 +189,12 @@ export default function App() {
 
       <main class="max-w-6xl mx-auto px-4 py-10">
         
-        {/* SEKCE 1: KNIHOVNA POHÁDEK */}
+        {/* SEKCE: KNIHOVNA */}
         {currentSection === 'library' && (
           selectedItem ? (
-            /* DETAIL POHÁDKY */
+            /* DETAIL POHÁDKY VLASTNÍ STRÁNKA */
             <div class="max-w-4xl mx-auto">
-              <button onClick={() => setSelectedItem(null)} class="flex items-center space-x-2 text-slate-400 hover:text-amber-400 mb-8 transition group">
+              <button onClick={() => navigateTo('')} class="flex items-center space-x-2 text-slate-400 hover:text-amber-400 mb-8 transition group">
                 <ArrowLeft size={18} class="transform group-hover:-translate-x-1 transition-transform" />
                 <span>Zpět do knihovny</span>
               </button>
@@ -189,63 +205,55 @@ export default function App() {
                 {selectedItem.type}
               </span>
 
-              {/* YouTube Video */}
+              {/* YouTube přehrávač */}
               {selectedItem.youtubeId && (
                 <div class="aspect-video w-full rounded-2xl overflow-hidden shadow-2xl border border-slate-800 mb-8 bg-slate-900">
                   <iframe src={`https://www.youtube.com/embed/${selectedItem.youtubeId}`} title={selectedItem.title} class="w-full h-full" allowFullScreen></iframe>
                 </div>
               )}
 
-            {/* Média – Spotify Audio */}
-{selectedItem.spotifyId && (
-  <div class="mb-10">
-    <iframe 
-      src={`https://open.spotify.com/embed/${selectedItem.spotifyId}?utm_source=generator&theme=0`} 
-      width="100%" 
-      height="152" 
-      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-      loading="lazy"
-      class="rounded-xl border border-slate-800"
-    ></iframe>
-  </div>
-)}
+              {/* Spotify přehrávač */}
+              {selectedItem.spotifyId && (
+                <div class="mb-10">
+                  <iframe src={`https://open.spotify.com/embed/${selectedItem.spotifyId}`} width="100%" height="152" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" class="rounded-xl border border-slate-800"></iframe>
+                </div>
+              )}
 
-              {/* Text přímo z těla stránky v Notion */}
-              <div class="prose prose-invert max-w-none bg-slate-900/40 p-8 rounded-2xl border border-slate-800/60 shadow-xl" dangerouslySetInnerHTML={{ __html: selectedItem.content }} />
+              {/* Text pohádky z Notion těla */}
+              <div class="prose prose-invert max-w-none bg-slate-900/40 p-6 md:p-10 rounded-2xl border border-slate-800/60 shadow-xl leading-relaxed text-slate-300" dangerouslySetInnerHTML={{ __html: selectedItem.content }} />
               
-              {/* Odkaz na HeroHero pokud existuje */}
               {selectedItem.heroHeroLink && (
                 <div class="mt-8 text-center bg-gradient-to-r from-pink-900/20 to-rose-900/20 p-6 rounded-2xl border border-pink-500/20">
-                  <p class="text-sm text-pink-200 mb-3 font-medium">Chceš poslouchat další pohádky s předstihem a bez reklam?</p>
-                  <a href={selectedItem.heroHeroLink} target="_blank" class="inline-flex items-center space-x-2 bg-pink-600 hover:bg-pink-500 text-white px-5 py-2 rounded-full text-sm font-semibold transition">
-                    <Sparkles size={16} /> <span>Pustit na HeroHero</span>
+                  <p class="text-sm text-pink-200 mb-3 font-medium">Chceš poslouchat pohádky s předstihem a jako bonus získat písničky?</p>
+                  <a href={selectedItem.heroHeroLink} target="_blank" rel="noreferrer" class="inline-flex items-center space-x-2 bg-pink-600 hover:bg-pink-500 text-white px-5 py-2 rounded-full text-sm font-semibold transition">
+                    <Sparkles size={16} /> <span>Pustit bonusy na HeroHero</span>
                   </a>
                 </div>
               )}
             </div>
           ) : (
-            /* SEZNAM POHÁDEK */
+            /* SEZNAM VŠECH POHÁDEK */
             <div>
               <div class="text-center max-w-2xl mx-auto mb-12">
-                <h2 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-400 mb-4">Místo pro klidné usínání</h2>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-400 mb-4">Místo pro klidné usínání</h2>
                 <p class="text-slate-400">Pohádky čtené mým vlastním hlasem doplněné o ručně kreslené ilustrace na hnědém papíře.</p>
               </div>
 
-              {/* Filtry */}
-              <div class="flex justify-center space-x-2 mb-10 border-b border-slate-900 pb-4">
+              {/* Filtry se správnou češtinou */}
+              <div class="flex justify-center flex-wrap gap-2 mb-10 border-b border-slate-900 pb-4">
                 {['vse', 'Pohádka', 'Říkadlo', 'Písnička'].map(tab => (
                   <button key={tab} onClick={() => setActiveTab(tab)} class={`px-4 py-2 rounded-full text-sm font-medium transition ${activeTab === tab ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
-                    {tab === 'vse' ? 'Vše' : tab + 'y'}
+                    {TAB_LABELS[tab]}
                   </button>
                 ))}
               </div>
 
               {loading ? (
-                <div class="text-center py-20 text-slate-400">Načítám knížky...</div>
+                <div class="text-center py-20 text-slate-400">Otevírám velkou pohádkovou knihu...</div>
               ) : (
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredItems.map(item => (
-                    <div key={item.id} onClick={() => openItem(item.slug)} class="group bg-slate-900/40 border border-slate-800 rounded-2xl overflow-hidden cursor-pointer hover:border-amber-500/50 transition-all flex flex-col">
+                    <div key={item.id} onClick={() => navigateTo(item.slug)} class="group bg-slate-900/40 border border-slate-800 rounded-2xl overflow-hidden cursor-pointer hover:border-amber-500/50 transition-all flex flex-col">
                       <div class="aspect-video w-full overflow-hidden relative bg-slate-950">
                         <img src={item.thumbnail} alt={item.title} class="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300" />
                         <span class="absolute top-2 left-2 bg-slate-950/80 text-amber-400 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border border-slate-800">{item.type}</span>
@@ -255,7 +263,7 @@ export default function App() {
                           <h3 class="text-lg font-bold text-slate-100 group-hover:text-amber-300 transition-colors">{item.title}</h3>
                           {item.autor && <p class="text-xs text-slate-400 mt-1">{item.autor}</p>}
                         </div>
-                        <div class="text-xs text-amber-400/80 font-medium mt-4">Otevřít příběh →</div>
+                        <div class="text-xs text-amber-400/80 font-medium mt-4">Přejít na pohádku →</div>
                       </div>
                     </div>
                   ))}
@@ -265,110 +273,75 @@ export default function App() {
           )
         )}
 
-        {/* SEKCE 2: GENERÁTOR HÁDANEK */}
+        {/* SEKCE: HÁDANKY */}
         {currentSection === 'riddles' && (
           <div class="max-w-2xl mx-auto bg-slate-900/30 border border-slate-800 p-6 md:p-10 rounded-2xl shadow-xl">
             <div class="text-center mb-8">
               <h2 class="text-3xl font-bold text-amber-400 flex items-center justify-center space-x-2">
                 <span>✨</span> <span>Pohádkové hádanky</span>
               </h2>
-              <p class="text-slate-400 text-sm mt-1">Vyberte věk dětí a procvičte hlavičky před spaním</p>
+              <p class="text-slate-400 text-sm mt-1">Procvičte hlavičky před spaním</p>
             </div>
 
-            {/* Výběr věkové kategorie */}
-            <div class="flex justify-center space-x-2 md:space-x-4 mb-8">
+            <div class="flex justify-center flex-wrap gap-2 mb-8">
               {[
                 { id: '3-5', label: 'Mňauíci (3–5 let)' },
                 { id: '6-9', label: 'Zkoumalové (6–9 let)' },
                 { id: '10+', label: 'Chytrolíni (10+ let)' }
               ].map(cat => (
-                <button
-                  key={cat.id}
-                  onClick={() => resetQuiz(cat.id)}
-                  class={`px-4 py-2 rounded-xl text-xs md:text-sm font-semibold transition ${riddleAge === cat.id ? 'bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-bold' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'}`}
-                >
+                <button key={cat.id} onClick={() => resetQuiz(cat.id)} class={`px-4 py-2 rounded-xl text-xs md:text-sm font-semibold transition ${riddleAge === cat.id ? 'bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-bold' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'}`}>
                   {cat.label}
                 </button>
               ))}
             </div>
 
-            {/* Samotný kvíz / Hádanka */}
-            {!quizFinished ? (
+            {currentRiddle ? (!quizFinished ? (
               <div class="space-y-6">
                 <div class="flex justify-between items-center text-xs text-slate-500">
                   <span>Hádanka {currentRiddleIndex + 1} z {currentRiddles.length}</span>
                   <span>Skóre: {score}</span>
                 </div>
-
                 <div class="bg-slate-950/40 p-6 rounded-xl border border-slate-800/80 text-center min-h-[100px] flex items-center justify-center">
-                  <p class="text-lg md:text-xl font-medium text-slate-200 italic leading-relaxed">
-                    "{currentRiddle.question}"
-                  </p>
+                  <p class="text-lg md:text-xl font-medium text-slate-200 italic leading-relaxed">"{currentRiddle.question}"</p>
                 </div>
-
-                {/* 4 Možnosti odpovědi */}
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {currentRiddle.options.map((option, idx) => {
                     let btnStyle = "bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800";
                     let icon = null;
-
                     if (selectedAnswer !== null) {
                       if (option === currentRiddle.answer) {
                         btnStyle = "bg-green-500/20 text-green-300 border-green-500/50 font-bold";
-                        icon = <CheckCircle2 size={16} class="text-green-400 shrink-0" />;
+                        icon = <CheckCircle2 size={16} class="text-green-400" />;
                       } else if (option === selectedAnswer) {
                         btnStyle = "bg-red-500/20 text-red-300 border-red-500/50";
-                        icon = <XCircle size={16} class="text-red-400 shrink-0" />;
+                        icon = <XCircle size={16} class="text-red-400" />;
                       } else {
                         btnStyle = "bg-slate-900/40 text-slate-600 border-transparent opacity-50";
                       }
                     }
-
                     return (
-                      <button
-                        key={idx}
-                        disabled={selectedAnswer !== null}
-                        onClick={() => handleAnswerClick(option)}
-                        class={`p-4 rounded-xl border text-left text-sm md:text-base font-medium transition-all flex items-center justify-between ${btnStyle}`}
-                      >
-                        <span>{option}</span>
-                        {icon}
+                      <button key={idx} disabled={selectedAnswer !== null} onClick={() => handleAnswerClick(option)} class={`p-4 rounded-xl border text-left text-sm font-medium transition-all flex items-center justify-between ${btnStyle}`}>
+                        <span>{option}</span> {icon}
                       </button>
                     );
                   })}
                 </div>
-
-                {/* Tlačítko dál */}
                 {selectedAnswer !== null && (
-                  <button
-                    onClick={handleNextRiddle}
-                    class="w-full mt-4 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-3 rounded-xl text-center text-sm transition shadow-lg shadow-amber-400/5 animate-pulse"
-                  >
-                    {currentRiddleIndex + 1 === currentRiddles.length ? 'Vyhodnotit hádanky 🎉' : 'Další hádanka →'}
+                  <button onClick={handleNextRiddle} class="w-full mt-4 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-3 rounded-xl transition shadow-lg">
+                    {currentRiddleIndex + 1 === currentRiddles.length ? 'Vyhodnotit 🎉' : 'Další hádanka →'}
                   </button>
                 )}
               </div>
             ) : (
-              /* KONEC KVÍZU */
-              <div class="text-center py-8 space-y-6 animate-fade-in">
-                <div class="inline-flex bg-amber-400/10 text-amber-400 p-4 rounded-full">
-                  <Award size={48} />
-                </div>
+              <div class="text-center py-8 space-y-6">
+                <div class="inline-flex bg-amber-400/10 text-amber-400 p-4 rounded-full"><Award size={48} /></div>
                 <div>
                   <h3 class="text-2xl font-bold text-amber-300">Skvělá práce!</h3>
-                  <p class="text-slate-400 mt-2 text-sm">Úspěšně jsi dokončil(a) hádanky pro tuto kategorii.</p>
-                  <p class="text-2xl font-black text-white mt-4 bg-slate-950/50 inline-block px-6 py-2 rounded-full border border-slate-800">
-                    {score} / {currentRiddles.length} správně
-                  </p>
+                  <p class="text-2xl font-black text-white mt-4 bg-slate-950/50 inline-block px-6 py-2 rounded-full border border-slate-800">{score} / {currentRiddles.length} správně</p>
                 </div>
-                <button
-                  onClick={() => resetQuiz(riddleAge)}
-                  class="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 px-6 py-2.5 rounded-xl text-sm font-semibold transition"
-                >
-                  Zkusit znovu 🔄
-                </button>
+                <button onClick={() => resetQuiz(riddleAge)} class="w-full bg-slate-900 border border-slate-800 text-slate-300 py-3 rounded-xl font-semibold transition">Hrát znovu 🔄</button>
               </div>
-            )}
+            )) : <div class="text-center text-slate-500">Zatím tu žádné hádanky pro tento věk nejsou.</div>}
           </div>
         )}
 
