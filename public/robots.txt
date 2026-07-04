@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Výslovné povolení pro AI indexační roboty
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+Sitemap: https://nocni-knihovna.vercel.app/sitemap.xml
