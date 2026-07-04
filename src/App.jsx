@@ -196,12 +196,19 @@ export default function App() {
                 </div>
               )}
 
-              {/* Spotify Audio */}
-              {selectedItem.spotifyId && (
-                <div class="mb-10">
-                  <iframe src={`https://open.spotify.com/embed/${selectedItem.spotifyId}?utm_source=generator&theme=0`} width="100%" height="152" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" class="rounded-xl border border-slate-800"></iframe>
-                </div>
-              )}
+            {/* Média – Spotify Audio */}
+{selectedItem.spotifyId && (
+  <div class="mb-10">
+    <iframe 
+      src={`https://open.spotify.com/embed/${selectedItem.spotifyId}?utm_source=generator&theme=0`} 
+      width="100%" 
+      height="152" 
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+      loading="lazy"
+      class="rounded-xl border border-slate-800"
+    ></iframe>
+  </div>
+)}
 
               {/* Text přímo z těla stránky v Notion */}
               <div class="prose prose-invert max-w-none bg-slate-900/40 p-8 rounded-2xl border border-slate-800/60 shadow-xl" dangerouslySetInnerHTML={{ __html: selectedItem.content }} />
