@@ -71,7 +71,7 @@ export default function Hadanky() {
       {/* Přepínání kategorií */}
       <div class="flex justify-center flex-wrap gap-2 mb-8">
         {[
-          { id: '3-5', label: 'Mňauíci (3–5 let)' },
+          { id: '3-5', label: 'Prckové (3–5 let)' },
           { id: '6-9', label: 'Zkoumalové (6–9 let)' },
           { id: '10+', label: 'Chytrolíni (10+ let)' }
         ].map(cat => (
