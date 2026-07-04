@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { AlertTriangle, Info } from 'lucide-react';
 
 const TAB_LABELS = {
   'vse': 'Vše z knihovny',
@@ -13,19 +14,27 @@ export default function Knihovna() {
   const [filteredItems, setFilteredItems] = useState([]);
   const [activeTab, setActiveTab] = useState('vse');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetch('/api/get-library')
-      .then(res => res.json())
+      .then(async res => {
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `Chyba serveru (${res.status})`);
+        }
+        return res.json();
+      })
       .then(data => {
         if (Array.isArray(data)) {
           setItems(data);
           setFilteredItems(data);
         }
-        setLoading(false); // Opraveno: Načítání se teď korektně ukončí!
+        setLoading(false);
       })
       .catch(err => {
-        console.error("Chyba při načítání dat z Notion:", err);
+        console.error(err);
+        setError(err.message);
         setLoading(false);
       });
   }, []);
@@ -62,14 +71,47 @@ export default function Knihovna() {
         ))}
       </div>
 
-      {/* Načítání / Mřížka karet */}
-      {loading ? (
+      {/* 1. STAV: NAČÍTÁNÍ */}
+      {loading && (
         <div class="text-center py-20 text-slate-400 flex flex-col items-center justify-center space-y-4">
           <div class="animate-spin inline-block w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full"></div>
           <p class="text-sm font-medium tracking-wide">Otevírám velkou pohádkovou knihu...</p>
         </div>
-      ) : (
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      )}
+
+      {/* 2. STAV: CHYBA (Špatné tokeny, nefunkční proměnné) */}
+      {!loading && error && (
+        <div class="max-w-xl mx-auto bg-red-950/30 border border-red-500/30 p-6 rounded-2xl text-center space-y-3 my-6 animate-fade-in">
+          <div class="inline-flex text-red-400"><AlertTriangle size={32} /></div>
+          <h4 class="text-lg font-bold text-red-200">Propojení s Notion selhalo</h4>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Nahlášená chyba: <code class="bg-red-950 px-2 py-0.5 rounded text-red-300 text-xs font-mono">{error}</code>
+          </p>
+          <p class="text-xs text-slate-500 pt-2 text-left bg-slate-950/40 p-3 rounded-xl border border-slate-900">
+            💡 <strong>Jak to opravit?</strong><br />
+            1. Ověřte, zda jsou názvy proměnných na Vercelu přesně <code class="text-slate-300">NOTION_TOKEN</code> a <code class="text-slate-300">NOTION_DB_ID</code>.<br />
+            2. Otevřete tuto databázi v Notion, vpravo nahoře klikněte na tři tečky <strong>"..."</strong> → <strong>Add connections</strong> (Přidat připojení) a vyberte vaši integraci. Bez toho Notion webu data nepovolí.
+          </p>
+        </div>
+      )}
+
+      {/* 3. STAV: SPOJENÍ OK, ALE DATABÁZE NIC NEVRÁTILA */}
+      {!loading && !error && filteredItems.length === 0 && (
+        <div class="max-w-xl mx-auto bg-slate-900/60 border border-slate-800 p-6 rounded-2xl text-center space-y-3 my-6 animate-fade-in">
+          <div class="inline-flex text-amber-400"><Info size={28} /></div>
+          <h4 class="text-base font-bold text-slate-200">Spojení úspěšné, ale knihovna je prázdná</h4>
+          <p class="text-sm text-slate-400">
+            Kód se do Notion úspěšně podíval, ale nenašel žádné řádky, které mají ve sloupci <strong>Status</strong> přesně napsáno <strong class="text-amber-400">"Publikováno"</strong> nebo <strong class="text-amber-400">"Publikováno (HH)"</strong>.
+          </p>
+          <p class="text-xs text-slate-500">
+            Zkontrolujte, zda máte u pohádek (např. Hrnečku vař) tento status aktivní.
+          </p>
+        </div>
+      )}
+
+      {/* 4. STAV: ÚSPĚCH - ZOBRAZENÍ KARET */}
+      {!loading && !error && filteredItems.length > 0 && (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
           {filteredItems.map(item => (
             <Link 
               key={item.id} 
