@@ -1,7 +1,5 @@
 import { Client } from '@notionhq/client';
 
-const notion = new Client({ auth: process.env.NOTION_TOKEN });
-
 function extractYouTubeId(url) {
   if (!url) return '';
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -11,7 +9,6 @@ function extractYouTubeId(url) {
 
 function extractSpotifyId(url) {
   if (!url) return '';
-  // Dokáže zpracovat plné i sdílené Spotify linky
   const match = url.match(/spotify\.com\/(track|episode|show|playlist)\/([a-zA-Z0-9]+)/);
   return match ? `${match[1]}/${match[2]}` : '';
 }
@@ -30,11 +27,11 @@ function renderRichText(richTextArray) {
   }).join('');
 }
 
-async function getPageContent(blockId) {
+async function getPageContent(notionClient, blockId) {
   const blocks = [];
   let cursor;
   while (true) {
-    const response = await notion.blocks.children.list({
+    const response = await notionClient.blocks.children.list({
       block_id: blockId,
       start_cursor: cursor,
     });
@@ -62,15 +59,27 @@ async function getPageContent(blockId) {
 
 export default async function handler(req, res) {
   const { slug } = req.query;
+  const token = process.env.NOTION_TOKEN;
+  const databaseId = process.env.NOTION_DB_ID;
+
+  // Kontrola, zda proměnné na Vercelu vůbec existují
+  if (!token || !databaseId) {
+    return res.status(500).json({ 
+      error: `Chybí konfigurace Environment Variables ve Vercelu. (Token: ${token ? 'OK' : 'CHYBÍ'}, DB_ID: ${databaseId ? 'OK' : 'CHYBÍ'})` 
+    });
+  }
+
+  const notion = new Client({ auth: token });
 
   try {
     const response = await notion.databases.query({
-      database_id: process.env.NOTION_DB_ID,
+      database_id: databaseId,
     });
 
+    // Pojištění filtru: bereme jak čisté "Publikováno", tak variantu s (HH)
     const publishedPages = response.results.filter(page => {
       const statusValue = page.properties.Status?.select?.name || page.properties.Status?.status?.name;
-      return statusValue === 'Publikováno (HH)';
+      return statusValue === 'Publikováno (HH)' || statusValue === 'Publikováno';
     });
 
     const items = publishedPages.map(page => {
@@ -102,14 +111,14 @@ export default async function handler(req, res) {
 
     if (slug) {
       const item = items.find(i => i.slug === slug);
-      if (!item) return res.status(404).json({ error: 'Obsah nenalezen' });
+      if (!item) return res.status(404).json({ error: `Pohádka se slugem "${slug}" nebyla v publikovaných nalezena.` });
 
-      const content = await getPageContent(item.id);
+      const content = await getPageContent(notion, item.id);
       return res.status(200).json({ ...item, content });
     }
 
     return res.status(200).json(items);
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: `Notion API zamítlo přístup: ${error.message}` });
   }
 }
