@@ -2,6 +2,21 @@ import { Client } from '@notionhq/client';
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
+// Pomocná funkce pro extrakci ID z jakéhokoliv YouTube odkazu (včetně youtu.be)
+function extractYouTubeId(url) {
+  if (!url) return '';
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : '';
+}
+
+// Pomocná funkce pro extrakci Spotify ID pro Embed přehrávač
+function extractSpotifyId(url) {
+  if (!url) return '';
+  const match = url.match(/spotify\.com\/(track|episode|show|playlist)\/([a-zA-Z0-9]+)/);
+  return match ? `${match[1]}/${match[2]}` : '';
+}
+
 function renderRichText(richTextArray) {
   if (!richTextArray || richTextArray.length === 0) return '';
   return richTextArray.map(t => {
@@ -39,9 +54,6 @@ async function getPageContent(blockId) {
     if (block.type === 'heading_2') {
       return `<h2 class="text-2xl font-semibold mt-6 mb-3 text-amber-300">${renderRichText(block.heading_2.rich_text)}</h2>`;
     }
-    if (block.type === 'heading_3') {
-      return `<h3 class="text-xl font-medium mt-4 mb-2 text-amber-200">${renderRichText(block.heading_3.rich_text)}</h3>`;
-    }
     return '';
   }).join('');
 }
@@ -54,9 +66,10 @@ export default async function handler(req, res) {
       database_id: process.env.NOTION_DB_ID,
     });
 
+    // Filtrujeme podle vašeho přesného statusu "Publikováno (HH)"
     const publishedPages = response.results.filter(page => {
       const statusValue = page.properties.Status?.select?.name || page.properties.Status?.status?.name;
-      return statusValue === 'Publikováno';
+      return statusValue === 'Publikováno (HH)';
     });
 
     const items = publishedPages.map(page => {
@@ -64,16 +77,24 @@ export default async function handler(req, res) {
       const itemSlug = props.Slug?.rich_text?.[0]?.plain_text || '';
       const type = props.Typ?.select?.name || 'Pohádka';
       const title = props.Název?.title?.[0]?.plain_text || 'Bez názvu';
-      const youtubeId = props.YouTube_ID?.rich_text?.[0]?.plain_text || '';
-      const spotifyId = props.Spotify_ID?.rich_text?.[0]?.plain_text || '';
+      const autor = props.Autor?.select?.name || props.Autor?.rich_text?.[0]?.plain_text || '';
+      const heroHeroLink = props['HeroHero Link']?.url || '';
+      
+      const youtubeUrl = props['YouTube Link']?.url || '';
+      const youtubeId = extractYouTubeId(youtubeUrl);
+      
+      const spotifyUrl = props['Spotify Link']?.url || '';
+      const spotifyId = extractSpotifyId(spotifyUrl);
 
       return {
         id: page.id,
         title,
+        autor,
         slug: itemSlug,
         type,
         youtubeId,
         spotifyId,
+        heroHeroLink,
         thumbnail: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : 'https://images.unsplash.com/photo-1518373714866-3f1478910cc0?w=600&auto=format&fit=crop&q=60'
       };
     });
