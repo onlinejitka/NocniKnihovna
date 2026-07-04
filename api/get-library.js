@@ -2,7 +2,6 @@ import { Client } from '@notionhq/client';
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
-// Pomocná funkce pro extrakci ID z jakéhokoliv YouTube odkazu (včetně youtu.be)
 function extractYouTubeId(url) {
   if (!url) return '';
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -10,9 +9,9 @@ function extractYouTubeId(url) {
   return (match && match[2].length === 11) ? match[2] : '';
 }
 
-// Pomocná funkce pro extrakci Spotify ID pro Embed přehrávač
 function extractSpotifyId(url) {
   if (!url) return '';
+  // Dokáže zpracovat plné i sdílené Spotify linky
   const match = url.match(/spotify\.com\/(track|episode|show|playlist)\/([a-zA-Z0-9]+)/);
   return match ? `${match[1]}/${match[2]}` : '';
 }
@@ -25,7 +24,7 @@ function renderRichText(richTextArray) {
     if (t.annotations.italic) text = `<em>${text}</em>`;
     if (t.annotations.code) text = `<code class="bg-slate-800 px-1 rounded text-amber-400 font-mono">${text}</code>`;
     if (t.href) {
-      text = `<a href="${t.href}" target="_blank" rel="noopener noreferrer" class="text-amber-400 hover:underline font-semibold">${text}</a>`;
+      text = `<a href="${t.href}" target="_blank" rel="noopener noreferrer" class="text-amber-400 hover:underline">${text}</a>`;
     }
     return text;
   }).join('');
@@ -46,13 +45,16 @@ async function getPageContent(blockId) {
 
   return blocks.map(block => {
     if (block.type === 'paragraph') {
-      return `<p class="mb-5 text-slate-300 leading-relaxed text-lg">${renderRichText(block.paragraph.rich_text)}</p>`;
+      return `<p class="mb-4 text-slate-300 text-[17px] leading-relaxed">${renderRichText(block.paragraph.rich_text)}</p>`;
     }
     if (block.type === 'heading_1') {
       return `<h1 class="text-3xl font-bold mt-8 mb-4 text-amber-400">${renderRichText(block.heading_1.rich_text)}</h1>`;
     }
     if (block.type === 'heading_2') {
       return `<h2 class="text-2xl font-semibold mt-6 mb-3 text-amber-300">${renderRichText(block.heading_2.rich_text)}</h2>`;
+    }
+    if (block.type === 'quote') {
+      return `<blockquote class="border-l-4 border-amber-400/60 pl-4 italic text-slate-400 my-4">${renderRichText(block.quote.rich_text)}</blockquote>`;
     }
     return '';
   }).join('');
@@ -66,7 +68,6 @@ export default async function handler(req, res) {
       database_id: process.env.NOTION_DB_ID,
     });
 
-    // Filtrujeme podle vašeho přesného statusu "Publikováno (HH)"
     const publishedPages = response.results.filter(page => {
       const statusValue = page.properties.Status?.select?.name || page.properties.Status?.status?.name;
       return statusValue === 'Publikováno (HH)';
