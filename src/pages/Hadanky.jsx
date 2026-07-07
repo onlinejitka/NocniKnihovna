@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle2, XCircle, Award, HelpCircle } from 'lucide-react';
+import { CheckCircle2, XCircle, Award } from 'lucide-react';
 
 export default function Hadanky() {
   const [allRiddles, setAllRiddles] = useState([]);
@@ -11,7 +11,7 @@ export default function Hadanky() {
   const [quizFinished, setQuizFinished] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Načtení hádanek z Notion přes naše nové API
+  // 1. Načtení všech hádanek z Notion přes API
   useEffect(() => {
     setLoading(true);
     fetch('/api/get-riddles')
@@ -28,10 +28,20 @@ export default function Hadanky() {
       });
   }, []);
 
-  // Kdykoliv se načtou hádanky nebo uživatel změní věk, vyfiltrujeme odpovídající hádanky
+  // 2. Filtrování a NÁHODNÉ PROMÍCHÁNÍ hádanek při změně věku nebo načtení dat
   useEffect(() => {
+    // Vyfiltrujeme hádanky pro danou věkovou skupinu
     const filtered = allRiddles.filter(r => r.age === riddleAge);
-    setCurrentRiddles(filtered);
+    
+    // Algoritmus pro dokonalé náhodné promíchání (Fisher-Yates Shuffle)
+    const shuffled = [...filtered];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    // Uložíme promíchané hádanky a restartujeme stav kvízu
+    setCurrentRiddles(shuffled);
     setCurrentRiddleIndex(0);
     setSelectedAnswer(null);
     setScore(0);
@@ -68,10 +78,10 @@ export default function Hadanky() {
         <p class="text-slate-400 text-sm mt-1">Procvičte hlavičky před spaním</p>
       </div>
 
-      {/* Přepínání kategorií */}
+      {/* Přepínání věkových kategorií */}
       <div class="flex justify-center flex-wrap gap-2 mb-8">
         {[
-          { id: '3-5', label: 'Prckové (3–5 let)' },
+          { id: '3-5', label: 'Mňauíci (3–5 let)' },
           { id: '6-9', label: 'Zkoumalové (6–9 let)' },
           { id: '10+', label: 'Chytrolíni (10+ let)' }
         ].map(cat => (
@@ -85,15 +95,15 @@ export default function Hadanky() {
         ))}
       </div>
 
-      {/* Stav: Načítání z Notion */}
+      {/* Stav: Načítání */}
       {loading && (
         <div class="text-center py-12 text-slate-400 flex flex-col items-center justify-center space-y-3">
           <div class="animate-spin inline-block w-6 h-6 border-2 border-amber-400 border-t-transparent rounded-full"></div>
-          <p class="text-xs">Vytahuji hádanky z kouzelného pytle...</p>
+          <p class="text-xs">Míchám hádanky v kouzelném klobouku...</p>
         </div>
       )}
 
-      {/* Kvízová hra */}
+      {/* Kvízová hra s náhodným pořadím */}
       {!loading && currentRiddle && (!quizFinished ? (
         <div class="space-y-6">
           <div class="flex justify-between items-center text-xs text-slate-500">
@@ -143,7 +153,7 @@ export default function Hadanky() {
             <h3 class="text-2xl font-bold text-amber-300">Skvělá práce!</h3>
             <p class="text-2xl font-black text-white mt-4 bg-slate-950/50 inline-block px-6 py-2 rounded-full border border-slate-800">{score} / {currentRiddles.length} správně</p>
           </div>
-          <button onClick={() => resetQuiz(riddleAge)} class="w-full bg-slate-900 border border-slate-800 text-slate-300 py-3 rounded-xl font-semibold transition">Hrát znovu 🔄</button>
+          <button onClick={() => resetQuiz(riddleAge)} class="w-full bg-slate-900 border border-slate-800 text-slate-300 py-3 rounded-xl font-semibold transition">Hrát znovu (promíchat) 🔄</button>
         </div>
       ))}
 
