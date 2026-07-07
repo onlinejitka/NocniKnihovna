@@ -64,7 +64,6 @@ export default function Knihovna() {
         </p>
       </div>
 
-      {/* Záložky filtrů */}
       <div class="flex justify-center flex-wrap gap-2 mb-10 border-b border-slate-900 pb-4">
         {['vse', 'Pohádka', 'Říkadlo', 'Písnička'].map(tab => (
           <button 
@@ -77,7 +76,6 @@ export default function Knihovna() {
         ))}
       </div>
 
-      {/* STAV: NAČÍTÁNÍ */}
       {loading && (
         <div class="text-center py-20 text-slate-400 flex flex-col items-center justify-center space-y-4">
           <div class="animate-spin inline-block w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full"></div>
@@ -85,18 +83,13 @@ export default function Knihovna() {
         </div>
       )}
 
-      {/* STAV: CHYBA */}
       {!loading && error && (
         <div class="max-w-xl mx-auto bg-red-950/30 border border-red-500/30 p-6 rounded-2xl text-center space-y-3 my-6">
           <div class="inline-flex text-red-400"><AlertTriangle size={32} /></div>
           <h4 class="text-lg font-bold text-red-200">Propojení s Notion selhalo</h4>
-          <p class="text-sm text-slate-400">
-            Chyba: <code class="bg-red-950 px-2 py-0.5 rounded text-red-300 text-xs font-mono">{error}</code>
-          </p>
         </div>
       )}
 
-      {/* STAV: PRÁZDNÁ DATABÁZE */}
       {!loading && !error && filteredItems.length === 0 && (
         <div class="max-w-xl mx-auto bg-slate-900/60 border border-slate-800 p-6 rounded-2xl text-center space-y-3 my-6">
           <div class="inline-flex text-amber-400"><Info size={28} /></div>
@@ -104,7 +97,6 @@ export default function Knihovna() {
         </div>
       )}
 
-      {/* STAV: ÚSPĚCH - ZOBRAZENÍ KARET */}
       {!loading && !error && filteredItems.length > 0 && (
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
           {filteredItems.map(item => (
@@ -113,10 +105,8 @@ export default function Knihovna() {
               to={`/${item.slug}`} 
               class="group bg-slate-900/40 border border-slate-800 rounded-2xl overflow-hidden cursor-pointer hover:border-amber-500/50 transition-all flex flex-col"
             >
-              {/* Dynamické náhledy podle typu položky */}
               <div class="aspect-video w-full overflow-hidden relative bg-slate-950">
                 {item.type === 'Říkadlo' ? (
-                  /* Elegantní temná obálka pro říkadla */
                   <div class="w-full h-full bg-black flex flex-col items-center justify-center p-6 text-center select-none border-b border-slate-900/50 group-hover:bg-slate-950 transition-colors duration-300">
                     <span class="text-[10px] tracking-widest uppercase text-amber-500/50 font-mono mb-2">říkadlo</span>
                     <h4 class="font-serif text-xl md:text-2xl text-amber-100/90 font-medium italic px-2 line-clamp-2 leading-snug">
@@ -124,9 +114,9 @@ export default function Knihovna() {
                     </h4>
                   </div>
                 ) : item.type === 'Písnička' ? (
-                  /* Novinka: Elegantní obálka s notičkou pro dětské písničky */
+                  /* OPRAVENO: Notička má nyní identickou barvu jako název písničky (text-amber-100/90) */
                   <div class="w-full h-full bg-black flex flex-col items-center justify-center p-6 text-center select-none border-b border-slate-900/50 group-hover:bg-slate-950 transition-colors duration-300">
-                    <div class="text-amber-500/40 mb-1.5 transform group-hover:scale-110 transition-transform duration-300">
+                    <div class="text-amber-100/90 mb-1.5 transform group-hover:scale-110 transition-transform duration-300">
                       <Music size={22} />
                     </div>
                     <span class="text-[10px] tracking-widest uppercase text-amber-500/50 font-mono mb-2">písnička</span>
@@ -135,21 +125,14 @@ export default function Knihovna() {
                     </h4>
                   </div>
                 ) : (
-                  /* Standardní YouTube náhled pro pohádky */
-                  <img 
-                    src={item.thumbnail} 
-                    alt={item.title} 
-                    class="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300" 
-                  />
+                  <img src={item.thumbnail} alt={item.title} class="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300" />
                 )}
                 
-                {/* Štítek s typem obsahu */}
                 <span class="absolute top-2 left-2 bg-slate-950/80 text-amber-400 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border border-slate-800">
                   {item.type}
                 </span>
               </div>
 
-              {/* Informace pod náhledem */}
               <div class="p-5 flex-1 flex flex-col justify-between">
                 <div>
                   <h3 class="text-lg font-bold text-slate-100 group-hover:text-amber-300 transition-colors">
