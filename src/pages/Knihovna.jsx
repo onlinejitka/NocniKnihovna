@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { AlertTriangle, Info } from 'lucide-react';
+import { AlertTriangle, Info, Music } from 'lucide-react';
 
 const TAB_LABELS = {
   'vse': 'Vše z knihovny',
@@ -9,7 +9,6 @@ const TAB_LABELS = {
   'Písnička': 'Písničky'
 };
 
-// Slovník pro dynamické texty tlačítek se správným skloňováním
 const BUTTON_LABELS = {
   'Pohádka': 'Přejít na pohádku →',
   'Říkadlo': 'Přejít na říkadlo →',
@@ -114,18 +113,29 @@ export default function Knihovna() {
               to={`/${item.slug}`} 
               class="group bg-slate-900/40 border border-slate-800 rounded-2xl overflow-hidden cursor-pointer hover:border-amber-500/50 transition-all flex flex-col"
             >
-              {/* Náhledový obrázek / Elegantní obálka pro říkadla */}
+              {/* Dynamické náhledy podle typu položky */}
               <div class="aspect-video w-full overflow-hidden relative bg-slate-950">
                 {item.type === 'Říkadlo' ? (
-                  /* Černé minimalistické pozadí s patkovým fontem pro říkadla */
+                  /* Elegantní temná obálka pro říkadla */
                   <div class="w-full h-full bg-black flex flex-col items-center justify-center p-6 text-center select-none border-b border-slate-900/50 group-hover:bg-slate-950 transition-colors duration-300">
                     <span class="text-[10px] tracking-widest uppercase text-amber-500/50 font-mono mb-2">říkadlo</span>
                     <h4 class="font-serif text-xl md:text-2xl text-amber-100/90 font-medium italic px-2 line-clamp-2 leading-snug">
                       „{item.title}“
                     </h4>
                   </div>
+                ) : item.type === 'Písnička' ? (
+                  /* Novinka: Elegantní obálka s notičkou pro dětské písničky */
+                  <div class="w-full h-full bg-black flex flex-col items-center justify-center p-6 text-center select-none border-b border-slate-900/50 group-hover:bg-slate-950 transition-colors duration-300">
+                    <div class="text-amber-500/40 mb-1.5 transform group-hover:scale-110 transition-transform duration-300">
+                      <Music size={22} />
+                    </div>
+                    <span class="text-[10px] tracking-widest uppercase text-amber-500/50 font-mono mb-2">písnička</span>
+                    <h4 class="font-serif text-xl md:text-2xl text-amber-100/90 font-medium italic px-2 line-clamp-2 leading-snug">
+                      „{item.title}“
+                    </h4>
+                  </div>
                 ) : (
-                  /* Standardní YouTube náhled pro pohádky a písničky */
+                  /* Standardní YouTube náhled pro pohádky */
                   <img 
                     src={item.thumbnail} 
                     alt={item.title} 
@@ -148,7 +158,6 @@ export default function Knihovna() {
                   {item.autor && <p class="text-xs text-slate-400 mt-1">{item.autor}</p>}
                 </div>
                 
-                {/* Dynamické tlačítko se správným českým skloňováním */}
                 <div class="text-xs text-amber-400/80 font-medium mt-4 group-hover:text-amber-400 transition-colors">
                   {BUTTON_LABELS[item.type] || 'Otevřít obsah →'}
                 </div>
