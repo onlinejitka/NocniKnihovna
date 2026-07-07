@@ -1,5 +1,7 @@
 import { Client } from '@notionhq/client';
 
+const notion = new Client({ auth: process.env.NOTION_TOKEN });
+
 function extractYouTubeId(url) {
   if (!url) return '';
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -16,7 +18,9 @@ function extractSpotifyId(url) {
 function renderRichText(richTextArray) {
   if (!richTextArray || richTextArray.length === 0) return '';
   return richTextArray.map(t => {
-    let text = t.plain_text;
+    // KLÍČOVÁ OPRAVA: Převedeme Shift+Enter (\n) z Notion na HTML zalamovací značky <br />
+    let text = t.plain_text.replace(/\n/g, '<br />');
+    
     if (t.annotations.bold) text = `<strong>${text}</strong>`;
     if (t.annotations.italic) text = `<em>${text}</em>`;
     if (t.annotations.code) text = `<code class="bg-slate-800 px-1 rounded text-amber-400 font-mono">${text}</code>`;
@@ -62,21 +66,15 @@ export default async function handler(req, res) {
   const token = process.env.NOTION_TOKEN;
   const databaseId = process.env.NOTION_DB_ID;
 
-  // Kontrola, zda proměnné na Vercelu vůbec existují
   if (!token || !databaseId) {
-    return res.status(500).json({ 
-      error: `Chybí konfigurace Environment Variables ve Vercelu. (Token: ${token ? 'OK' : 'CHYBÍ'}, DB_ID: ${databaseId ? 'OK' : 'CHYBÍ'})` 
-    });
+    return res.status(500).json({ error: 'Chybí konfigurace proměnných na Vercelu.' });
   }
-
-  const notion = new Client({ auth: token });
 
   try {
     const response = await notion.databases.query({
       database_id: databaseId,
     });
 
-    // Pojištění filtru: bereme jak čisté "Publikováno", tak variantu s (HH)
     const publishedPages = response.results.filter(page => {
       const statusValue = page.properties.Status?.select?.name || page.properties.Status?.status?.name;
       return statusValue === 'Publikováno (HH)' || statusValue === 'Publikováno';
@@ -111,7 +109,7 @@ export default async function handler(req, res) {
 
     if (slug) {
       const item = items.find(i => i.slug === slug);
-      if (!item) return res.status(404).json({ error: `Pohádka se slugem "${slug}" nebyla v publikovaných nalezena.` });
+      if (!item) return res.status(404).json({ error: 'Nenalezeno' });
 
       const content = await getPageContent(notion, item.id);
       return res.status(200).json({ ...item, content });
@@ -119,6 +117,6 @@ export default async function handler(req, res) {
 
     return res.status(200).json(items);
   } catch (error) {
-    return res.status(500).json({ error: `Notion API zamítlo přístup: ${error.message}` });
+    return res.status(500).json({ error: error.message });
   }
 }
