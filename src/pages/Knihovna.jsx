@@ -9,6 +9,13 @@ const TAB_LABELS = {
   'Písnička': 'Písničky'
 };
 
+// Slovník pro dynamické texty tlačítek se správným skloňováním
+const BUTTON_LABELS = {
+  'Pohádka': 'Přejít na pohádku →',
+  'Říkadlo': 'Přejít na říkadlo →',
+  'Písnička': 'Přejít na písničku →'
+};
+
 export default function Knihovna() {
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
@@ -71,7 +78,7 @@ export default function Knihovna() {
         ))}
       </div>
 
-      {/* 1. STAV: NAČÍTÁNÍ */}
+      {/* STAV: NAČÍTÁNÍ */}
       {loading && (
         <div class="text-center py-20 text-slate-400 flex flex-col items-center justify-center space-y-4">
           <div class="animate-spin inline-block w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full"></div>
@@ -79,37 +86,26 @@ export default function Knihovna() {
         </div>
       )}
 
-      {/* 2. STAV: CHYBA (Špatné tokeny, nefunkční proměnné) */}
+      {/* STAV: CHYBA */}
       {!loading && error && (
-        <div class="max-w-xl mx-auto bg-red-950/30 border border-red-500/30 p-6 rounded-2xl text-center space-y-3 my-6 animate-fade-in">
+        <div class="max-w-xl mx-auto bg-red-950/30 border border-red-500/30 p-6 rounded-2xl text-center space-y-3 my-6">
           <div class="inline-flex text-red-400"><AlertTriangle size={32} /></div>
           <h4 class="text-lg font-bold text-red-200">Propojení s Notion selhalo</h4>
-          <p class="text-sm text-slate-400 leading-relaxed">
-            Nahlášená chyba: <code class="bg-red-950 px-2 py-0.5 rounded text-red-300 text-xs font-mono">{error}</code>
-          </p>
-          <p class="text-xs text-slate-500 pt-2 text-left bg-slate-950/40 p-3 rounded-xl border border-slate-900">
-            💡 <strong>Jak to opravit?</strong><br />
-            1. Ověřte, zda jsou názvy proměnných na Vercelu přesně <code class="text-slate-300">NOTION_TOKEN</code> a <code class="text-slate-300">NOTION_DB_ID</code>.<br />
-            2. Otevřete tuto databázi v Notion, vpravo nahoře klikněte na tři tečky <strong>"..."</strong> → <strong>Add connections</strong> (Přidat připojení) a vyberte vaši integraci. Bez toho Notion webu data nepovolí.
-          </p>
-        </div>
-      )}
-
-      {/* 3. STAV: SPOJENÍ OK, ALE DATABÁZE NIC NEVRÁTILA */}
-      {!loading && !error && filteredItems.length === 0 && (
-        <div class="max-w-xl mx-auto bg-slate-900/60 border border-slate-800 p-6 rounded-2xl text-center space-y-3 my-6 animate-fade-in">
-          <div class="inline-flex text-amber-400"><Info size={28} /></div>
-          <h4 class="text-base font-bold text-slate-200">Spojení úspěšné, ale knihovna je prázdná</h4>
           <p class="text-sm text-slate-400">
-            Kód se do Notion úspěšně podíval, ale nenašel žádné řádky, které mají ve sloupci <strong>Status</strong> přesně napsáno <strong class="text-amber-400">"Publikováno"</strong> nebo <strong class="text-amber-400">"Publikováno (HH)"</strong>.
-          </p>
-          <p class="text-xs text-slate-500">
-            Zkontrolujte, zda máte u pohádek (např. Hrnečku vař) tento status aktivní.
+            Chyba: <code class="bg-red-950 px-2 py-0.5 rounded text-red-300 text-xs font-mono">{error}</code>
           </p>
         </div>
       )}
 
-      {/* 4. STAV: ÚSPĚCH - ZOBRAZENÍ KARET */}
+      {/* STAV: PRÁZDNÁ DATABÁZE */}
+      {!loading && !error && filteredItems.length === 0 && (
+        <div class="max-w-xl mx-auto bg-slate-900/60 border border-slate-800 p-6 rounded-2xl text-center space-y-3 my-6">
+          <div class="inline-flex text-amber-400"><Info size={28} /></div>
+          <h4 class="text-base font-bold text-slate-200">Knihovna je momentálně prázdná</h4>
+        </div>
+      )}
+
+      {/* STAV: ÚSPĚCH - ZOBRAZENÍ KARET */}
       {!loading && !error && filteredItems.length > 0 && (
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
           {filteredItems.map(item => (
@@ -118,16 +114,44 @@ export default function Knihovna() {
               to={`/${item.slug}`} 
               class="group bg-slate-900/40 border border-slate-800 rounded-2xl overflow-hidden cursor-pointer hover:border-amber-500/50 transition-all flex flex-col"
             >
+              {/* Náhledový obrázek / Elegantní obálka pro říkadla */}
               <div class="aspect-video w-full overflow-hidden relative bg-slate-950">
-                <img src={item.thumbnail} alt={item.title} class="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300" />
-                <span class="absolute top-2 left-2 bg-slate-950/80 text-amber-400 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border border-slate-800">{item.type}</span>
+                {item.type === 'Říkadlo' ? (
+                  /* Černé minimalistické pozadí s patkovým fontem pro říkadla */
+                  <div class="w-full h-full bg-black flex flex-col items-center justify-center p-6 text-center select-none border-b border-slate-900/50 group-hover:bg-slate-950 transition-colors duration-300">
+                    <span class="text-[10px] tracking-widest uppercase text-amber-500/50 font-mono mb-2">říkadlo</span>
+                    <h4 class="font-serif text-xl md:text-2xl text-amber-100/90 font-medium italic px-2 line-clamp-2 leading-snug">
+                      „{item.title}“
+                    </h4>
+                  </div>
+                ) : (
+                  /* Standardní YouTube náhled pro pohádky a písničky */
+                  <img 
+                    src={item.thumbnail} 
+                    alt={item.title} 
+                    class="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300" 
+                  />
+                )}
+                
+                {/* Štítek s typem obsahu */}
+                <span class="absolute top-2 left-2 bg-slate-950/80 text-amber-400 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border border-slate-800">
+                  {item.type}
+                </span>
               </div>
+
+              {/* Informace pod náhledem */}
               <div class="p-5 flex-1 flex flex-col justify-between">
                 <div>
-                  <h3 class="text-lg font-bold text-slate-100 group-hover:text-amber-300 transition-colors">{item.title}</h3>
+                  <h3 class="text-lg font-bold text-slate-100 group-hover:text-amber-300 transition-colors">
+                    {item.title}
+                  </h3>
                   {item.autor && <p class="text-xs text-slate-400 mt-1">{item.autor}</p>}
                 </div>
-                <div class="text-xs text-amber-400/80 font-medium mt-4">Přejít na pohádku →</div>
+                
+                {/* Dynamické tlačítko se správným českým skloňováním */}
+                <div class="text-xs text-amber-400/80 font-medium mt-4 group-hover:text-amber-400 transition-colors">
+                  {BUTTON_LABELS[item.type] || 'Otevřít obsah →'}
+                </div>
               </div>
             </Link>
           ))}
