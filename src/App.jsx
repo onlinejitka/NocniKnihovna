@@ -3,27 +3,41 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import Knihovna from './pages/Knihovna';
 import PohadkaDetail from './pages/PohadkaDetail';
 import Hadanky from './pages/Hadanky';
-import { BookOpen, HelpCircle } from 'lucide-react';
+import { BookOpen, HelpCircle, Sparkles } from 'lucide-react';
 
-// Pomocná komponenta pro svítící tlačítka v menu podle toho, kde se zrovna nacházíte
+// Pomocná komponenta pro navigační menu v hlavičce
 function Navigation() {
   const location = useLocation();
   const isHadanky = location.pathname === '/hadanky';
   
   return (
-    <nav class="flex items-center space-x-2 bg-slate-900/60 p-1.5 rounded-full border border-slate-800">
+    <nav class="flex items-center space-x-1 md:space-x-2 bg-slate-900/60 p-1.5 rounded-full border border-slate-800">
+      {/* 1. Odkaz: Knihovna */}
       <Link 
         to="/"
-        class={`px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition flex items-center space-x-1.5 ${!isHadanky ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}
+        class={`px-3 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition flex items-center space-x-1.5 ${!isHadanky ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}
       >
         <BookOpen size={14} /> <span>Knihovna</span>
       </Link>
+      
+      {/* 2. Odkaz: Hádanky */}
       <Link 
         to="/hadanky"
-        class={`px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition flex items-center space-x-1.5 ${isHadanky ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}
+        class={`px-3 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition flex items-center space-x-1.5 ${isHadanky ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}
       >
         <HelpCircle size={14} /> <span>Hádanky</span>
       </Link>
+
+      {/* 3. NOVINKA: Externí odkaz na AI Generátor pohádek na vaší subdoméně */}
+      <a 
+        href="https://generator.nocniknihovna.cz"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="px-3 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition flex items-center space-x-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-900/40 group"
+      >
+        <Sparkles size={14} class="text-indigo-400 group-hover:animate-pulse" /> 
+        <span>Generátor <span class="hidden sm:inline">pohádek</span></span>
+      </a>
     </nav>
   );
 }
@@ -33,7 +47,7 @@ export default function App() {
     <Router>
       <div class="min-h-screen text-slate-200 selection:bg-amber-500/30 selection:text-amber-200">
         
-        {/* Společná hlavička */}
+        {/* Společná hlavička pro celý web */}
         <header class="border-b border-slate-800/60 bg-slate-950/40 backdrop-blur sticky top-0 z-50">
           <div class="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
             <Link to="/" class="flex items-center space-x-3 cursor-pointer">
@@ -59,8 +73,8 @@ export default function App() {
 
         {/* Společná patička */}
         <footer class="border-t border-slate-900 mt-20 bg-slate-950/60 text-slate-500 py-8 text-center text-xs">
-          <p>© {new Date().getFullYear()} Noční Knihovna. Všechna práva vyhrazena.</p>
-          <p class="mt-1 text-slate-600">Čtené s láskou, kreslené ručně.</p>
+          <p>© {new Date().getFullYear()} Noční Knihovna. Všechna práva variazená.</p>
+          <p class="mt-1 text-slate-600">Čtené s láskou, kreslené a vybarvené ručně.</p>
         </footer>
 
       </div>
