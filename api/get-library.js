@@ -108,12 +108,15 @@ export default async function handler(req, res) {
       const spotifyUrl = props['Spotify Link']?.url || '';
       const spotifyId = extractSpotifyId(spotifyUrl);
 
-      // Načtení nových sloupců přesně podle tvé upravené tabulky
+      // Přesné načtení vašich nových sloupců z Notion [source: 1]
       const urlAudio = props['URL audio']?.url || '';
       const urlOmalovankyHlavni = props['URL omalovánky hlavní']?.url || '';
       const urlOmalovanky01 = props['URL omalovánky 01']?.url || '';
       const urlOmalovanky02 = props['URL omalovánky 02']?.url || '';
       const urlOmalovanky03 = props['URL omalovánky 03']?.url || '';
+
+      // Vytvoříme pole všech dostupných prémiových obrázků pro galerii
+      const premiumImages = [urlOmalovanky01, urlOmalovanky02, urlOmalovanky03].filter(Boolean);
 
       return {
         id: page.id,
@@ -123,18 +126,15 @@ export default async function handler(req, res) {
         type,
         youtubeId,
         spotifyId,
-        // Veřejně přístupné bez placení
-        urlOmalovankyHlavni, 
-        // Reálný náhled pro uzamčenou obrazovku posíláme bezpečně jako teaser
-        previewImage: urlOmalovanky01, 
-        // Prémiový uzamčený obsah (přístupný pouze pokud isUserVip je true)
-        urlAudio: isUserVip ? urlAudio : '',
+        urlOmalovankyHlavni, // Veřejná omalovánka zdarma
+        urlAudio,            // Posíláme pro načtení stopáže, ale zamykáme na frontendu
+        premiumImages,       // Pole obrázků pro 4:3 mřížku
+        // Bezpečné stažení PDF souborů pouze pro VIP členy[cite: 1]
         urlOmalovanky01: isUserVip ? urlOmalovanky01 : '',
         urlOmalovanky02: isUserVip ? urlOmalovanky02 : '',
         urlOmalovanky03: isUserVip ? urlOmalovanky03 : '',
-        // Příznaky existence obsahu v Notion
         hasAudio: !!urlAudio,
-        hasPremiumOmalovanky: !!(urlOmalovanky01 || urlOmalovanky02 || urlOmalovanky03)
+        hasPremiumOmalovanky: premiumImages.length > 0
       };
     });
 
