@@ -10,9 +10,14 @@ const TYPE_LABELS = {
 
 export default function Omalovanky() {
   const [sheets, setSheets] = useState([]);
-  const [isUserVip, setIsUserVip] = useState(false); // Sledování, zda je návštěvník Premium člene[cite: 1]
+  const [isUserVip, setIsUserVip] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Stavy pro správu zadávání Premium kódu přímo v galerii
+  const [passcode, setPasscode] = useState(localStorage.getItem('sl_passcode') || '');
+  const [inputCode, setInputCode] = useState(passcode);
+  const [codeSaved, setCodeSaved] = useState(false);
 
   // Funkce pro otevření Stripe platby v centrovaném vnořeném okně
   const openStripePopup = (e) => {
@@ -30,18 +35,18 @@ export default function Omalovanky() {
     );
   };
 
+  // Načítání dat závislé na stavu "passcode" – při změně kódu se ihned přenačte celá galerie
   useEffect(() => {
-    const savedCode = localStorage.getItem('sl_passcode') || '';
     setLoading(true);
     
-    fetch(`/api/get-library?passcode=${savedCode}`)
+    fetch(`/api/get-library?passcode=${passcode}`)
       .then(async res => {
         if (!res.ok) throw new Error('Nepodařilo se načíst knihovnu pro omalovánky.');
         return res.json();
       })
       .then(data => {
         if (data) {
-          setIsUserVip(data.isUserVip); // Uložíme informaci o stavu členství[cite: 1]
+          setIsUserVip(data.isUserVip);
           
           if (Array.isArray(data.items)) {
             const allSheets = [];
@@ -60,10 +65,9 @@ export default function Omalovanky() {
                 });
               }
 
-              // 2. Prémiové omalovánky (Přístupné ke stažení pouze pro Premium členy)[cite: 1]
+              // 2. Premium omalovánky (Skutečné PDF odkazy se odemknou pouze pokud isUserVip je true)
               if (item.premiumImages && item.premiumImages.length > 0) {
                 item.premiumImages.forEach((imgUrl, index) => {
-                  // Určíme správný chráněný odkaz na stažení na základě indexu
                   let secureDownloadUrl = '';
                   if (data.isUserVip) {
                     if (index === 0) secureDownloadUrl = item.urlOmalovanky01;
@@ -76,8 +80,8 @@ export default function Omalovanky() {
                     title: item.title,
                     slug: item.slug,
                     type: item.type,
-                    imageUrl: imgUrl,             // Veřejný náhled obrázku
-                    downloadUrl: secureDownloadUrl, // Odkaz ke stažení (plný nebo prázdný podle ověření)[cite: 1]
+                    imageUrl: imgUrl,
+                    downloadUrl: secureDownloadUrl,
                     isPremium: true,
                     label: `Prémiový list 0${index + 1}`
                   });
@@ -95,21 +99,27 @@ export default function Omalovanky() {
         setError(err.message);
         setLoading(false);
       });
-  }, []);
+  }, [passcode]); // Sleduje změnu klíče a okamžitě odemyká obsah
 
-  // Obsluha kliknutí na tlačítko stažení
+  // Uložení zadaného kódu do paměti prohlížeče
+  const handleSaveCode = (e) => {
+    e.preventDefault();
+    localStorage.setItem('sl_passcode', inputCode.trim());
+    setPasscode(inputCode.trim());
+    setCodeSaved(true);
+    setTimeout(() => setCodeSaved(false), 3000);
+  };
+
   const handleDownloadClick = (e, sheet) => {
-    // Pokud je obsah prémiový a uživatel nemá přístup (downloadUrl je prázdná), vyvoláme platbu[cite: 1]
     if (sheet.isPremium && !sheet.downloadUrl) {
       e.preventDefault();
       openStripePopup();
     }
-    // V opačném případě se provede standardní otevření odkazu (stažení souboru)
   };
 
   return (
     <div className="space-y-10">
-      {/* Hlavička stránky s vykáním */}
+      {/* Hlavička stránky */}
       <div className="text-center max-w-3xl mx-auto space-y-3">
         <h2 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-400">
           Velká galerie omalovánek
@@ -119,18 +129,18 @@ export default function Omalovanky() {
         </p>
       </div>
 
-      {/* DYNAMICKÝ PREMIUM BANNER PRO NÁKUP ČLENSTVÍ POD ÚVODNÍM TEXTEM */}
-      <div className="max-w-4xl mx-auto">
+      {/* BLOK PRO PREMIUM ČLENSTVÍ */}
+      <div className="max-w-4xl mx-auto space-y-4">
         {isUserVip ? (
-          /* Stav: Uživatel již má aktivované členství */
+          /* STAV A: Uživatel již má aktivované členství */
           <div className="bg-emerald-950/20 border border-emerald-500/20 p-5 rounded-2xl flex items-center justify-center space-x-3 shadow-md">
             <CheckCircle className="text-emerald-400 shrink-0" size={20} />
             <span className="text-sm font-semibold text-slate-200">
-              Vaše Premium členství je aktivní. Všechny omalovánky i audio nahrávky máte plně odemčené. Děkujeme Vám za podporu! ✨
+              Vaše Premium členství je aktivní. Všechny omalovánky i nahrávky máte plně odemčené. Děkujeme Vám za podporu! ✨
             </span>
           </div>
         ) : (
-          /* Stav: Uživatel nemá aktivované členství – Zobrazení prodejní nabídky */
+          /* STAV B: Uživatel nemá aktivované členství */
           <div className="bg-gradient-to-r from-amber-500/10 to-transparent p-5 md:p-6 rounded-2xl border border-amber-500/20 flex flex-col md:flex-row md:items-center md:justify-between gap-5 shadow-xl">
             <div className="space-y-1">
               <h4 className="text-base font-bold text-amber-300 flex items-center space-x-2">
@@ -151,6 +161,35 @@ export default function Omalovanky() {
             </div>
           </div>
         )}
+
+        {/* NOVINKA: Formulář pro zadání kódu umístěný přímo pod bannerem */}
+        <div className="max-w-md mx-auto pt-2">
+          <form onSubmit={handleSaveCode} className="bg-slate-900/20 border border-slate-800/60 p-4 rounded-xl space-y-3">
+            <label className="block text-[11px] font-bold uppercase tracking-widest text-slate-400">
+              🔑 Již máte svůj Premium přístupový kód z e-mailu?
+            </label>
+            <div className="flex space-x-2">
+              <input 
+                type="text" 
+                value={inputCode} 
+                onChange={(e) => setInputCode(e.target.value)} 
+                placeholder="Vložte Váš kód (např. sl-jiri-8x3a)..." 
+                className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+              />
+              <button 
+                type="submit" 
+                className="bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold px-4 py-1.5 rounded-lg transition shrink-0 cursor-pointer"
+              >
+                Uložit kód
+              </button>
+            </div>
+            {codeSaved && (
+              <p className="text-emerald-400 text-[11px] flex items-center space-x-1 animate-pulse">
+                <CheckCircle size={12} /> <span>Kód byl úspěšně uložen! Aktualizuji galerii...</span>
+              </p>
+            )}
+          </form>
+        </div>
       </div>
 
       {/* STAV: NAČÍTÁNÍ */}
@@ -185,7 +224,6 @@ export default function Omalovanky() {
               key={sheet.id}
               className="group bg-slate-900/30 border border-slate-800/80 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-slate-700 transition"
             >
-              {/* Náhledový obrázek v poměru 4:3 */}
               <div className="relative aspect-[4/3] w-full bg-slate-950 overflow-hidden border-b border-slate-900 select-none">
                 <img 
                   src={sheet.imageUrl} 
@@ -204,15 +242,12 @@ export default function Omalovanky() {
                 <span className={`absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${
                   sheet.isPremium && !sheet.downloadUrl
                     ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' 
-                    : sheet.isPremium && sheet.downloadUrl
-                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                     : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                 }`}>
                   {sheet.isPremium ? 'Premium' : 'Zdarma'}
                 </span>
               </div>
 
-              {/* Spodní textový obsah karty */}
               <div className="p-4 flex-1 flex flex-col justify-between space-y-4">
                 <div className="space-y-1">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
@@ -227,7 +262,6 @@ export default function Omalovanky() {
                   </Link>
                 </div>
 
-                {/* AKČNÍ TLAČÍTKO: Stažení souboru nebo vyvolání platby[cite: 1] */}
                 <div className="pt-2 border-t border-slate-900">
                   <a 
                     href={sheet.downloadUrl || '#'} 
