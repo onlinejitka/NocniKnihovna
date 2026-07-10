@@ -29,6 +29,7 @@ function renderRichText(richTextArray) {
   }).join('');
 }
 
+// OPRAVENO: Načítáme kompletně všechny typy bloků, aby se text neztrácel[cite: 1]
 async function getPageContent(blockId) {
   const blocks = [];
   let cursor;
@@ -46,8 +47,20 @@ async function getPageContent(blockId) {
     if (block.type === 'paragraph') {
       return `<p class="mb-4 text-slate-300 text-[17px] leading-relaxed">${renderRichText(block.paragraph.rich_text)}</p>`;
     }
+    if (block.type === 'heading_1') {
+      return `<h1 class="text-3xl font-bold mt-8 mb-4 text-amber-400">${renderRichText(block.heading_1.rich_text)}</h1>`;
+    }
     if (block.type === 'heading_2') {
       return `<h2 class="text-2xl font-semibold mt-6 mb-3 text-amber-300">${renderRichText(block.heading_2.rich_text)}</h2>`;
+    }
+    if (block.type === 'heading_3') {
+      return `<h3 class="text-xl font-semibold mt-4 mb-2 text-amber-200">${renderRichText(block.heading_3.rich_text)}</h3>`;
+    }
+    if (block.type === 'bulleted_list_item') {
+      return `<li class="list-disc ml-6 mb-2 text-slate-300 text-[17px]">${renderRichText(block.bulleted_list_item.rich_text)}</li>`;
+    }
+    if (block.type === 'numbered_list_item') {
+      return `<li class="list-decimal ml-6 mb-2 text-slate-300 text-[17px]">${renderRichText(block.numbered_list_item.rich_text)}</li>`;
     }
     if (block.type === 'quote') {
       return `<blockquote class="border-l-4 border-amber-400/60 pl-4 italic text-slate-400 my-4">${renderRichText(block.quote.rich_text)}</blockquote>`;
@@ -59,27 +72,24 @@ async function getPageContent(blockId) {
 export default async function handler(req, res) {
   const { slug, passcode } = req.query;
   const contentDbId = process.env.NOTION_DB_ID;
-  const membersDbId = process.env.NOTION_MEMBERS_DATABASE_ID; // Nová proměnná pro VIP členy
+  const membersDbId = process.env.NOTION_MEMBERS_DATABASE_ID;
 
   try {
-    // 1. KROK: Ověření VIP statusu uživatele podle kódu
     let isUserVip = false;
     if (passcode && membersDbId) {
       const memberCheck = await notion.databases.query({
         database_id: membersDbId,
         filter: {
-          property: "Unikátní kód", // Musí přesně odpovídat sloupci v Notion
+          property: "Unikátní kód",
           rich_text: { equals: passcode.trim() }
         }
       });
-
       if (memberCheck.results.length > 0) {
-        const isActive = memberCheck.results[0].properties.Aktivní?.checkbox; // Kontrola checkboxu
+        const isActive = memberCheck.results[0].properties.Aktivní?.checkbox;
         if (isActive) isUserVip = true;
       }
     }
 
-    // 2. KROK: Načtení obsahu z hlavní databáze
     const response = await notion.databases.query({ database_id: contentDbId });
     const publishedPages = response.results.filter(page => {
       const statusValue = page.properties.Status?.select?.name || page.properties.Status?.status?.name;
@@ -99,8 +109,10 @@ export default async function handler(req, res) {
       const spotifyUrl = props['Spotify Link']?.url || '';
       const spotifyId = extractSpotifyId(spotifyUrl);
 
-      // Načtení odkazu na soubor (reaguje na váš nový sloupec "URL file" z obrázku 37a703.png) [source: 1]
       const rawUrlFile = props['URL file']?.url || props['URL file']?.rich_text?.[0]?.plain_text || '';
+      
+      // NOVINKA: Načítáme volitelnou vlastnost "Omalovánka Náhled" (Typ: URL) z Notion databáze[cite: 1]
+      const omalovankaPreview = props['Omalovánka Náhled']?.url || '';
 
       return {
         id: page.id,
@@ -110,9 +122,9 @@ export default async function handler(req, res) {
         type,
         youtubeId,
         spotifyId,
-        // BEZPEČNOSTNÍ POJISTKA: Odkaz pošleme na frontend pouze pokud je uživatel VIP
+        omalovankaPreview, // Obrázek náhledu posíláme veřejně jako teaser[cite: 1]
         urlFile: isUserVip ? rawUrlFile : '',
-        isPremium: !!rawUrlFile // Říká frontendu, zda položka vyžaduje VIP klíč
+        isPremium: !!rawUrlFile
       };
     });
 
@@ -124,7 +136,6 @@ export default async function handler(req, res) {
       return res.status(200).json({ ...item, content, isUserVip });
     }
 
-    // Pro seznam karet vrátíme informaci o VIP stavu
     return res.status(200).json({ items, isUserVip });
   } catch (error) {
     return res.status(500).json({ error: error.message });
