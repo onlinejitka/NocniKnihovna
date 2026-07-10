@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { AlertTriangle, Info, Music } from 'lucide-react';
 
 const TAB_LABELS = {
@@ -15,11 +15,14 @@ const BUTTON_LABELS = {
   'Písnička': 'Přejít na písničku →'
 };
 
-// HLAVNÍ OPRAVA: Výslovný export default, který Vercel vyžaduje
 export default function Knihovna() {
+  const location = useLocation();
   const [items, setItems] = useState([]);
+  
+  // OPRAVENO: Pokud se uživatel vrací z detailu, načteme rovnou jeho specifickou kategorii
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'vse');
+  
   const [filteredItems, setFilteredItems] = useState([]);
-  const [activeTab, setActiveTab] = useState('vse');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -37,7 +40,12 @@ export default function Knihovna() {
       .then(data => {
         if (data && Array.isArray(data.items)) {
           setItems(data.items);
-          setFilteredItems(data.items);
+          // Pokud máme přednavolenou záložku z navigace, rovnou vyfiltrujeme správný obsah
+          if (location.state?.activeTab && location.state.activeTab !== 'vse') {
+            setFilteredItems(data.items.filter(item => item.type === location.state.activeTab));
+          } else {
+            setFilteredItems(data.items);
+          }
         }
         setLoading(false);
       })
@@ -46,7 +54,7 @@ export default function Knihovna() {
         setError(err.message);
         setLoading(false);
       });
-  }, []);
+  }, [location.state]);
 
   useEffect(() => {
     if (activeTab === 'vse') {
@@ -58,7 +66,7 @@ export default function Knihovna() {
 
   return (
     <div>
-      {/* Úvodní představení projektu */}
+      {/* Úvodní představení projektu - upraveno na vykání */}
       <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
         <h2 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-400">
           Místo pro klidné usínání
@@ -67,7 +75,7 @@ export default function Knihovna() {
           Pohádky vyprávěné mým vlastním hlasem doprovází zrychlené video, ve kterém ručně vybarvuji originální ilustrace. Podklady si tvořím s pomocí AI a ladím v grafickém programu. 
         </p>
         <p className="text-slate-400 text-sm max-w-2xl mx-auto leading-relaxed px-4">
-          Většinu omalovánek k pohádkám si zde můžete <span className="text-amber-400 font-semibold">zdarma stáhnout jako obrázek či PDF</span> a vybarvit si je s dětmi. Časem přibudou omalovánky k říkadlům i písničkám a lidové písně pro vás také sama nazpívám, abyste snadno chytili správnou melodii.
+          Většinu omalovánek k pohádkám si zde můžete <span className="text-amber-400 font-semibold">zdarma stáhnout jako obrázek či PDF</span> a vybarvit si je s dětmi. Časem přibudou omalovánky k říkadlům i písničkám a lidové písně pro Vás také sama nazpívám, abyste snadno chytili správnou melodii.
         </p>
       </div>
 
