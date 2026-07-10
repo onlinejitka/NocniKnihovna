@@ -102,20 +102,22 @@ export default async function handler(req, res) {
       const title = props.Název?.title?.[0]?.plain_text || 'Bez názvu';
       const autor = props.Autor?.select?.name || props.Autor?.rich_text?.[0]?.plain_text || '';
       
-      const youtubeUrl = props['YouTube Link']?.url || props.YouTube?.date?.start || '';
+      // OPRAVENO: Zajištění stoprocentního načtení odkazu na YouTube z obou možných názvů sloupců
+      const youtubeUrl = props['YouTube Link']?.url || props.YouTube?.url || props.YouTube?.rich_text?.[0]?.plain_text || '';
       const youtubeId = extractYouTubeId(youtubeUrl);
       
+      // OPRAVENO: Automatické vygenerování ostrého náhledu z YouTube pro hlavní knihovnu
+      const thumbnail = youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : '';
+
       const spotifyUrl = props['Spotify Link']?.url || '';
       const spotifyId = extractSpotifyId(spotifyUrl);
 
-      // Přesné načtení vašich nových sloupců z Notion [source: 1]
       const urlAudio = props['URL audio']?.url || '';
       const urlOmalovankyHlavni = props['URL omalovánky hlavní']?.url || '';
       const urlOmalovanky01 = props['URL omalovánky 01']?.url || '';
       const urlOmalovanky02 = props['URL omalovánky 02']?.url || '';
       const urlOmalovanky03 = props['URL omalovánky 03']?.url || '';
 
-      // Vytvoříme pole všech dostupných prémiových obrázků pro galerii
       const premiumImages = [urlOmalovanky01, urlOmalovanky02, urlOmalovanky03].filter(Boolean);
 
       return {
@@ -126,10 +128,10 @@ export default async function handler(req, res) {
         type,
         youtubeId,
         spotifyId,
-        urlOmalovankyHlavni, // Veřejná omalovánka zdarma
-        urlAudio,            // Posíláme pro načtení stopáže, ale zamykáme na frontendu
-        premiumImages,       // Pole obrázků pro 4:3 mřížku
-        // Bezpečné stažení PDF souborů pouze pro VIP členy[cite: 1]
+        thumbnail, // Posíláme opravený náhled na frontend
+        urlOmalovankyHlavni, 
+        urlAudio,            
+        premiumImages,       
         urlOmalovanky01: isUserVip ? urlOmalovanky01 : '',
         urlOmalovanky02: isUserVip ? urlOmalovanky02 : '',
         urlOmalovanky03: isUserVip ? urlOmalovanky03 : '',
