@@ -29,7 +29,6 @@ function renderRichText(richTextArray) {
   }).join('');
 }
 
-// OPRAVENO: Načítáme kompletně všechny typy bloků, aby se text neztrácel[cite: 1]
 async function getPageContent(blockId) {
   const blocks = [];
   let cursor;
@@ -109,10 +108,12 @@ export default async function handler(req, res) {
       const spotifyUrl = props['Spotify Link']?.url || '';
       const spotifyId = extractSpotifyId(spotifyUrl);
 
-      const rawUrlFile = props['URL file']?.url || props['URL file']?.rich_text?.[0]?.plain_text || '';
-      
-      // NOVINKA: Načítáme volitelnou vlastnost "Omalovánka Náhled" (Typ: URL) z Notion databáze[cite: 1]
-      const omalovankaPreview = props['Omalovánka Náhled']?.url || '';
+      // Načtení nových sloupců přesně podle tvé upravené tabulky
+      const urlAudio = props['URL audio']?.url || '';
+      const urlOmalovankyHlavni = props['URL omalovánky hlavní']?.url || '';
+      const urlOmalovanky01 = props['URL omalovánky 01']?.url || '';
+      const urlOmalovanky02 = props['URL omalovánky 02']?.url || '';
+      const urlOmalovanky03 = props['URL omalovánky 03']?.url || '';
 
       return {
         id: page.id,
@@ -122,9 +123,18 @@ export default async function handler(req, res) {
         type,
         youtubeId,
         spotifyId,
-        omalovankaPreview, // Obrázek náhledu posíláme veřejně jako teaser[cite: 1]
-        urlFile: isUserVip ? rawUrlFile : '',
-        isPremium: !!rawUrlFile
+        // Veřejně přístupné bez placení
+        urlOmalovankyHlavni, 
+        // Reálný náhled pro uzamčenou obrazovku posíláme bezpečně jako teaser
+        previewImage: urlOmalovanky01, 
+        // Prémiový uzamčený obsah (přístupný pouze pokud isUserVip je true)
+        urlAudio: isUserVip ? urlAudio : '',
+        urlOmalovanky01: isUserVip ? urlOmalovanky01 : '',
+        urlOmalovanky02: isUserVip ? urlOmalovanky02 : '',
+        urlOmalovanky03: isUserVip ? urlOmalovanky03 : '',
+        // Příznaky existence obsahu v Notion
+        hasAudio: !!urlAudio,
+        hasPremiumOmalovanky: !!(urlOmalovanky01 || urlOmalovanky02 || urlOmalovanky03)
       };
     });
 
