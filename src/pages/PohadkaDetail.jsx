@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Lock, Music, Download, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Lock, Music, Download, CheckCircle, Play } from 'lucide-react';
 
 export default function PohadkaDetail() {
   const { slug } = useParams();
@@ -12,7 +12,6 @@ export default function PohadkaDetail() {
 
   const loadData = () => {
     setLoading(true);
-    // Posíláme kód jako součást dotazu do API
     fetch(`/api/get-library?slug=${slug}&passcode=${passcode}`)
       .then(res => res.json())
       .then(data => {
@@ -70,52 +69,96 @@ export default function PohadkaDetail() {
         </span>
       </div>
 
-      {/* PRÉMIOVÝ PŘEHRÁVAČ AUDIO SOUBORU (MP3 Z NOTIONU) */}
+      {/* BLOK S PRÉMIOVÝM OBSAHEM (AUDIO / OMALOVÁNKA) */}
       {item.isPremium && (
-        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl shadow-xl">
+        <div className="bg-slate-900/40 border border-slate-800/80 p-6 md:p-8 rounded-2xl shadow-xl space-y-6">
+          
           {item.isUserVip ? (
-            /* STAV: ODEMČENO (Uživatel je VIP člen)[cite: 1] */
+            /* =======================================================
+               STAV 1: ODEMČENO (Uživatel má platný VIP kód)
+               ======================================================= */
             <div className="space-y-4">
-              <div className="flex items-center space-x-3 text-emerald-400 font-semibold text-sm">
-                <Music size={18} />
-                <span>Prémiová autorská nahrávka je odemčena ✨</span>
+              <div className="flex items-center space-x-2 text-emerald-400 font-semibold text-sm">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>VIP obsah úspěšně odemčen ✨</span>
               </div>
+              
+              {/* Skutečný funkční přehrávač souboru */}
               <audio src={item.urlFile} controls className="w-full accent-amber-400 bg-slate-950 rounded-xl p-2" />
               
-              {/* Pokud odkaz vede na PDF nebo obrázek omalovánky, nabídneme i tlačítko ke stažení */}
-              {item.urlFile.includes('.pdf') || item.type === 'Říkadlo' ? (
+              {/* Tlačítko pro stažení reálného souboru (PDF/Obrázek) */}
+              <div className="pt-2">
                 <a 
                   href={item.urlFile} 
                   target="_blank" 
                   rel="noreferrer" 
-                  className="inline-flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-bold px-4 py-2 rounded-xl transition"
+                  className="inline-flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-bold px-4 py-2.5 rounded-xl transition shadow"
                 >
-                  <Download size={14} /> <span>Stáhnout omalovánku (PDF)</span>
+                  <Download size={14} /> <span>Stáhnout omalovánku k vytištění (PDF)</span>
                 </a>
-              ) : null}
+              </div>
             </div>
           ) : (
-            /* STAV: UZAMČENO (Uživatel nemá kód nebo vypršel)[cite: 1] */
-            <div className="text-center py-6 max-w-xl mx-auto space-y-4">
-              <div className="inline-flex bg-amber-400/10 text-amber-400 p-3 rounded-full">
-                <Lock size={24} />
-              </div>
-              <h3 className="text-lg font-bold text-slate-200">Hlasová nahrávka a omalovánky jsou uzamčeny</h3>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                Tento bonusový obsah (nazpívaná písnička a PDF omalovánka ke stažení) je přístupný pouze pro naše stálé posluchače s aktivním VIP přístupem[cite: 1].
-              </p>
+            /* =======================================================
+               STAV 2: UZAMČENO (Ukázka přehrávače a tlačítka jako teaser)
+               ======================================================= */
+            <div className="space-y-6">
               
-              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
-                {/* Vložte svůj vygenerovaný Stripe Payment Link ze kroku 2 v dokumentu[cite: 1] */}
-                <a 
-                  href="https://buy.stripe.com/VA_STRIPE_LINK" 
-                  target="_blank" 
-                  rel="noreferrer"
-                  className="bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black px-6 py-2.5 rounded-xl text-sm transition shadow-lg hover:opacity-95"
-                >
-                  Aktivovat VIP přístup za 75 Kč ➔
-                </a>
+              {/* Vizuální maketa audio přehrávače */}
+              <div className="space-y-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block px-1">
+                  Hlasová nahrávka na dobrou noc
+                </span>
+                <div className="w-full bg-slate-950/60 rounded-xl p-3 flex items-center space-x-4 border border-slate-900 select-none opacity-40">
+                  <div className="bg-slate-800 p-2 rounded-full text-slate-500">
+                    <Play size={16} fill="currentColor" />
+                  </div>
+                  <div className="flex-1 h-1.5 bg-slate-800 rounded-full relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-1/12 bg-amber-500/40 rounded-full"></div>
+                  </div>
+                  <span className="text-xs font-mono text-slate-500">0:00 / --:--</span>
+                  <Lock size={14} className="text-amber-500/60 shrink-0" />
+                </div>
               </div>
+
+              {/* Vizuální maketa tlačítka pro stažení omalovánky */}
+              <div className="space-y-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block px-1">
+                  Materiály pro tvořivé ručičky
+                </span>
+                <div>
+                  <div className="inline-flex items-center space-x-2 bg-slate-950/40 border border-slate-900 text-slate-500 text-xs font-bold px-4 py-2.5 rounded-xl select-none opacity-40">
+                    <Download size={14} /> 
+                    <span>Stáhnout bonusovou omalovánku v PDF</span>
+                    <Lock size={12} className="ml-1 text-amber-500/60" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Stylový prodejní banner pod maketami */}
+              <div className="border-t border-slate-800/60 pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-gradient-to-r from-amber-500/5 to-transparent p-4 rounded-xl border border-amber-500/10">
+                <div className="space-y-1">
+                  <h4 className="text-sm font-bold text-amber-300 flex items-center space-x-1.5">
+                    <Lock size={14} className="text-amber-400" />
+                    <span>Chceš dětem odemknout nahrávku i omalovánku?</span>
+                  </h4>
+                  <p className="text-xs text-slate-400 max-w-xl leading-relaxed">
+                    Aktivací VIP členství získáte okamžitý přístup k nazpívaným písničkám, prémiovým omalovánkám ke stažení a neomezenému AI generátoru pohádek.
+                  </p>
+                </div>
+                <div className="shrink-0">
+                  {/* Nezapomeňte sem vložit váš reálný Stripe Payment Link z administrace */}
+                  <a 
+                    href="https://buy.stripe.com/VA_STRIPE_LINK" 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="w-full md:w-auto inline-block text-center bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black px-5 py-2.5 rounded-xl text-xs uppercase tracking-wide transition shadow-lg hover:shadow-orange-500/5 hover:opacity-95"
+                  >
+                    Aktivovat přístup za 75 Kč ➔
+                  </a>
+                </div>
+              </div>
+
             </div>
           )}
         </div>
@@ -140,30 +183,30 @@ export default function PohadkaDetail() {
         <div className="prose prose-invert max-w-none bg-slate-900/40 p-6 md:p-10 rounded-2xl border border-slate-800/60 shadow-xl leading-relaxed text-slate-300 font-normal whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: item.content }} />
       )}
 
-      {/* SPRÁVA KÓDU (Formulář na konci stránky pro změnu/přepsání kódu)[cite: 1] */}
+      {/* FORMULÁŘ PRO ZADÁNÍ / PŘEPSÁNÍ VIP KÓDU */}
       <div className="border-t border-slate-900 pt-8 max-w-md">
         <form onSubmit={handleSaveCode} className="bg-slate-900/20 border border-slate-800/80 p-4 rounded-xl space-y-3">
           <label className="block text-[11px] font-bold uppercase tracking-widest text-slate-400">
-            🔑 Tvůj přístupový VIP kód
+            🔑 Už máš svůj VIP přístupový kód?
           </label>
           <div className="flex space-x-2">
             <input 
               type="text" 
               value={inputCode} 
               onChange={(e) => setInputCode(e.target.value)} 
-              placeholder="Zadej svůj kód (např. sl-novak-3x7p)..." 
+              placeholder="Vlož kód z e-mailu (např. sl-jiri-8x3a)..." 
               className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
             <button 
               type="submit" 
-              className="bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold px-4 py-1.5 rounded-lg transition"
+              className="bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold px-4 py-1.5 rounded-lg transition shrink-0"
             >
-              Uložit k름d
+              Uložit kód
             </button>
           </div>
           {codeSaved && (
-            <p className="text-emerald-400 text-[11px] flex items-center space-x-1">
-              <CheckCircle size={12} /> <span>Kód byl uložen. Stránka se aktualizuje...</span>
+            <p className="text-emerald-400 text-[11px] flex items-center space-x-1 animate-pulse">
+              <CheckCircle size={12} /> <span>Kód uložen! Aktualizuji pohádku...</span>
             </p>
           )}
         </form>
