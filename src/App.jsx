@@ -4,7 +4,8 @@ import Knihovna from './pages/Knihovna';
 import PohadkaDetail from './pages/PohadkaDetail';
 import Hadanky from './pages/Hadanky';
 import Omalovanky from './pages/Omalovanky';
-import { BookOpen, HelpCircle, Sparkles, Palette } from 'lucide-react';
+import Hra from './pages/Hra'; // Import nového souboru hry
+import { BookOpen, HelpCircle, Sparkles, Palette, Sparkle } from 'lucide-react';
 
 // Komponenta navigačního menu v hlavičce webu
 function Navigation() {
@@ -30,15 +31,23 @@ function Navigation() {
         <HelpCircle size={14} /> <span className="hidden sm:inline">Hádanky</span>
       </Link>
 
-      {/* 3. Odkaz: Omalovánky (Nové) */}
+      {/* 3. Odkaz: Omalovánky */}
       <Link 
         to="/omalovanky"
         className={`px-2.5 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/omalovanky' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}
       >
-        <Palette size={14} /> <span>Omalovánky</span>
+        <Palette size={14} /> <span className="hidden sm:inline">Omalovánky</span>
       </Link>
 
-      {/* 4. Externí odkaz: Generátor pohádek na subdoméně */}
+      {/* 4. Odkaz: Večerní hra (Novinka) */}
+      <Link 
+        to="/hra"
+        className={`px-2.5 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/hra' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}
+      >
+        <Sparkle size={14} className="text-amber-400 animate-pulse" /> <span>Hra</span>
+      </Link>
+
+      {/* 5. Externí odkaz: Generátor pohádek na subdoméně */}
       <a 
         href="https://generator.nocniknihovna.cz"
         target="_blank"
@@ -79,6 +88,7 @@ export default function App() {
             <Route path="/" element={<Knihovna />} />
             <Route path="/hadanky" element={<Hadanky />} />
             <Route path="/omalovanky" element={<Omalovanky />} />
+            <Route path="/hra" element={<Hra />} /> {/* Nová cesta pro hru */}
             <Route path="/:slug" element={<PohadkaDetail />} />
           </Routes>
         </main>
