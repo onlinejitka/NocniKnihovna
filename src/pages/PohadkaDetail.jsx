@@ -15,8 +15,6 @@ export default function PohadkaDetail() {
   const [passcode, setPasscode] = useState(localStorage.getItem('sl_passcode') || '');
   const [inputCode, setInputCode] = useState(passcode);
   const [codeSaved, setCodeSaved] = useState(false);
-  
-  // Stav pro dynamické uložení reálné délky audia
   const [audioDuration, setAudioDuration] = useState('--:--');
 
   const loadData = () => {
@@ -45,6 +43,23 @@ export default function PohadkaDetail() {
     setTimeout(() => setCodeSaved(false), 3000);
   };
 
+  // FUNKCE PRO ODCHYCENÍ A OTEVŘENÍ STRIPE V CENTROVANÉM POPUP OKNĚ (VNOŘENÉ OKNO)
+  const openStripePopup = (e) => {
+    e.preventDefault();
+    const url = "https://buy.stripe.com/8x2fZh8CZ2H2eD73aQ9IQ0q";
+    const width = 500;
+    const height = 710;
+    // Výpočet pozice přesně na střed obrazovky uživatele
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
+    
+    window.open(
+      url, 
+      'StripePremiumCheckout', 
+      `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=no, width=${width}, height=${height}, top=${top}, left=${left}`
+    );
+  };
+
   if (loading) {
     return (
       <div className="text-center py-20 text-slate-400 flex flex-col items-center justify-center space-y-4">
@@ -66,7 +81,6 @@ export default function PohadkaDetail() {
   return (
     <div className="max-w-4xl mx-auto animate-fade-in space-y-8">
       
-      {/* Skrytý audio element sloužící výhradně k načtení reálné stopáže z Notion souboru[cite: 1] */}
       {item.hasAudio && item.urlAudio && (
         <audio 
           src={item.urlAudio} 
@@ -80,9 +94,14 @@ export default function PohadkaDetail() {
         />
       )}
 
-      <Link to="/" className="inline-flex items-center space-x-2 text-slate-400 hover:text-amber-400 transition group">
+      {/* OPRAVENO: Tlačítko zpět předává stav, takže se uživatel vrátí do správné sekce (např. Písničky) */}
+      <Link 
+        to="/" 
+        state={{ activeTab: item.type }} 
+        className="inline-flex items-center space-x-2 text-slate-400 hover:text-amber-400 transition group"
+      >
         <ArrowLeft size={18} className="transform group-hover:-translate-x-1 transition-transform" />
-        <span>Zpět do knihovny</span>
+        <span>Zpět do sekce {item.type === 'Pohádka' ? 'Pohádky' : item.type === 'Říkadlo' ? 'Říkadla' : 'Písničky'}</span>
       </Link>
 
       <div>
@@ -117,16 +136,16 @@ export default function PohadkaDetail() {
         </div>
       )}
 
-      {/* SEKCE 2: VIP BOX (Zobrazí se POUZE pokud existuje audio nebo prémiové omalovánky) */}
+      {/* SEKCE 2: PREMIUM BOX */}
       {(item.hasAudio || item.hasPremiumOmalovanky) && (
         <div className="bg-slate-900/40 border border-slate-800/80 p-6 md:p-8 rounded-2xl shadow-xl space-y-6">
           
           {item.isUserVip ? (
-            /* ========================== STAV: ODEMČENO ========================== */
+            /* STAV: ODEMČENO */
             <div className="space-y-6">
               <div className="flex items-center space-x-2 text-emerald-400 font-semibold text-sm">
                 <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>VIP balíček úspěšně odemčen ✨</span>
+                <span>Premium balíček úspěšně odemčen ✨</span>
               </div>
               
               {item.hasAudio && (
@@ -141,7 +160,7 @@ export default function PohadkaDetail() {
               {item.hasPremiumOmalovanky && (
                 <div className="space-y-4 pt-2">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block px-1">
-                    Rozšířené prémiové omalovánky v balíčku
+                    Rozšířené Premium omalovánky v balíčku
                   </span>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {[
@@ -163,10 +182,9 @@ export default function PohadkaDetail() {
               )}
             </div>
           ) : (
-            /* ========================== STAV: UZAMČENO ========================== */
+            /* STAV: UZAMČENO - Kompletně přepsáno na vykaní a Premium */
             <div className="space-y-6">
               
-              {/* Audio se vykreslí POUZE pokud reálně v Notion existuje[cite: 1] */}
               {item.hasAudio && (
                 <div className="space-y-1.5">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block px-1">
@@ -179,21 +197,18 @@ export default function PohadkaDetail() {
                     <div className="flex-1 h-1.5 bg-slate-800 rounded-full relative">
                       <div className="absolute left-0 top-0 bottom-0 w-1/12 bg-amber-500/40 rounded-full"></div>
                     </div>
-                    {/* NOVINKA: Zde se vypisuje reálně načtená stopáž souboru[cite: 1] */}
                     <span className="text-xs font-mono text-slate-500">0:00 / {audioDuration}</span>
                     <Lock size={14} className="text-amber-500/60 shrink-0" />
                   </div>
                 </div>
               )}
 
-              {/* Omalovánky se vykreslí POUZE pokud reálně v Notion existují[cite: 1] */}
               {item.hasPremiumOmalovanky && (
                 <div className="space-y-3">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block px-1">
-                    Rozšířené prémiové omalovánky (Sada {item.premiumImages.length} listů)
+                    Rozšířené Premium omalovánky (Sada {item.premiumImages.length} listů)
                   </span>
                   
-                  {/* NOVINKA: Mřížka zobrazující VŠECHNY dostupné omalovánky v dokonalém poměru 4:3[cite: 1] */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {item.premiumImages.map((imgUrl, idx) => (
                       <div key={idx} className="relative aspect-[4/3] rounded-xl overflow-hidden border border-slate-900 bg-slate-950/50 select-none">
@@ -219,26 +234,24 @@ export default function PohadkaDetail() {
                 </div>
               )}
 
-              {/* Prodejní banner */}
+              {/* Prodejní banner - Změna odkazu na popup funkci openStripePopup */}
               <div className="border-t border-slate-800/60 pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-gradient-to-r from-amber-500/5 to-transparent p-4 rounded-xl border border-amber-500/10">
                 <div className="space-y-1">
                   <h4 className="text-sm font-bold text-amber-300 flex items-center space-x-1.5">
                     <Lock size={14} className="text-amber-400" />
-                    <span>Chceš dětem odemknout nahrávku a celou sadu omalovánek?</span>
+                    <span>Chcete dětem odemknout nahrávku a celou sadu omalovánek?</span>
                   </h4>
                   <p className="text-xs text-slate-400 max-w-xl leading-relaxed">
-                    Aktivací VIP členství získáte okamžitý přístup k doprovodným nahrávkám, rozšířeným kreativním sadám ke stažení a našemu inteligentnímu AI generátoru pohádek na míru.
+                    Aktivací Premium členství získáte okamžitý přístup k doprovodným nahrávkám, rozšířeným kreativním sadám ke stažení a našemu inteligentnímu AI generátoru pohádek na míru.
                   </p>
                 </div>
                 <div className="shrink-0">
-                  <a 
-                    href="https://buy.stripe.com/8x2fZh8CZ2H2eD73aQ9IQ0q" 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="w-full md:w-auto inline-block text-center bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black px-5 py-2.5 rounded-xl text-xs uppercase tracking-wide transition shadow-lg hover:shadow-orange-500/5 hover:opacity-95"
+                  <button 
+                    onClick={openStripePopup}
+                    className="w-full md:w-auto inline-block text-center bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black px-5 py-2.5 rounded-xl text-xs uppercase tracking-wide transition shadow-lg hover:shadow-orange-500/5 hover:opacity-95 cursor-pointer"
                   >
                     Aktivovat přístup za 75 Kč ➔
-                  </a>
+                  </button>
                 </div>
               </div>
 
@@ -266,18 +279,18 @@ export default function PohadkaDetail() {
         <div className="prose prose-invert max-w-none bg-slate-900/40 p-6 md:p-10 rounded-2xl border border-slate-800/60 shadow-xl leading-relaxed text-slate-300 font-normal whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: item.content }} />
       )}
 
-      {/* FORMULÁŘ PRO VIP KÓD */}
+      {/* FORMULÁŘ PRO ZADÁNÍ PREMIUM KÓDU */}
       <div className="border-t border-slate-900 pt-8 max-w-md">
         <form onSubmit={handleSaveCode} className="bg-slate-900/20 border border-slate-800/80 p-4 rounded-xl space-y-3">
-          <label className="block className-text-[11px] font-bold uppercase tracking-widest text-slate-400">
-            🔑 Už máš svůj VIP přístupový kód?
+          <label className="block text-[11px] font-bold uppercase tracking-widest text-slate-400">
+            🔑 Už máte svůj Premium přístupový kód?
           </label>
           <div className="flex space-x-2">
             <input 
               type="text" 
               value={inputCode} 
               onChange={(e) => setInputCode(e.target.value)} 
-              placeholder="Vlož kód z e-mailu (např. sl-jiri-8x3a)..." 
+              placeholder="Vložte kód z e-mailu (např. sl-jiri-8x3a)..." 
               className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
             <button 
