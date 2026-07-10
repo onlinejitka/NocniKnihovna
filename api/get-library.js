@@ -18,9 +18,7 @@ function extractSpotifyId(url) {
 function renderRichText(richTextArray) {
   if (!richTextArray || richTextArray.length === 0) return '';
   return richTextArray.map(t => {
-    // KLÍČOVÁ OPRAVA: Převedeme Shift+Enter (\n) z Notion na HTML zalamovací značky <br />
     let text = t.plain_text.replace(/\n/g, '<br />');
-    
     if (t.annotations.bold) text = `<strong>${text}</strong>`;
     if (t.annotations.italic) text = `<em>${text}</em>`;
     if (t.annotations.code) text = `<code class="bg-slate-800 px-1 rounded text-amber-400 font-mono">${text}</code>`;
@@ -31,11 +29,11 @@ function renderRichText(richTextArray) {
   }).join('');
 }
 
-async function getPageContent(notionClient, blockId) {
+async function getPageContent(blockId) {
   const blocks = [];
   let cursor;
   while (true) {
-    const response = await notionClient.blocks.children.list({
+    const response = await notion.blocks.children.list({
       block_id: blockId,
       start_cursor: cursor,
     });
@@ -48,9 +46,6 @@ async function getPageContent(notionClient, blockId) {
     if (block.type === 'paragraph') {
       return `<p class="mb-4 text-slate-300 text-[17px] leading-relaxed">${renderRichText(block.paragraph.rich_text)}</p>`;
     }
-    if (block.type === 'heading_1') {
-      return `<h1 class="text-3xl font-bold mt-8 mb-4 text-amber-400">${renderRichText(block.heading_1.rich_text)}</h1>`;
-    }
     if (block.type === 'heading_2') {
       return `<h2 class="text-2xl font-semibold mt-6 mb-3 text-amber-300">${renderRichText(block.heading_2.rich_text)}</h2>`;
     }
@@ -62,19 +57,30 @@ async function getPageContent(notionClient, blockId) {
 }
 
 export default async function handler(req, res) {
-  const { slug } = req.query;
-  const token = process.env.NOTION_TOKEN;
-  const databaseId = process.env.NOTION_DB_ID;
-
-  if (!token || !databaseId) {
-    return res.status(500).json({ error: 'Chybí konfigurace proměnných na Vercelu.' });
-  }
+  const { slug, passcode } = req.query;
+  const contentDbId = process.env.NOTION_DB_ID;
+  const membersDbId = process.env.NOTION_MEMBERS_DATABASE_ID; // Nová proměnná pro VIP členy
 
   try {
-    const response = await notion.databases.query({
-      database_id: databaseId,
-    });
+    // 1. KROK: Ověření VIP statusu uživatele podle kódu
+    let isUserVip = false;
+    if (passcode && membersDbId) {
+      const memberCheck = await notion.databases.query({
+        database_id: membersDbId,
+        filter: {
+          property: "Unikátní kód", // Musí přesně odpovídat sloupci v Notion
+          rich_text: { equals: passcode.trim() }
+        }
+      });
 
+      if (memberCheck.results.length > 0) {
+        const isActive = memberCheck.results[0].properties.Aktivní?.checkbox; // Kontrola checkboxu
+        if (isActive) isUserVip = true;
+      }
+    }
+
+    // 2. KROK: Načtení obsahu z hlavní databáze
+    const response = await notion.databases.query({ database_id: contentDbId });
     const publishedPages = response.results.filter(page => {
       const statusValue = page.properties.Status?.select?.name || page.properties.Status?.status?.name;
       return statusValue === 'Publikováno (HH)' || statusValue === 'Publikováno';
@@ -86,13 +92,15 @@ export default async function handler(req, res) {
       const type = props.Typ?.select?.name || 'Pohádka';
       const title = props.Název?.title?.[0]?.plain_text || 'Bez názvu';
       const autor = props.Autor?.select?.name || props.Autor?.rich_text?.[0]?.plain_text || '';
-      const heroHeroLink = props['HeroHero Link']?.url || '';
       
-      const youtubeUrl = props['YouTube Link']?.url || '';
+      const youtubeUrl = props['YouTube Link']?.url || props.YouTube?.date?.start || '';
       const youtubeId = extractYouTubeId(youtubeUrl);
       
       const spotifyUrl = props['Spotify Link']?.url || '';
       const spotifyId = extractSpotifyId(spotifyUrl);
+
+      // Načtení odkazu na soubor (reaguje na váš nový sloupec "URL file" z obrázku 37a703.png) [source: 1]
+      const rawUrlFile = props['URL file']?.url || props['URL file']?.rich_text?.[0]?.plain_text || '';
 
       return {
         id: page.id,
@@ -102,20 +110,22 @@ export default async function handler(req, res) {
         type,
         youtubeId,
         spotifyId,
-        heroHeroLink,
-        thumbnail: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : 'https://images.unsplash.com/photo-1518373714866-3f1478910cc0?w=600&auto=format&fit=crop&q=60'
+        // BEZPEČNOSTNÍ POJISTKA: Odkaz pošleme na frontend pouze pokud je uživatel VIP
+        urlFile: isUserVip ? rawUrlFile : '',
+        isPremium: !!rawUrlFile // Říká frontendu, zda položka vyžaduje VIP klíč
       };
     });
 
     if (slug) {
       const item = items.find(i => i.slug === slug);
-      if (!item) return res.status(404).json({ error: 'Nenalezeno' });
+      if (!item) return res.status(404).json({ error: 'Obsah nenalezen' });
 
-      const content = await getPageContent(notion, item.id);
-      return res.status(200).json({ ...item, content });
+      const content = await getPageContent(item.id);
+      return res.status(200).json({ ...item, content, isUserVip });
     }
 
-    return res.status(200).json(items);
+    // Pro seznam karet vrátíme informaci o VIP stavu
+    return res.status(200).json({ items, isUserVip });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
