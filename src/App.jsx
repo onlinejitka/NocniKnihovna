@@ -6,44 +6,47 @@ import Hadanky from './pages/Hadanky';
 import Omalovanky from './pages/Omalovanky';
 import Hra from './pages/Hra';
 import Souhvezdi from './pages/Souhvezdi';
-import Pexeso from './pages/Pexeso';
-import VOP from './pages/VOP'; // Nový import VOP
-import GDPR from './pages/GDPR'; // Nový import GDPR
+import pexeso from './pages/Pexeso';
+import VOP from './pages/VOP';
+import GDPR from './pages/GDPR';
 import { BookOpen, HelpCircle, Sparkles, Palette, Lightbulb, Star, LayoutGrid, Menu, X, ChevronDown, Gamepad2, Info } from 'lucide-react';
 
-// Komponenta pro Cookie lištu
+// NOVINKA: Legislativně přesná a komplexní Cookie lišta reflektující všechny integrace
 function CookieBar() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Zkontrolujeme, zda už uživatel cookies v minulosti odsouhlasil
-    const accepted = localStorage.getItem('sl_cookies_accepted');
+    const accepted = localStorage.getItem('sl_cookies_confirmed_2026');
     if (!accepted) {
       setVisible(true);
     }
   }, []);
 
   const handleAccept = () => {
-    localStorage.setItem('sl_cookies_accepted', 'true');
+    localStorage.setItem('sl_cookies_confirmed_2026', 'true');
     setVisible(false);
   };
 
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-slate-950/95 border border-slate-800 p-4 rounded-2xl shadow-2xl z-50 animate-fade-in backdrop-blur flex flex-col space-y-3">
+    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-slate-950/98 border border-slate-800 p-5 rounded-2xl shadow-2xl z-50 animate-fade-in backdrop-blur-md flex flex-col space-y-4">
       <div className="flex items-start space-x-3">
-        <Info size={18} className="text-amber-400 shrink-0 mt-0.5" />
-        <p className="text-xs text-slate-300 leading-relaxed">
-          Tento web používá pouze základní technické cookies (například k zapamatování Vašeho Premium kódu, stavu her nebo tohoto souhlasu). Neshromažďuji žádná reklamní ani sledovací data.
-        </p>
+        <Info size={20} className="text-amber-400 shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <h5 className="text-xs font-bold text-slate-200 uppercase tracking-wide">Informace o souborech cookies</h5>
+          <p className="text-[11px] text-slate-400 leading-relaxed">
+            Tento web používá nezbytné technické cookies pro správné fungování (uložení Premium kódu). Dále využíváme cookies třetích stran pro spuštění videí z <strong>YouTube</strong>, přehrávání hudby ze <strong>Spotify</strong> a pro správnou funkčnost doporučujících partnerských odkazů (affiliate systém <strong>Alza.cz</strong>).
+          </p>
+        </div>
       </div>
-      <div className="flex justify-end">
+      <div className="flex justify-end space-x-3 items-center text-[10px]">
+        <Link to="/gdpr" className="text-slate-500 hover:text-slate-300 transition underline">Více informací</Link>
         <button 
           onClick={handleAccept}
-          className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs px-4 py-1.5 rounded-lg transition cursor-pointer"
+          className="bg-gradient-to-r from-amber-400 to-orange-500 hover:opacity-95 text-slate-950 font-extrabold text-xs px-5 py-2 rounded-xl transition cursor-pointer shadow-lg"
         >
-          Rozumím
+          Přijmout vše
         </button>
       </div>
     </div>
@@ -163,13 +166,12 @@ export default function App() {
             <Route path="/hra" element={<Hra />} />
             <Route path="/souhvezdi" element={<Souhvezdi />} />
             <Route path="/pexeso" element={<Pexeso />} />
-            <Route path="/obchodni-podminky" element={<VOP />} /> {/* Registrace VOP */}
-            <Route path="/gdpr" element={<GDPR />} /> {/* Registrace GDPR */}
+            <Route path="/obchodni-podminky" element={<VOP />} />
+            <Route path="/gdpr" element={<GDPR />} />
             <Route path="/:slug" element={<PohadkaDetail />} />
           </Routes>
         </main>
         
-        {/* FINÁLNÍ DOPLNĚNÁ PATIČKA */}
         <footer className="border-t border-slate-900 bg-slate-950/60 text-slate-500 py-10 text-center text-xs mt-auto px-4 space-y-6">
           <div className="space-y-1.5">
             <p>© {new Date().getFullYear()} Noční Knihovna. Všechna práva vyhrazená.</p>
@@ -179,14 +181,12 @@ export default function App() {
           </div>
 
           <div className="pt-4 border-t border-slate-900/60 max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-600">
-            {/* Ostré fakturační údaje podle registru */}
             <div className="text-center sm:text-left space-y-0.5">
               <p className="font-semibold text-slate-400">Provozovatel: Jitka Pekárková</p>
               <p>Sídlo: Primátorská 38, Praha 8 • IČO: 87458021</p>
               <p>Fyzická osoba zapsaná v živnostenském rejstříku.</p>
             </div>
 
-            {/* Odkazy na dokumenty a Vaše další projekty */}
             <div className="flex flex-wrap justify-center sm:justify-end gap-x-3 gap-y-2 font-medium">
               <a href="https://jitkap.cz" target="_blank" rel="noopener noreferrer" className="text-amber-500/80 hover:text-amber-400 transition underline decoration-amber-500/20">
                 O autorce
@@ -207,7 +207,6 @@ export default function App() {
           </div>
         </footer>
 
-        {/* Aktivní Cookie lišta na konci */}
         <CookieBar />
       </div>
     </Router>
