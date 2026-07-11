@@ -115,9 +115,11 @@ export default async function handler(req, res) {
       const urlOmalovanky02 = props['URL omalovánky 02']?.url || '';
       const urlOmalovanky03 = props['URL omalovánky 03']?.url || '';
 
-      // NOVINKA: Načítání affiliate parametrů přímo ze sloupců v Notion databázi
       const affiliateUrl = props['Affiliate URL']?.url || '';
       const affiliateText = props['Affiliate Text']?.rich_text?.[0]?.plain_text || '';
+      
+      // OPRAVENO: Načítání obrázku produktu pro affiliate systém z Notion
+      const affiliateImage = props['Affiliate Image']?.url || props['Affiliate Image']?.files?.[0]?.file?.url || props['Affiliate Image']?.files?.[0]?.external?.url || '';
 
       const premiumImages = [urlOmalovanky01, urlOmalovanky02, urlOmalovanky03].filter(Boolean);
 
@@ -133,8 +135,9 @@ export default async function handler(req, res) {
         urlOmalovankyHlavni, 
         urlAudio,            
         premiumImages,       
-        affiliateUrl,   // Posíláme do frontendu
-        affiliateText,  // Posíláme do frontendu
+        affiliateUrl,   
+        affiliateText,  
+        affiliateImage, // Posíláme do frontendu
         urlOmalovanky01: isUserVip ? urlOmalovanky01 : '',
         urlOmalovanky02: isUserVip ? urlOmalovanky02 : '',
         urlOmalovanky03: isUserVip ? urlOmalovanky03 : '',
