@@ -6,7 +6,7 @@ import Hadanky from './pages/Hadanky';
 import Omalovanky from './pages/Omalovanky';
 import Hra from './pages/Hra';
 import Souhvezdi from './pages/Souhvezdi';
-import Pexeso from './pages/Pexeso'; // Import nové hry Pexeso
+import Pexeso from './pages/Pexeso';
 import { BookOpen, HelpCircle, Sparkles, Palette, Lightbulb, Star, LayoutGrid, Menu, X, ChevronDown, Gamepad2 } from 'lucide-react';
 
 function Header() {
@@ -16,7 +16,6 @@ function Header() {
 
   const closeMenu = () => setIsMobileMenuOpen(false);
 
-  // Přidáno Pexeso do kontroly aktivního stavu pro ikonu Hry
   const isGamesActive = currentPath === '/hra' || currentPath === '/souhvezdi' || currentPath === '/pexeso';
 
   return (
@@ -64,7 +63,6 @@ function Header() {
                 <Star size={14} className={currentPath === '/souhvezdi' ? 'text-amber-300' : 'text-slate-400'} /> 
                 <span>Souhvězdí</span>
               </Link>
-              {/* ODKAZ NA NOVÉ PEXESO */}
               <Link to="/pexeso" className={`flex items-center space-x-2 px-3 py-2.5 rounded-xl text-sm transition mt-1 ${currentPath === '/pexeso' ? 'bg-slate-800 text-amber-400 font-bold' : 'text-slate-300 hover:text-amber-400 hover:bg-slate-800'}`}>
                 <LayoutGrid size={14} className={currentPath === '/pexeso' ? 'text-amber-300' : 'text-slate-400'} /> 
                 <span>Stínové pexeso</span>
@@ -100,7 +98,6 @@ function Header() {
               <Star size={18} className={currentPath === '/souhvezdi' ? 'text-amber-300' : 'text-slate-400'} /> 
               <span>Souhvězdí</span>
             </Link>
-            {/* ODKAZ NA NOVÉ PEXESO V MOBILNÍM MENU */}
             <Link to="/pexeso" onClick={closeMenu} className={`flex items-center space-x-3 px-3 py-3 rounded-xl text-base font-medium transition mt-1 ${currentPath === '/pexeso' ? 'bg-slate-800 text-amber-400 shadow-md' : 'text-slate-300'}`}>
               <LayoutGrid size={18} className={currentPath === '/pexeso' ? 'text-amber-300' : 'text-slate-400'} /> 
               <span>Stínové pexeso</span>
@@ -128,13 +125,17 @@ export default function App() {
             <Route path="/omalovanky" element={<Omalovanky />} />
             <Route path="/hra" element={<Hra />} />
             <Route path="/souhvezdi" element={<Souhvezdi />} />
-            <Route path="/pexeso" element={<Pexeso />} /> {/* Registrace cesty pexesa */}
+            <Route path="/pexeso" element={<Pexeso />} />
             <Route path="/:slug" element={<PohadkaDetail />} />
           </Routes>
         </main>
-        <footer className="border-t border-slate-900 bg-slate-950/60 text-slate-500 py-8 text-center text-xs mt-auto">
-          <p>© {new Date().getFullYear()} Noční Knihovna. Všechna práva vyhrazena.</p>
-          <p className="mt-1 text-slate-600">Čtené s láskou, kreslené a vybarvené ručně.</p>
+        
+        {/* OPRAVENO: Kompletně přepsaná patička s přesným popisem autorského procesu */}
+        <footer className="border-t border-slate-900 bg-slate-950/60 text-slate-500 py-8 text-center text-xs mt-auto px-4 space-y-1.5">
+          <p>© {new Date().getFullYear()} Noční Knihovna. Všechna práva vyhrazená.</p>
+          <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Veškeré nahrávky pro Vás zaznamenávám svým vlastním hlasem. Ilustrace jsou spoluvytvářené s pomocí AI a mnou ručně graficky upravené. Omalovánky ve videích následně vybarvuji já nebo mé děti.
+          </p>
         </footer>
       </div>
     </Router>
