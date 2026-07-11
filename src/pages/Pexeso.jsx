@@ -11,7 +11,6 @@ const shuffleCards = () => {
     isFlipped: false,
     isMatched: false,
   }));
-
   for (let i = paired.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [paired[i], paired[j]] = [paired[j], paired[i]];
@@ -20,14 +19,12 @@ const shuffleCards = () => {
 };
 
 export default function Pexeso() {
-  // STAVY PRO PREMIUM ZÁMEK
   const [isUserVip, setIsUserVip] = useState(false);
   const [loading, setLoading] = useState(true);
   const [passcode, setPasscode] = useState(localStorage.getItem('sl_passcode') || '');
   const [inputCode, setInputCode] = useState(passcode);
   const [codeSaved, setCodeSaved] = useState(false);
 
-  // STAVY PRO HRU
   const [cards, setCards] = useState([]);
   const [flippedIndexes, setFlippedIndexes] = useState([]);
   const [matches, setMatches] = useState(0);
@@ -36,7 +33,6 @@ export default function Pexeso() {
   
   const containerRef = useRef(null);
 
-  // Kontrola přístupu k Premium obsahu
   useEffect(() => {
     setLoading(true);
     fetch(`/api/get-library?passcode=${passcode}`)
@@ -111,6 +107,10 @@ export default function Pexeso() {
   };
 
   const handleCardClick = (index) => {
+    if (!isUserVip) {
+      openStripePopup();
+      return;
+    }
     if (flippedIndexes.length === 2 || cards[index].isFlipped || cards[index].isMatched) return;
     setCards(prev => prev.map((card, i) => i === index ? { ...card, isFlipped: true } : card));
     setFlippedIndexes(prev => [...prev, index]);
@@ -141,49 +141,13 @@ export default function Pexeso() {
           <div className="animate-spin inline-block w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full"></div>
           <p className="text-sm font-medium tracking-wide">Připravuji hrací karty...</p>
         </div>
-      ) : !isUserVip ? (
-        /* PREMIUM ZÁMEK PRO PEXESO */
-        <div className="max-w-xl mx-auto space-y-6 mt-8 animate-fade-in">
-          <div className="bg-slate-900/40 border border-slate-800 p-6 md:p-8 rounded-3xl text-center space-y-6 shadow-xl">
-            <div className="mx-auto w-16 h-16 bg-slate-950 border border-slate-800 rounded-full flex items-center justify-center shadow-inner">
-              <Lock className="text-amber-500/60" size={28} />
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-xl md:text-2xl font-bold text-amber-300">Prémiová uklidňující hra</h3>
-              <p className="text-slate-400 text-sm leading-relaxed px-2">
-                Tato snová hra je exkluzivní součástí Premium balíčku Noční Knihovny. Aktivací členství získáte okamžitý přístup k oběma hrám navíc (Pexeso a Souhvězdí), všem rozšířeným omalovánkám, nahrávkám a AI generátoru.
-              </p>
-            </div>
-            <button onClick={openStripePopup} className="w-full md:w-auto inline-block text-center bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wide transition shadow-lg hover:shadow-orange-500/5 hover:opacity-95 cursor-pointer">
-              Aktivovat Premium za 75 Kč ➔
-            </button>
-          </div>
-
-          <form onSubmit={handleSaveCode} className="bg-slate-900/20 border border-slate-800/60 p-4 rounded-xl space-y-3">
-            <label className="block text-[11px] font-bold uppercase tracking-widest text-slate-400">
-              🔑 Již máte svůj Premium přístupový kód?
-            </label>
-            <div className="flex space-x-2">
-              <input type="text" value={inputCode} onChange={(e) => setInputCode(e.target.value)} placeholder="Vložte Váš kód (např. sl-jiri-8x3a)..." className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500" />
-              <button type="submit" className="bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold px-4 py-1.5 rounded-lg transition shrink-0 cursor-pointer">
-                Uložit kód
-              </button>
-            </div>
-            {codeSaved && (
-              <p className="text-emerald-400 text-[11px] flex items-center space-x-1 animate-pulse">
-                <CheckCircle size={12} /> <span>Kód byl úspěšně uložen! Ověřuji přístup...</span>
-              </p>
-            )}
-          </form>
-        </div>
       ) : (
-        /* VLASTNÍ HRA PO ODEMČENÍ */
         <>
           <div className="flex justify-between items-center px-2 animate-fade-in">
             <span className="text-xs font-semibold text-amber-400/80 uppercase tracking-widest bg-slate-900/40 border border-slate-800/60 px-3 py-1.5 rounded-xl">
               Nalezeno: {matches} / {ICONS.length}
             </span>
-            <button onClick={toggleFullscreen} className="inline-flex items-center space-x-2 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer shadow-md">
+            <button onClick={isUserVip ? toggleFullscreen : openStripePopup} className="inline-flex items-center space-x-2 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer shadow-md">
               {isFullscreen ? <Minimize2 size={14} className="text-amber-400" /> : <Maximize2 size={14} className="text-amber-400" />}
               <span>{isFullscreen ? 'Zmenšit okno' : 'Celá obrazovka'}</span>
             </button>
@@ -213,7 +177,16 @@ export default function Pexeso() {
               })}
             </div>
 
-            {gameCompleted && (
+            {/* VIZUÁLNÍ ZÁMEK PŘES CELOU HRU POKUD NENÍ VIP */}
+            {!isUserVip && (
+              <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px] flex items-center justify-center z-30 transition-all duration-500">
+                <div onClick={openStripePopup} className="w-16 h-16 bg-slate-900/90 rounded-full flex items-center justify-center shadow-2xl border border-slate-700 cursor-pointer hover:scale-110 transition-transform">
+                  <Lock className="text-amber-500/90 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" size={28} />
+                </div>
+              </div>
+            )}
+
+            {gameCompleted && isUserVip && (
               <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-sm flex flex-col items-center justify-center text-center p-6 animate-fade-in z-20">
                 <span className="text-5xl mb-3 filter drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]">🌙</span>
                 <h3 className="text-2xl font-serif font-bold text-amber-300">Všechny stíny našly svůj pár</h3>
@@ -224,6 +197,40 @@ export default function Pexeso() {
               </div>
             )}
           </div>
+
+          {/* PRODEJNÍ BOX */}
+          {!isUserVip && (
+            <div className="max-w-xl mx-auto space-y-6 pt-6 animate-fade-in">
+              <div className="bg-slate-900/40 border border-slate-800 p-6 md:p-8 rounded-3xl text-center space-y-6 shadow-xl">
+                <div className="space-y-2">
+                  <h3 className="text-xl md:text-2xl font-bold text-amber-300">Prémiová uklidňující hra</h3>
+                  <p className="text-slate-400 text-sm leading-relaxed px-2">
+                    Tato snová hra je exkluzivní součástí Premium balíčku Noční Knihovny. Aktivací členství získáte okamžitý přístup k oběma hrám navíc (Pexeso a Souhvězdí), všem rozšířeným omalovánkám, nahrávkám a AI generátoru.
+                  </p>
+                </div>
+                <button onClick={openStripePopup} className="w-full md:w-auto inline-block text-center bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wide transition shadow-lg hover:shadow-orange-500/5 hover:opacity-95 cursor-pointer">
+                  Aktivovat Premium za 75 Kč ➔
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveCode} className="bg-slate-900/20 border border-slate-800/60 p-4 rounded-xl space-y-3">
+                <label className="block text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                  🔑 Již máte svůj Premium přístupový kód?
+                </label>
+                <div className="flex space-x-2">
+                  <input type="text" value={inputCode} onChange={(e) => setInputCode(e.target.value)} placeholder="Vložte Váš kód (např. sl-jiri-8x3a)..." className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500" />
+                  <button type="submit" className="bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold px-4 py-1.5 rounded-lg transition shrink-0 cursor-pointer">
+                    Uložit kód
+                  </button>
+                </div>
+                {codeSaved && (
+                  <p className="text-emerald-400 text-[11px] flex items-center space-x-1 animate-pulse">
+                    <CheckCircle size={12} /> <span>Kód byl úspěšně uložen! Ověřuji přístup...</span>
+                  </p>
+                )}
+              </form>
+            </div>
+          )}
         </>
       )}
     </div>
