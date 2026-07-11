@@ -11,12 +11,12 @@ export default function Ovecky() {
     
     setSheepList(prev => [...prev, newSheep]);
 
-    // Počítadlo se zvýší přesně v momentě skoku (uprostřed animace)
+    // Počítadlo naskočí přesně v momentě skoku (uprostřed animace)
     setTimeout(() => {
       setCount(prev => prev + 1);
     }, 1000);
 
-    // Po skončení celé animace (2 sekundy) ovečku vyčistíme z paměti
+    // Po skončení animace vyčistíme ovečku z paměti
     setTimeout(() => {
       setSheepList(prev => prev.filter(s => s.id !== id));
     }, 2000);
@@ -24,13 +24,13 @@ export default function Ovecky() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      {/* Vstřikování plynulé skákací animace přímo do stránky */}
+      {/* Opraveno: Animace zprava doleva, aby ovečka běžela čelem napřed */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes snovySkok {
-          0% { left: -10%; top: 70%; transform: scale(0.8) rotate(0deg); }
-          40% { left: 45%; top: 25%; transform: scale(1.1) rotate(-10deg); }
-          60% { left: 55%; top: 25%; transform: scale(1.1) rotate(10deg); }
-          100% { left: 110%; top: 70%; transform: scale(0.8) rotate(0deg); }
+          0% { right: -10%; top: 70%; transform: scale(0.8) rotate(0deg); }
+          45% { right: 45%; top: 25%; transform: scale(1.1) rotate(10deg); }
+          55% { right: 55%; top: 25%; transform: scale(1.1) rotate(-10deg); }
+          100% { right: 110%; top: 70%; transform: scale(0.8) rotate(0deg); }
         }
         .animace-ovecky {
           position: absolute;
@@ -43,7 +43,7 @@ export default function Ovecky() {
           Uklidňující počítání oveček
         </h2>
         <p className="text-slate-400 text-sm">
-          Klepněte kamkoliv do noční oblohy. Z lesa vyběhne nadýchaná ovečka a pomůže dětským očím sledovat plynulý, uspávací pohyb.
+          Klepněte kamkoliv do noční oblohy. Z pravé strany vyběhne nadýchaná ovečka a pomůže dětským očím sledovat plynulý, uspávací pohyb.
         </p>
       </div>
 
@@ -58,22 +58,20 @@ export default function Ovecky() {
         )}
       </div>
 
-      {/* Herní plocha */}
       <div 
         onClick={handleLaunchSheep}
         className="relative w-full aspect-[16/9] bg-gradient-to-b from-[#020107] via-[#090514] to-[#040209] border border-slate-900 rounded-3xl overflow-hidden select-none shadow-2xl cursor-pointer group"
       >
-        {/* Hvězdy v pozadí */}
+        {/* Hvězdy */}
         <div className="absolute top-12 left-1/4 w-1 h-1 bg-white rounded-full opacity-40 animate-pulse" />
         <div className="absolute top-20 right-1/3 w-1.5 h-1.5 bg-amber-200 rounded-full opacity-60 animate-ping duration-1000" />
-        <div className="absolute top-32 right-1/4 w-1 h-1 bg-white rounded-full opacity-30" />
 
-        {/* Velký spící měsíc uprostřed */}
+        {/* Spící měsíc */}
         <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 flex flex-col items-center pointer-events-none z-0">
           <span className="text-7xl md:text-8xl filter drop-shadow-[0_0_25px_rgba(251,191,36,0.25)]">🌙</span>
         </div>
 
-        {/* Dřevěný plot k přeskakování */}
+        {/* Dřevěný plot */}
         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-16 flex items-end justify-center pointer-events-none z-10 opacity-70">
           <div className="w-2 h-14 bg-amber-900/40 border-r border-amber-950/40 mx-2 rounded-t" />
           <div className="w-full h-3 bg-amber-900/40 absolute bottom-8 rounded" />
@@ -81,17 +79,15 @@ export default function Ovecky() {
           <div className="w-2 h-14 bg-amber-900/40 border-l border-amber-950/40 mx-2 rounded-t" />
         </div>
 
-        {/* Živé běžící a skákající ovečky */}
+        {/* Živé skákající ovečky */}
         {sheepList.map((sheep) => (
           <div key={sheep.id} className="animace-ovecky z-20 flex flex-col items-center select-none">
             <span className="text-5xl md:text-6xl filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">🐑</span>
           </div>
         ))}
 
-        {/* Mlžné snové mraky na okrajích */}
         <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-slate-950 to-transparent opacity-90 flex items-center justify-between px-8 text-slate-900/20 pointer-events-none">
-          <Cloud size={40} />
-          <Cloud size={50} />
+          <Cloud size={40} /><Cloud size={50} />
         </div>
       </div>
 
