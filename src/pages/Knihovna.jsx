@@ -4,7 +4,7 @@ import { AlertTriangle, Info, Music } from 'lucide-react';
 
 const TAB_LABELS = {
   'vse': 'Vše z knihovny',
-  'Pohádka': 'Pohádky',
+  'Pohádka': 'Poházky',
   'Říkadlo': 'Říkadla',
   'Písnička': 'Písničky'
 };
@@ -18,10 +18,7 @@ const BUTTON_LABELS = {
 export default function Knihovna() {
   const location = useLocation();
   const [items, setItems] = useState([]);
-  
-  // OPRAVENO: Pokud se uživatel vrací z detailu, načteme rovnou jeho specifickou kategorii
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'vse');
-  
   const [filteredItems, setFilteredItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -40,7 +37,6 @@ export default function Knihovna() {
       .then(data => {
         if (data && Array.isArray(data.items)) {
           setItems(data.items);
-          // Pokud máme přednavolenou záložku z navigace, rovnou vyfiltrujeme správný obsah
           if (location.state?.activeTab && location.state.activeTab !== 'vse') {
             setFilteredItems(data.items.filter(item => item.type === location.state.activeTab));
           } else {
@@ -66,20 +62,19 @@ export default function Knihovna() {
 
   return (
     <div>
-      {/* Úvodní představení projektu - upraveno na vykání */}
+      {/* OPRAVENO: Kompletně přepsané představení projektu s důrazem na Váš hlas, AI úpravy a vybarvování dětmi */}
       <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
         <h2 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-400">
           Místo pro klidné usínání
         </h2>
         <p className="text-slate-300 text-base md:text-lg leading-relaxed px-2">
-          Pohádky vyprávěné mým vlastním hlasem doprovází zrychlené video, ve kterém ručně vybarvuji originální ilustrace. Podklady si tvořím s pomocí AI a ladím v grafickém programu. 
+          Veškeré hlasové nahrávky – pohádky, lidová říkadla i tradiční písničky – pro Vás **nahrávám svým vlastním hlasem**. Chci, aby z nich děti cítily klid a bezpečí domova.
         </p>
         <p className="text-slate-400 text-sm max-w-2xl mx-auto leading-relaxed px-4">
-          Většinu omalovánek k pohádkám si zde můžete <span className="text-amber-400 font-semibold">zdarma stáhnout jako obrázek či PDF</span> a vybarvit si je s dětmi. Časem přibudou omalovánky k říkadlům i písničkám a lidové písně pro Vás také sama nazpívám, abyste snadno chytili správnou melodii.
+          Podkladové černobílé omalovánky sice navrhuji s pomocí AI, ale každý list poté **sama ručně graficky pročišťuji a doupravuji**, aby se dětem co nejlépe vybarvoval. V doprovodných zrychlených videích pak tyto kreativní sady **vybarvuji já nebo mé děti**. Většinu základních omalovánek si zde můžete zcela zdarma stáhnout v PDF, rozšířené sady a doplňující hry pak čekají na naše podporovatele v Premium balíčku.
         </p>
       </div>
 
-      {/* Dvouúrovňové záložky filtrů */}
       <div className="flex flex-col items-center space-y-4 mb-12 border-b border-slate-900 pb-6">
         <div>
           <button 
@@ -111,7 +106,6 @@ export default function Knihovna() {
         </div>
       </div>
 
-      {/* STAV: NAČÍTÁNÍ */}
       {loading && (
         <div className="text-center py-20 text-slate-400 flex flex-col items-center justify-center space-y-4">
           <div className="animate-spin inline-block w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full"></div>
@@ -119,23 +113,20 @@ export default function Knihovna() {
         </div>
       )}
 
-      {/* STAV: CHYBA */}
       {!loading && error && (
-        <div className="max-w-xl mx-auto bg-red-950/30 border border-red-500/30 p-6 rounded-2xl text-center space-y-3 my-6">
+        <div className="max-w-xl mx-auto bg-red-950/30 border border-red-500/30 p-6 rounded-2xl text-center space-y-3">
           <div className="inline-flex text-red-400"><AlertTriangle size={32} /></div>
           <h4 className="text-lg font-bold text-red-200">Propojení s Notion selhalo</h4>
         </div>
       )}
 
-      {/* STAV: PRÁZDNÁ DATABÁZE */}
       {!loading && !error && filteredItems.length === 0 && (
-        <div className="max-w-xl mx-auto bg-slate-900/60 border border-slate-800 p-6 rounded-2xl text-center space-y-3 my-6">
+        <div className="max-w-xl mx-auto bg-slate-900/60 border border-slate-800 p-6 rounded-2xl text-center space-y-3">
           <div className="inline-flex text-amber-400"><Info size={28} /></div>
           <h4 className="text-base font-bold text-slate-200">Knihovna je momentálně prázdná</h4>
         </div>
       )}
 
-      {/* STAV: ÚSPĚCH */}
       {!loading && !error && filteredItems.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
           {filteredItems.map(item => (
