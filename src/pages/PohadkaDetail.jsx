@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, ShoppingBag, Sparkles, Download, Palette, Music4, BookOpen } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ShoppingBag, Sparkles, Download, Palette, Music, BookOpen } from 'lucide-react'; // OPRAVA: Music místo Music4
 
 export default function PohadkaDetail() {
   const { slug } = useParams();
@@ -11,7 +11,6 @@ export default function PohadkaDetail() {
   useEffect(() => {
     const savedCode = localStorage.getItem('sl_passcode') || '';
     setLoading(true);
-    
     fetch(`/api/get-library?slug=${slug}&passcode=${savedCode}`)
       .then(res => {
         if (!res.ok) throw new Error('Nepodařilo se načíst detail.');
@@ -46,7 +45,6 @@ export default function PohadkaDetail() {
     );
   }
 
-  // DYNAMICKÉ STRATEGICKÉ AFFILIATE SESTAVY PRO DETAIL OBSAHU
   const isSong = item.type === 'Písnička';
   
   const defaultUrl = isSong 
@@ -59,6 +57,7 @@ export default function PohadkaDetail() {
 
   const finalAffiliateUrl = item.affiliateUrl || defaultUrl; 
   const finalAffiliateText = item.affiliateText || defaultText;
+  const finalAffiliateImage = item.affiliateImage || "";
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
@@ -72,7 +71,6 @@ export default function PohadkaDetail() {
         {item.autor && <p className="text-sm text-slate-400 italic">Napsal/a: {item.autor}</p>}
       </div>
 
-      {/* Multimédia */}
       <div className="grid grid-cols-1 gap-4">
         {item.youtubeId && (
           <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-800 shadow-xl bg-slate-950">
@@ -86,11 +84,9 @@ export default function PohadkaDetail() {
         )}
       </div>
 
-      {/* OPRAVENO: Stažení omalovánky má nyní dedikovaný list papíru (žádné video) a je NAD textem */}
       {item.urlOmalovankyHlavni && (
         <div className="bg-slate-900/30 border border-slate-800/80 rounded-2xl p-4 md:p-5 flex flex-col sm:flex-row items-center gap-5 shadow-lg">
-          {/* Čistý grafický náhled stylizovaného listu k vybarvení */}
-          <div className="w-20 h-20 bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shrink-0 flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-950 shadow-inner relative">
+          <div className="w-20 h-20 bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shrink-0 flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-950 shadow-inner relative group">
             <div className="w-10 h-12 bg-slate-900 border border-slate-700 rounded-md flex items-center justify-center shadow-md rotate-3 group-hover:rotate-6 transition-transform">
               <Palette size={16} className="text-slate-500" />
             </div>
@@ -115,7 +111,6 @@ export default function PohadkaDetail() {
         </div>
       )}
 
-      {/* Text příběhu */}
       {item.content ? (
         <div className="bg-slate-900/20 border border-slate-900 p-6 md:p-8 rounded-2xl font-serif text-slate-200 text-lg leading-relaxed space-y-4 shadow-sm" dangerouslySetInnerHTML={{ __html: item.content }} />
       ) : (
@@ -124,22 +119,21 @@ export default function PohadkaDetail() {
         </div>
       )}
 
-      {/* GRAFICKÝ AFFILIATE BANNER (Knihy vs Hudební nástroje) */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800/80 rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden group">
         <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 rounded-full filter blur-2xl group-hover:bg-amber-400/10 transition duration-500" />
         
         <div className="flex flex-col sm:flex-row items-center gap-5 flex-1">
-          <div className="w-20 h-20 bg-slate-950 border border-slate-800/60 rounded-xl flex items-center justify-center shrink-0 overflow-hidden shadow-inner p-1 bg-gradient-to-b from-slate-900 to-slate-950">
-            {item.affiliateImage ? (
-              <img src={item.affiliateImage} alt="Produkt" className="w-full h-full object-contain rounded-lg" />
+          <div className="w-24 h-24 bg-slate-950 border border-slate-800/60 rounded-xl flex items-center justify-center shrink-0 overflow-hidden shadow-inner relative p-1 bg-gradient-to-b from-slate-900 to-slate-950">
+            {finalAffiliateImage ? (
+              <img src={finalAffiliateImage} alt="Produkt" className="w-full h-full object-contain rounded-lg group-hover:scale-105 transition-transform duration-500" />
             ) : (
               <div className="w-full h-full bg-slate-900/40 rounded-lg flex items-center justify-center text-amber-400/40">
-                {isSong ? <Music4 size={24} /> : <BookOpen size={24} />}
+                {isSong ? <Music size={24} /> : <BookOpen size={24} />}
               </div>
             )}
           </div>
 
-          <div className="space-y-1.5 text-center sm:text-left">
+          <div className="space-y-2 text-center sm:text-left">
             <span className="text-[9px] font-bold text-amber-400/60 uppercase tracking-widest bg-amber-400/5 px-2 py-0.5 rounded border border-amber-400/10 inline-flex items-center space-x-1">
               <Sparkles size={10} /> <span>Tip z naší knihovny</span>
             </span>
@@ -155,6 +149,13 @@ export default function PohadkaDetail() {
             <span>Zobrazit nabídku</span>
           </a>
         </div>
+      </div>
+
+      <div className="pt-2 flex justify-center">
+        <Link to="/omalovanky" className="inline-flex items-center space-x-2 text-[11px] font-medium text-slate-500 hover:text-slate-400 transition">
+          <span>Chcete vidět i ostatní omalovánky v galerii? Prohlédnout vše</span>
+          <ArrowRight size={10} />
+        </Link>
       </div>
     </div>
   );
