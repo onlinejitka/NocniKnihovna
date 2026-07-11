@@ -4,8 +4,9 @@ import Knihovna from './pages/Knihovna';
 import PohadkaDetail from './pages/PohadkaDetail';
 import Hadanky from './pages/Hadanky';
 import Omalovanky from './pages/Omalovanky';
-import Hra from './pages/Hra'; // Import nového souboru hry
-import { BookOpen, HelpCircle, Sparkles, Palette, Sparkle } from 'lucide-react';
+import Hra from './pages/Hra';
+import Souhvezdi from './pages/Souhvezdi'; // Import nové hry souhvězdí
+import { BookOpen, HelpCircle, Sparkles, Palette, Sparkle, Star } from 'lucide-react';
 
 // Komponenta navigačního menu v hlavičce webu
 function Navigation() {
@@ -39,15 +40,23 @@ function Navigation() {
         <Palette size={14} /> <span className="hidden sm:inline">Omalovánky</span>
       </Link>
 
-      {/* 4. Odkaz: Večerní hra (Novinka) */}
+      {/* 4. Odkaz: Světlušky */}
       <Link 
         to="/hra"
         className={`px-2.5 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/hra' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}
       >
-        <Sparkle size={14} className="text-amber-400 animate-pulse" /> <span>Hra</span>
+        <Sparkle size={14} className="text-amber-400" /> <span className="hidden sm:inline">Světlušky</span>
       </Link>
 
-      {/* 5. Externí odkaz: Generátor pohádek na subdoméně */}
+      {/* 5. Odkaz: Souhvězdí (Novinka) */}
+      <Link 
+        to="/souhvezdi"
+        className={`px-2.5 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/souhvezdi' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}
+      >
+        <Star size={13} className="text-amber-300 animate-pulse" /> <span>Souhvězdí</span>
+      </Link>
+
+      {/* 6. Externí odkaz: Generátor pohádek na subdoméně */}
       <a 
         href="https://generator.nocniknihovna.cz"
         target="_blank"
@@ -88,14 +97,15 @@ export default function App() {
             <Route path="/" element={<Knihovna />} />
             <Route path="/hadanky" element={<Hadanky />} />
             <Route path="/omalovanky" element={<Omalovanky />} />
-            <Route path="/hra" element={<Hra />} /> {/* Nová cesta pro hru */}
+            <Route path="/hra" element={<Hra />} />
+            <Route path="/souhvezdi" element={<Souhvezdi />} /> {/* Nová cesta pro souhvězdí */}
             <Route path="/:slug" element={<PohadkaDetail />} />
           </Routes>
         </main>
 
         {/* Společná patička s vykráním */}
         <footer className="border-t border-slate-900 mt-20 bg-slate-950/60 text-slate-500 py-8 text-center text-xs">
-          <p>© {new Date().getFullYear()} Noční Knihovna. Všechna práva vyhrazena.</p>
+          <p>© {new Date().getFullYear()} Noční Knihovna. Všechna práva variavována.</p>
           <p className="mt-1 text-slate-600">Čtené s láskou, kreslené a vybarvené ručně.</p>
         </footer>
 
