@@ -4,6 +4,7 @@ import { RotateCcw, Maximize2, Minimize2, Lock, CheckCircle, CloudMoon, Star, Li
 const ICONS = [CloudMoon, Star, Lightbulb, Feather, Flower2, Heart];
 const FLIP_DELAY = 1200; 
 
+// Funkce pro ostré zamíchání karet pro platící členy
 const shuffleCards = () => {
   const paired = [...ICONS, ...ICONS].map((Icon, index) => ({
     id: index,
@@ -17,6 +18,22 @@ const shuffleCards = () => {
   }
   return paired;
 };
+
+// NOVINKA: Pevný výstavní layout pro uzamčený náhled (Teaser)
+const getPreviewCards = () => [
+  { id: 0, IconComponent: CloudMoon, isFlipped: false, isMatched: false },
+  { id: 1, IconComponent: Star, isFlipped: false, isMatched: true },      // Ukázka spárované zářící lampičky (1/2)
+  { id: 2, IconComponent: Lightbulb, isFlipped: false, isMatched: false },
+  { id: 3, IconComponent: Feather, isFlipped: true, isMatched: false },    // Ukázka otočené karty (stín)
+  { id: 4, IconComponent: Flower2, isFlipped: false, isMatched: false },
+  { id: 5, IconComponent: Heart, isFlipped: false, isMatched: false },
+  { id: 6, IconComponent: CloudMoon, isFlipped: true, isMatched: false },   // Druhá ukázka otočené karty
+  { id: 7, IconComponent: Star, isFlipped: false, isMatched: true },      // Ukázka spárované zářící lampičky (2/2)
+  { id: 8, IconComponent: Lightbulb, isFlipped: false, isMatched: false },
+  { id: 9, IconComponent: Feather, isFlipped: false, isMatched: false },
+  { id: 10, IconComponent: Flower2, isFlipped: false, isMatched: false },
+  { id: 11, IconComponent: Heart, isFlipped: false, isMatched: false },
+];
 
 export default function Pexeso() {
   const [isUserVip, setIsUserVip] = useState(false);
@@ -33,12 +50,23 @@ export default function Pexeso() {
   
   const containerRef = useRef(null);
 
+  // Kontrola přístupu k Premium obsahu přes backend
   useEffect(() => {
     setLoading(true);
     fetch(`/api/get-library?passcode=${passcode}`)
       .then(res => res.json())
       .then(data => {
-        if (data) setIsUserVip(data.isUserVip);
+        if (data) {
+          setIsUserVip(data.isUserVip);
+          
+          // Pokud je uživatel Premium, vygenerujeme mu ostrou zamíchanou hru. 
+          // Pokud ne, nasadíme mu atraktivní prodejní náhled s otočenými kartami.
+          if (data.isUserVip) {
+            setCards(shuffleCards());
+          } else {
+            setCards(getPreviewCards());
+          }
+        }
         setLoading(false);
       })
       .catch(err => {
@@ -47,46 +75,49 @@ export default function Pexeso() {
       });
   }, [passcode]);
 
+  // Restartování hry (pouze pro Premium členy)
   const initGame = () => {
-    setCards(shuffleCards());
-    setFlippedIndexes([]);
-    setMatches(0);
-    setGameCompleted(false);
+    if (isUserVip) {
+      setCards(shuffleCards());
+      setFlippedIndexes([]);
+      setMatches(0);
+      setGameCompleted(false);
+    }
   };
 
   useEffect(() => {
-    initGame();
     const handleFsChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener('fullscreenchange', handleFsChange);
     return () => document.removeEventListener('fullscreenchange', handleFsChange);
   }, []);
 
+  // Logika vyhodnocování otočených karet za běhu hry
   useEffect(() => {
-    if (flippedIndexes.length === 2) {
-      const [firstIndex, secondIndex] = flippedIndexes;
-      const firstCard = cards[firstIndex];
-      const secondCard = cards[secondIndex];
+    if (!isUserVip || flippedIndexes.length !== 2) return;
 
-      if (firstCard.IconComponent === secondCard.IconComponent) {
-        setTimeout(() => {
-          setCards(prev => prev.map((card, i) => i === firstIndex || i === secondIndex ? { ...card, isMatched: true } : card));
-          setMatches(prev => prev + 1);
-          setFlippedIndexes([]);
-        }, 300); 
-      } else {
-        setTimeout(() => {
-          setCards(prev => prev.map((card, i) => i === firstIndex || i === secondIndex ? { ...card, isFlipped: false } : card));
-          setFlippedIndexes([]);
-        }, FLIP_DELAY);
-      }
+    const [firstIndex, secondIndex] = flippedIndexes;
+    const firstCard = cards[firstIndex];
+    const secondCard = cards[secondIndex];
+
+    if (firstCard.IconComponent === secondCard.IconComponent) {
+      setTimeout(() => {
+        setCards(prev => prev.map((card, i) => i === firstIndex || i === secondIndex ? { ...card, isMatched: true } : card));
+        setMatches(prev => prev + 1);
+        setFlippedIndexes([]);
+      }, 300); 
+    } else {
+      setTimeout(() => {
+        setCards(prev => prev.map((card, i) => i === firstIndex || i === secondIndex ? { ...card, isFlipped: false } : card));
+        setFlippedIndexes([]);
+      }, FLIP_DELAY);
     }
-  }, [flippedIndexes, cards]);
+  }, [flippedIndexes, cards, isUserVip]);
 
   useEffect(() => {
-    if (matches === ICONS.length && matches > 0) {
+    if (isUserVip && matches === ICONS.length && matches > 0) {
       setTimeout(() => setGameCompleted(true), 1000);
     }
-  }, [matches]);
+  }, [matches, isUserVip]);
 
   const openStripePopup = (e) => {
     if (e) e.preventDefault();
@@ -107,6 +138,7 @@ export default function Pexeso() {
   };
 
   const handleCardClick = (index) => {
+    // Pokud hra není odemčená, kliknutí na jakoukoliv kartu otevře nákupní okno
     if (!isUserVip) {
       openStripePopup();
       return;
@@ -145,7 +177,7 @@ export default function Pexeso() {
         <>
           <div className="flex justify-between items-center px-2 animate-fade-in">
             <span className="text-xs font-semibold text-amber-400/80 uppercase tracking-widest bg-slate-900/40 border border-slate-800/60 px-3 py-1.5 rounded-xl">
-              Nalezeno: {matches} / {ICONS.length}
+              Nalezeno: {isUserVip ? `${matches} / ${ICONS.length}` : 'Ukázka'}
             </span>
             <button onClick={isUserVip ? toggleFullscreen : openStripePopup} className="inline-flex items-center space-x-2 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer shadow-md">
               {isFullscreen ? <Minimize2 size={14} className="text-amber-400" /> : <Maximize2 size={14} className="text-amber-400" />}
@@ -158,14 +190,14 @@ export default function Pexeso() {
 
             <div className="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-2xl relative z-10">
               {cards.map((card, index) => {
-                const isRevealed = card.isFlipped || card.isMatched;
+                const pexesoRevealed = card.isFlipped || card.isMatched;
                 return (
                   <button
                     key={card.id}
                     onClick={() => handleCardClick(index)}
-                    className={`relative aspect-square rounded-2xl md:rounded-3xl cursor-pointer transition-all duration-700 flex items-center justify-center overflow-hidden border ${isRevealed ? 'bg-slate-900/50 border-slate-800 shadow-inner' : 'bg-slate-800 border-slate-700 hover:bg-slate-700/80 shadow-md'}`}
+                    className={`relative aspect-square rounded-2xl md:rounded-3xl cursor-pointer transition-all duration-700 flex items-center justify-center overflow-hidden border ${pexesoRevealed ? 'bg-slate-900/50 border-slate-800 shadow-inner' : 'bg-slate-800 border-slate-700 hover:bg-slate-700/80 shadow-md'}`}
                   >
-                    <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-500 ${isRevealed ? 'opacity-0' : 'opacity-100'}`}>
+                    <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-500 ${pexesoRevealed ? 'opacity-0' : 'opacity-100'}`}>
                       <Moon size={24} className="text-slate-700/50" />
                     </div>
                     <div className={`transition-all duration-[1500ms] ease-out flex items-center justify-center w-full h-full ${card.isMatched ? 'opacity-100 scale-100' : card.isFlipped ? 'opacity-100 scale-90' : 'opacity-0 scale-50'}`}>
@@ -177,9 +209,9 @@ export default function Pexeso() {
               })}
             </div>
 
-            {/* VIZUÁLNÍ ZÁMEK PŘES CELOU HRU POKUD NENÍ VIP */}
+            {/* VIZUÁLNÍ ZÁMEK PŘES CELOU PLOCHU HRY POKUD NENÍ PREMIUM */}
             {!isUserVip && (
-              <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px] flex items-center justify-center z-30 transition-all duration-500">
+              <div className="absolute inset-0 bg-slate-950/20 backdrop-blur-[1px] flex items-center justify-center z-30 transition-all duration-500">
                 <div onClick={openStripePopup} className="w-16 h-16 bg-slate-900/90 rounded-full flex items-center justify-center shadow-2xl border border-slate-700 cursor-pointer hover:scale-110 transition-transform">
                   <Lock className="text-amber-500/90 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" size={28} />
                 </div>
@@ -198,7 +230,7 @@ export default function Pexeso() {
             )}
           </div>
 
-          {/* PRODEJNÍ BOX */}
+          {/* PRODEJNÍ BOX POD HROU POKUD NENÍ PREMIUM */}
           {!isUserVip && (
             <div className="max-w-xl mx-auto space-y-6 pt-6 animate-fade-in">
               <div className="bg-slate-900/40 border border-slate-800 p-6 md:p-8 rounded-3xl text-center space-y-6 shadow-xl">
