@@ -247,7 +247,7 @@ export default function Hadanky() {
           </div>
         </div>
         <div className="shrink-0 w-full sm:w-auto self-center">
-          <a href="https://www.alza.cz/hracky/spolecenske-hry/18851211.htm" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 text-xs font-bold px-5 py-3 rounded-xl transition cursor-pointer shadow-md">
+          <a href="https://www.alza.cz/hracky/vzdelavaci-a-naucne-hracky/18857199.htm/?idp=23293" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 text-xs font-bold px-5 py-3 rounded-xl transition cursor-pointer shadow-md">
             <ShoppingBag size={13} />
             <span>Zobrazit hry a rébusy</span>
           </a>
