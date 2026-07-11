@@ -233,9 +233,11 @@ export default function Omalovanky() {
         </div>
       )}
 
-      {/* Affiliate Banner */}
+    {/* Affiliate Banner */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800/80 rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden group mt-16 max-w-4xl mx-auto">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 rounded-full filter blur-2xl group-hover:bg-amber-400/10 transition duration-500" />
+        {/* OPRAVENO: Přidáno pointer-events-none, aby vrstva neblokovala klikání */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 rounded-full filter blur-2xl group-hover:bg-amber-400/10 transition duration-500 pointer-events-none" />
+        
         <div className="flex flex-col sm:flex-row items-center gap-5 flex-1">
           <div className="w-20 h-20 bg-slate-950 border border-slate-800/60 rounded-xl flex items-center justify-center shrink-0 shadow-inner bg-gradient-to-b from-slate-900 to-slate-950 text-amber-400/40">
             <Palette size={24} />
@@ -245,7 +247,7 @@ export default function Omalovanky() {
               <Sparkles size={10} /> <span>Doporučení pro tisk a tvorbu</span>
             </span>
             <p className="text-xs md:text-sm text-slate-300 leading-relaxed max-w-xl">
-              Pro dokonalý kreativní zážitek doporučujeme kvalitní trojhranné pastelky s měkkou tuhou, které se dětem skvěle drží a mají silný pigment, a k tomu spolehlivou domácí tiskárnu pro čistý tisk našich omalovánek.
+              Pro dokonalý kreativní zážitek doporučujeme kvalitní trojhranné pastelky s měkkou tuhou, které se dětem skvěle drží, nebo spolehlivé domácí tiskárny pro čistý tisk našich snových šablon.
             </p>
           </div>
         </div>
