@@ -4,7 +4,7 @@ import { AlertTriangle, Info, Music } from 'lucide-react';
 
 const TAB_LABELS = {
   'vse': 'Vše z knihovny',
-  'Pohádka': 'Poházky',
+  'Pohádka': 'Pohádky',
   'Říkadlo': 'Říkadla',
   'Písnička': 'Písničky'
 };
