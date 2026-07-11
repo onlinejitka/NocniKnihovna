@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, ShoppingBag, Sparkles, Download, Palette, Music, BookOpen } from 'lucide-react'; // OPRAVA: Music místo Music4
+import { ArrowLeft, ArrowRight, ShoppingBag, Sparkles, Download, Palette, Music, BookOpen } from 'lucide-react';
 
 export default function PohadkaDetail() {
   const { slug } = useParams();
@@ -46,14 +46,8 @@ export default function PohadkaDetail() {
   }
 
   const isSong = item.type === 'Písnička';
-  
-  const defaultUrl = isSong 
-    ? "https://www.alza.cz/hracky/detske-hudebni-nastroje/18851214.htm"
-    : "https://www.alza.cz/media/knihy-pro-deti/18856641.htm";
-
-  const defaultText = isSong
-    ? "Jemné tóny a melodie pomáhají zklidnit dětskou mysl před spánkem. Prozkoumejte náš výběr dětských hudebních nástrojů a dřevěných zvonkoher ideálních pro večerní rituály."
-    : "Chcete rozvíjet dětskou představivost i mimo obrazovku? Vybrali jsme pro Vás ty nejkrásnější tištěné pohádkové knížky pro společné chvíle a klidné čtení v postýlce.";
+  const defaultUrl = isSong ? "https://www.alza.cz/hracky/detske-hudebni-nastroje/18851214.htm" : "https://www.alza.cz/media/knihy-pro-deti/18856641.htm";
+  const defaultText = isSong ? "Jemné tóny a melodie pomáhají zklidnit dětskou mysm před spánkem. Prozkoumejte náš výběr dětských hudebních nástrojů." : "Vybrali jsme pro Vás ty nejkrásnější tištěné pohádkové knížky pro společné chvíle a klidné čtení v postýlce.";
 
   const finalAffiliateUrl = item.affiliateUrl || defaultUrl; 
   const finalAffiliateText = item.affiliateText || defaultText;
@@ -84,28 +78,28 @@ export default function PohadkaDetail() {
         )}
       </div>
 
+      {/* OPRAVENO: Skutečný náhled PNG omalovánky a opravené texty na PNG stažení */}
       {item.urlOmalovankyHlavni && (
         <div className="bg-slate-900/30 border border-slate-800/80 rounded-2xl p-4 md:p-5 flex flex-col sm:flex-row items-center gap-5 shadow-lg">
-          <div className="w-20 h-20 bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shrink-0 flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-950 shadow-inner relative group">
-            <div className="w-10 h-12 bg-slate-900 border border-slate-700 rounded-md flex items-center justify-center shadow-md rotate-3 group-hover:rotate-6 transition-transform">
-              <Palette size={16} className="text-slate-500" />
-            </div>
-            <div className="absolute bottom-2 right-2 w-5 h-5 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center">
-              <Download size={10} strokeWidth={3} />
-            </div>
+          <div className="w-20 h-20 bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shrink-0 flex items-center justify-center shadow-inner relative">
+            <img 
+              src={item.urlOmalovankyHlavni} 
+              alt="Náhled omalovánky" 
+              className="w-full h-full object-cover filter brightness-90 contrast-105" 
+            />
           </div>
           
           <div className="space-y-1 text-center sm:text-left flex-1">
             <h4 className="text-sm font-bold text-slate-200 tracking-wide">Hlavní omalovánka k vytisknutí</h4>
             <p className="text-xs text-slate-400 leading-relaxed max-w-md">
-              Černobílá kreativní šablona ve vysokém rozlišení. Ideální pro vybarvování během poslechu příběhu.
+              Kreativní šablona připravená ke stažení. Ideální pro vybarvování během poslechu příběhu.
             </p>
           </div>
 
           <div className="shrink-0 w-full sm:w-auto">
-            <a href={item.urlOmalovankyHlavni} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black px-4 py-2.5 rounded-xl transition cursor-pointer shadow-md">
+            <a href={item.urlOmalovankyHlavni} download target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black px-4 py-2.5 rounded-xl transition cursor-pointer shadow-md">
               <Download size={13} strokeWidth={2.5} />
-              <span>Stáhnout PDF zdarma</span>
+              <span>Uložit obrázek (PNG)</span>
             </a>
           </div>
         </div>
@@ -149,13 +143,6 @@ export default function PohadkaDetail() {
             <span>Zobrazit nabídku</span>
           </a>
         </div>
-      </div>
-
-      <div className="pt-2 flex justify-center">
-        <Link to="/omalovanky" className="inline-flex items-center space-x-2 text-[11px] font-medium text-slate-500 hover:text-slate-400 transition">
-          <span>Chcete vidět i ostatní omalovánky v galerii? Prohlédnout vše</span>
-          <ArrowRight size={10} />
-        </Link>
       </div>
     </div>
   );
