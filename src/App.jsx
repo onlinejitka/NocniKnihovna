@@ -6,12 +6,12 @@ import Hadanky from './pages/Hadanky';
 import Omalovanky from './pages/Omalovanky';
 import Hra from './pages/Hra';
 import Souhvezdi from './pages/Souhvezdi';
-import pexeso from './pages/Pexeso';
+import Pexeso from './pages/Pexeso'; // OPRAVENO: Velké P na začátku
 import VOP from './pages/VOP';
 import GDPR from './pages/GDPR';
 import { BookOpen, HelpCircle, Sparkles, Palette, Lightbulb, Star, LayoutGrid, Menu, X, ChevronDown, Gamepad2, Info } from 'lucide-react';
 
-// NOVINKA: Legislativně přesná a komplexní Cookie lišta reflektující všechny integrace
+// Komponenta pro Cookie lištu
 function CookieBar() {
   const [visible, setVisible] = useState(false);
 
@@ -69,7 +69,7 @@ function Header() {
           <span className="text-3xl">🌙</span>
           <div>
             <h1 className="text-xl font-bold tracking-wide text-amber-400">Noční Knihovna</h1>
-            <p className="text-xs text-slate-400">Klidné usínání plné příběhů</p>
+            <p className="text-xs text-slate-400">Klidné usínání plné příhrady</p>
           </div>
         </Link>
 
