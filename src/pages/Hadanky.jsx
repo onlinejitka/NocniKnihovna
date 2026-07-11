@@ -230,9 +230,11 @@ export default function Hadanky() {
         </>
       )}
 
-      {/* Spodní tematický Affiliate Banner */}
+   {/* Spodní tematický Affiliate Banner */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800/80 rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden group mt-12">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 rounded-full filter blur-2xl group-hover:bg-amber-400/10 transition duration-500" />
+        {/* OPRAVENO: Přidáno pointer-events-none, aby světlo neblokovalo klikání na odkaz */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 rounded-full filter blur-2xl group-hover:bg-amber-400/10 transition duration-500 pointer-events-none" />
+        
         <div className="flex flex-col sm:flex-row items-center gap-5 flex-1">
           <div className="w-20 h-20 bg-slate-950 border border-slate-800/60 rounded-xl flex items-center justify-center shrink-0 shadow-inner bg-gradient-to-b from-slate-900 to-slate-950 text-amber-400/40">
             <Brain size={24} />
@@ -247,7 +249,12 @@ export default function Hadanky() {
           </div>
         </div>
         <div className="shrink-0 w-full sm:w-auto self-center">
-          <a href="https://www.alza.cz/hracky/vzdelavaci-a-naucne-hracky/18857199.htm?idp=23293" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 text-xs font-bold px-5 py-3 rounded-xl transition cursor-pointer shadow-md">
+          <a 
+            href="https://www.alza.cz/hracky/vzdelavaci-a-naucne-hracky/18857199.htm?idp=23293" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 text-xs font-bold px-5 py-3 rounded-xl transition cursor-pointer shadow-md group-hover:border-amber-400/30"
+          >
             <ShoppingBag size={13} />
             <span>Zobrazit hry a rébusy</span>
           </a>
