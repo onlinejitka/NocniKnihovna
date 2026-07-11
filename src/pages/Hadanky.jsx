@@ -1,47 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HelpCircle, Sparkles, ShoppingBag, Brain, CheckCircle2, XCircle } from 'lucide-react';
 
-const RIDDLES_DATA = [
-  {
-    id: 1,
-    ageGroup: "3-5 let",
-    question: "Nemá to nohy, ale utíká to plynule pryč, studené je to a v lese z toho pije jelen Smolíček. Co je to?",
-    options: ["Lesní potůček", "Zlatý klíč", "Divoký drak"],
-    correctAnswer: "Lesní potůček"
-  },
-  {
-    id: 2,
-    question: "Ve dne spí v hustém křoví, v noci vyletí a loví. Houká tiše na lesy, schválně, ty víš, kdo to jsi?",
-    answer: "Sovička",
-    ageGroup: "3-5 let",
-    options: ["Vrabčák", "Sovička", "Netopýr"],
-    correctAnswer: "Sovička"
-  },
-  {
-    id: 3,
-    question: "Ve dne je to malá louže, v noci to po nebi klouže. Svítí jako nebeská kolébka pro unavené oči. Co je to?",
-    ageGroup: "6+ let",
-    options: ["Sluníčko", "Měsíček na obloze", "Padající kometa"],
-    correctAnswer: "Měsíček na obloze"
-  },
-  {
-    id: 4,
-    question: "Přichází potichu každou noc, zavírá očička na pomoc. Přinese pohádku, přinese sen, odejde, až když začne nový den. Co je to?",
-    ageGroup: "6+ let",
-    options: ["Spánek a noc", "Ranní budík", "Sváteční oběd"],
-    correctAnswer: "Spánek a noc"
-  }
-];
-
 export default function Hadanky() {
-  const [activeTab, setActiveTab] = useState("3-5 let");
-  const [selectedAnswers, setSelectedAnswers] = useState({}); // Struktura { riddleId: "vybraná_odpověď" }
+  const [riddles, setRiddles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  const [activeTab, setActiveTab] = useState("3 5 let"); // Vychozi zalozka
+  const [selectedAnswers, setSelectedAnswers] = useState({});
+
+  useEffect(() => {
+    fetch('/api/get-riddles')
+      .then(res => {
+        if (!res.ok) throw new Error('Nepodařilo se načíst hádanky.');
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.items) {
+          setRiddles(data.items);
+          if (data.items.length > 0) {
+             const uniqueAges = [...new Set(data.items.map(r => r.ageGroup))].sort();
+             if (uniqueAges.includes("3 5 let")) setActiveTab("3 5 let");
+             else if (uniqueAges.length > 0) setActiveTab(uniqueAges[0]);
+          }
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
 
   const handleOptionClick = (riddleId, option) => {
     setSelectedAnswers(prev => ({ ...prev, [riddleId]: option }));
   };
 
-  const filteredRiddles = RIDDLES_DATA.filter(r => r.ageGroup === activeTab);
+  const ageGroups = [...new Set(riddles.map(r => r.ageGroup))].sort();
+  const filteredRiddles = riddles.filter(r => r.ageGroup === activeTab);
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -54,82 +51,82 @@ export default function Hadanky() {
         </p>
       </div>
 
-      {/* ROZŘAZENÍ PODLE VĚKU */}
-      <div className="flex justify-center space-x-3 border-b border-slate-900 pb-4">
-        {["3-5 let", "6+ let"].map(tab => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-5 py-2 rounded-full text-xs md:text-sm font-semibold transition tracking-wide cursor-pointer ${
-              activeTab === tab 
-                ? 'bg-amber-400 text-slate-950 font-bold shadow-md' 
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-slate-800'
-            }`}
-          >
-            Kategorie: {tab}
-          </button>
-        ))}
-      </div>
+      {loading && (
+        <div className="text-center py-20 text-slate-400 flex flex-col items-center justify-center space-y-4">
+          <div className="animate-spin inline-block w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full"></div>
+          <p className="text-sm font-medium">Načítám tajemné rébusy z knihovny...</p>
+        </div>
+      )}
 
-      {/* SEZNAM INTERAKTIVNÍCH HÁDANEK */}
-      <div className="grid grid-cols-1 gap-6 pt-4">
-        {filteredRiddles.map((riddle) => {
-          const chosen = selectedAnswers[riddle.id];
+      {error && !loading && (
+        <div className="text-center py-10 text-red-400">
+          <p>Omlouváme se, hádanky se nepodařilo načíst z databáze.</p>
+        </div>
+      )}
 
-          return (
-            <div 
-              key={riddle.id}
-              className="bg-slate-900/40 border border-slate-800 p-5 md:p-6 rounded-2xl space-y-4 shadow-md transition duration-300"
-            >
-              <div className="flex items-start space-x-3">
-                <HelpCircle size={20} className="text-amber-400 shrink-0 mt-0.5" />
-                <p className="text-base font-medium text-slate-200 font-serif italic">
-                  „{riddle.question}“
-                </p>
-              </div>
+      {!loading && !error && riddles.length > 0 && (
+        <>
+          <div className="flex justify-center flex-wrap gap-3 border-b border-slate-900 pb-4">
+            {ageGroups.map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-5 py-2 rounded-full text-xs md:text-sm font-semibold transition tracking-wide cursor-pointer ${
+                  activeTab === tab 
+                    ? 'bg-amber-400 text-slate-950 font-bold shadow-md' 
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-slate-800'
+                }`}
+              >
+                Kategorie: {tab}
+              </button>
+            ))}
+          </div>
 
-              {/* MOŽNOSTI ODPOVĚDÍ (A, B, C) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
-                {riddle.options.map((option) => {
-                  const isSelected = chosen === option;
-                  const isCorrect = option === riddle.correctAnswer;
-                  
-                  let btnStyle = "bg-slate-950/40 border-slate-800 text-slate-300 hover:bg-slate-800/60";
-                  if (isSelected) {
-                    btnStyle = isCorrect 
-                      ? "bg-emerald-500/10 border-emerald-500 text-emerald-300 font-bold" 
-                      : "bg-red-500/10 border-red-500 text-red-300 font-bold";
-                  }
+          <div className="grid grid-cols-1 gap-6 pt-4 animate-fade-in">
+            {filteredRiddles.map((riddle) => {
+              const chosen = selectedAnswers[riddle.id];
 
-                  return (
-                    <button
-                      key={option}
-                      onClick={() => handleOptionClick(riddle.id, option)}
-                      className={`px-4 py-2.5 rounded-xl border text-xs text-left transition duration-200 cursor-pointer flex items-center justify-between ${btnStyle}`}
-                    >
-                      <span>{option}</span>
-                      {isSelected && (
-                        isCorrect ? <CheckCircle2 size={14} className="text-emerald-400 ml-2 shrink-0" /> : <XCircle size={14} className="text-red-400 ml-2 shrink-0" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
+              return (
+                <div key={riddle.id} className="bg-slate-900/40 border border-slate-800 p-5 md:p-6 rounded-2xl space-y-4 shadow-md transition duration-300">
+                  <div className="flex items-start space-x-3">
+                    <HelpCircle size={20} className="text-amber-400 shrink-0 mt-0.5" />
+                    <p className="text-base font-medium text-slate-200 font-serif italic">
+                      „{riddle.question}“
+                    </p>
+                  </div>
 
-              {/* TEXTOVÉ VYHODNOCENÍ PO KLIKNUTÍ */}
-              {chosen && (
-                <div className={`p-3 rounded-xl text-xs font-medium text-center animate-fade-in ${
-                  chosen === riddle.correctAnswer ? 'bg-emerald-500/5 text-emerald-400/90' : 'bg-red-500/5 text-red-400/90'
-                }`}>
-                  {chosen === riddle.correctAnswer 
-                    ? "✨ Skvěle! To je správná odpověď. Jste moc šikovní." 
-                    : "Očička vedle, zkusíte najít jinou možnost?"}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 pt-2">
+                    {riddle.options.map((option) => {
+                      const isSelected = chosen === option;
+                      const isCorrect = option === riddle.correctAnswer;
+                      
+                      let btnStyle = "bg-slate-950/40 border-slate-800 text-slate-300 hover:bg-slate-800/60";
+                      if (isSelected) {
+                        btnStyle = isCorrect ? "bg-emerald-500/10 border-emerald-500 text-emerald-300 font-bold" : "bg-red-500/10 border-red-500 text-red-300 font-bold";
+                      }
+
+                      return (
+                        <button key={option} onClick={() => handleOptionClick(riddle.id, option)} className={`px-4 py-2.5 rounded-xl border text-xs text-left transition duration-200 cursor-pointer flex items-center justify-between ${btnStyle}`}>
+                          <span>{option}</span>
+                          {isSelected && (
+                            isCorrect ? <CheckCircle2 size={14} className="text-emerald-400 ml-2 shrink-0" /> : <XCircle size={14} className="text-red-400 ml-2 shrink-0" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {chosen && (
+                    <div className={`p-3 rounded-xl text-xs font-medium text-center animate-fade-in ${chosen === riddle.correctAnswer ? 'bg-emerald-500/5 text-emerald-400/90' : 'bg-red-500/5 text-red-400/90'}`}>
+                      {chosen === riddle.correctAnswer ? "✨ Skvěle! To je správná odpověď. Jste moc šikovní." : "Očička vedle, zkusíte najít jinou možnost?"}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       {/* Affiliate Banner */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800/80 rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden group mt-12">
