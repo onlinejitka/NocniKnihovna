@@ -7,6 +7,8 @@ import Omalovanky from './pages/Omalovanky';
 import Hra from './pages/Hra';
 import Souhvezdi from './pages/Souhvezdi';
 import Pexeso from './pages/Pexeso';
+import Ovecky from './pages/Ovecky'; // Nový import
+import Labyrint from './pages/Labyrint'; // Nový import
 import VOP from './pages/VOP';
 import GDPR from './pages/GDPR';
 import { BookOpen, HelpCircle, Sparkles, Palette, Lightbulb, Star, LayoutGrid, Menu, X, ChevronDown, Gamepad2, Info } from 'lucide-react';
@@ -16,9 +18,7 @@ function CookieBar() {
 
   useEffect(() => {
     const accepted = localStorage.getItem('sl_cookies_confirmed_2026');
-    if (!accepted) {
-      setVisible(true);
-    }
+    if (!accepted) setVisible(true);
   }, []);
 
   const handleAccept = () => {
@@ -41,10 +41,7 @@ function CookieBar() {
       </div>
       <div className="flex justify-end space-x-3 items-center text-[10px]">
         <Link to="/gdpr" className="text-slate-500 hover:text-slate-300 transition underline">Více informací</Link>
-        <button 
-          onClick={handleAccept}
-          className="bg-gradient-to-r from-amber-400 to-orange-500 hover:opacity-95 text-slate-950 font-extrabold text-xs px-5 py-2 rounded-xl transition cursor-pointer shadow-lg"
-        >
+        <button onClick={handleAccept} className="bg-gradient-to-r from-amber-400 to-orange-500 hover:opacity-95 text-slate-950 font-extrabold text-xs px-5 py-2 rounded-xl transition cursor-pointer shadow-lg">
           Přijmout vše
         </button>
       </div>
@@ -58,7 +55,7 @@ function Header() {
   const currentPath = location.pathname;
 
   const closeMenu = () => setIsMobileMenuOpen(false);
-  const isGamesActive = currentPath === '/hra' || currentPath === '/souhvezdi' || currentPath === '/pexeso';
+  const isGamesActive = ['/hra', '/souhvezdi', '/pexeso', '/ovecky', '/labyrint'].includes(currentPath);
 
   return (
     <header className="border-b border-slate-800/60 bg-slate-950/40 backdrop-blur sticky top-0 z-50">
@@ -72,11 +69,7 @@ function Header() {
           </div>
         </Link>
 
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="md:hidden p-2 text-amber-400 hover:bg-slate-900 rounded-xl transition"
-          aria-label="Menu"
-        >
+        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2 text-amber-400 hover:bg-slate-900 rounded-xl transition" aria-label="Menu">
           {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
 
@@ -91,22 +84,28 @@ function Header() {
             <Palette size={14} /> <span>Omalovánky</span>
           </Link>
 
+          {/* MENÚ HRY PRO POČÍTAČE */}
           <div className="relative group">
             <button className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${isGamesActive ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
               <Gamepad2 size={14} /> <span>Hry</span> <ChevronDown size={14} className="opacity-70 transition-transform group-hover:rotate-180" />
             </button>
             
-            <div className="absolute top-full right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-2xl p-2 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              <Link to="/hra" className={`flex items-center space-x-2 px-3 py-2.5 rounded-xl text-sm transition ${currentPath === '/hra' ? 'bg-slate-800 text-amber-400 font-bold' : 'text-slate-300 hover:text-amber-400 hover:bg-slate-800'}`}>
-                <Lightbulb size={14} className={currentPath === '/hra' ? 'text-amber-400' : 'text-slate-400'} /> 
-                <span>Světlušky</span>
+            <div className="absolute top-full right-0 mt-2 w-52 bg-slate-900 border border-slate-800 rounded-2xl p-2 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <Link to="/hra" className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800">
+                <Lightbulb size={12} /> <span>Světlušky (Zdarma)</span>
               </Link>
-              <Link to="/souhvezdi" className={`flex items-center space-x-2 px-3 py-2.5 rounded-xl text-sm transition mt-1 ${currentPath === '/souhvezdi' ? 'bg-slate-800 text-amber-400 font-bold' : 'text-slate-300 hover:text-amber-400 hover:bg-slate-800'}`}>
-                <Star size={14} className={currentPath === '/souhvezdi' ? 'text-amber-300' : 'text-slate-400'} /> 
-                <span>Souhvězdí</span>
+              <Link to="/ovecky" className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800 mt-1">
+                <span>🐑</span> <span>Ovečky (Zdarma)</span>
               </Link>
-              <Link to="/pexeso" className={`flex items-center space-x-2 px-3 py-2.5 rounded-xl text-sm transition mt-1 ${currentPath === '/pexeso' ? 'bg-slate-800 text-amber-400 font-bold' : 'text-slate-300 hover:text-amber-400 hover:bg-slate-800'}`}>
-                <LayoutGrid size={14} className={currentPath === '/pexeso' ? 'text-amber-300' : 'text-slate-400'} /> <span>Stínové pexeso</span>
+              <div className="border-t border-slate-800/60 my-1 mx-2" />
+              <Link to="/souhvezdi" className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800">
+                <Star size={12} className="text-amber-400" /> <span>Souhvězdí (Premium)</span>
+              </Link>
+              <Link to="/pexeso" className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800 mt-1">
+                <LayoutGrid size={12} className="text-amber-400" /> <span>Pexeso (Premium)</span>
+              </Link>
+              <Link to="/labyrint" className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800 mt-1">
+                <Star size={12} className="text-amber-400" /> <span>Labyrint (Premium)</span>
               </Link>
             </div>
           </div>
@@ -117,6 +116,7 @@ function Header() {
         </nav>
       </div>
 
+      {/* MENÚ PRO MOBILY */}
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-20 left-0 w-full bg-slate-950/95 backdrop-blur-xl border-b border-slate-800 px-4 py-6 flex flex-col space-y-3 shadow-2xl z-50 animate-fade-in h-[calc(100vh-80px)] overflow-y-auto">
           <Link to="/" onClick={closeMenu} className={`flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium transition ${currentPath === '/' ? 'bg-amber-400/10 text-amber-400' : 'text-slate-300'}`}>
@@ -129,17 +129,15 @@ function Header() {
             <Palette size={18} /> <span>Omalovánky</span>
           </Link>
 
-          <div className="bg-slate-900/50 rounded-2xl p-3 border border-slate-800 mt-2 shadow-inner">
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-3">Uklidňující hry</p>
-            <Link to="/hra" onClick={closeMenu} className={`flex items-center space-x-3 px-3 py-3 rounded-xl text-base font-medium transition ${currentPath === '/hra' ? 'bg-slate-800 text-amber-400 shadow-md' : 'text-slate-300'}`}>
-              <Lightbulb size={18} className={currentPath === '/hra' ? 'text-amber-400' : 'text-slate-400'} /> <span>Světlušky</span>
-            </Link>
-            <Link to="/souhvezdi" onClick={closeMenu} className={`flex items-center space-x-3 px-3 py-3 rounded-xl text-base font-medium transition mt-1 ${currentPath === '/souhvezdi' ? 'bg-slate-800 text-amber-400 shadow-md' : 'text-slate-300'}`}>
-              <Star size={18} className={currentPath === '/souhvezdi' ? 'text-amber-300' : 'text-slate-400'} /> <span>Souhvězdí</span>
-            </Link>
-            <Link to="/pexeso" onClick={closeMenu} className={`flex items-center space-x-3 px-3 py-3 rounded-xl text-base font-medium transition mt-1 ${currentPath === '/pexeso' ? 'bg-slate-800 text-amber-400 shadow-md' : 'text-slate-300'}`}>
-              <LayoutGrid size={18} className={currentPath === '/pexeso' ? 'text-amber-300' : 'text-slate-400'} /> <span>Stínové pexeso</span>
-            </Link>
+          <div className="bg-slate-900/50 rounded-2xl p-3 border border-slate-800 mt-2 shadow-inner space-y-1">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-3">Hry Zdarma</p>
+            <Link to="/hra" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-slate-300"><Lightbulb size={16} /> <span>Světlušky</span></Link>
+            <Link to="/ovecky" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-slate-300"><span>🐑</span> <span>Počítání oveček</span></Link>
+            
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pt-3 mb-2 pl-3">Premium Hry 🔒</p>
+            <Link to="/souhvezdi" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-amber-400"><Star size={16} /> <span>Souhvězdí</span></Link>
+            <Link to="/pexeso" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-amber-400"><LayoutGrid size={16} /> <span>Stínové pexeso</span></Link>
+            <Link to="/labyrint" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-amber-400"><Star size={16} /> <span>Snový labyrint</span></Link>
           </div>
 
           <a href="https://generator.nocniknihovna.cz" target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium text-slate-300 hover:text-white mt-4 border border-slate-800 bg-slate-900/30">
@@ -163,8 +161,10 @@ export default function App() {
             <Route path="/hadanky" element={<Hadanky />} />
             <Route path="/omalovanky" element={<Omalovanky />} />
             <Route path="/hra" element={<Hra />} />
+            <Route path="/ovecky" element={<Ovecky />} /> {/* Registrace cesty */}
             <Route path="/souhvezdi" element={<Souhvezdi />} />
             <Route path="/pexeso" element={<Pexeso />} />
+            <Route path="/labyrint" element={<Labyrint />} /> {/* Registrace cesty */}
             <Route path="/obchodni-podminky" element={<VOP />} />
             <Route path="/gdpr" element={<GDPR />} />
             <Route path="/:slug" element={<PohadkaDetail />} />
@@ -175,7 +175,7 @@ export default function App() {
           <div className="space-y-1.5">
             <p>© {new Date().getFullYear()} Noční Knihovna. Všechna práva vyhrazená.</p>
             <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed">
-              Veškeré nahrávky pro Vás zaznamenávám svým vlastním hlasem. Ilustrace jsou spoluvytvářené s pomocí AI a mnou ručně graficky upravené. Omalovánky ve videích následně vybarvuji já nebo mé děti.
+              Veškeré nahrávky pro Vás zaznamenávám svým vlastním hlasem. Ilustrace jsou spoluvytvářené s pomocí AI a mnou ručně graficky upravené.
             </p>
           </div>
 
@@ -187,21 +187,13 @@ export default function App() {
             </div>
 
             <div className="flex flex-wrap justify-center sm:justify-end gap-x-3 gap-y-2 font-medium">
-              <a href="https://jitkap.cz" target="_blank" rel="noopener noreferrer" className="text-amber-500/80 hover:text-amber-400 transition underline decoration-amber-500/20">
-                O autorce
-              </a>
+              <a href="https://jitkap.cz" target="_blank" rel="noopener noreferrer" className="text-amber-500/80 hover:text-amber-400 transition underline decoration-amber-500/20">O autorce</a>
               <span className="text-slate-800">•</span>
-              <a href="https://navigator40k.cz" target="_blank" rel="noopener noreferrer" className="text-indigo-400/80 hover:text-indigo-400 transition underline decoration-indigo-500/20">
-                Navigátor 40k
-              </a>
+              <a href="https://navigator40k.cz" target="_blank" rel="noopener noreferrer" className="text-indigo-400/80 hover:text-indigo-400 transition underline decoration-indigo-500/20">Navigátor 40k</a>
               <span className="text-slate-800 hidden sm:inline">•</span>
-              <Link to="/obchodni-podminky" className="hover:text-slate-400 transition">
-                Obchodní podmínky
-              </Link>
+              <Link to="/obchodni-podminky" className="hover:text-slate-400 transition">Obchodní podmínky</Link>
               <span className="text-slate-800">•</span>
-              <Link to="/gdpr" className="hover:text-slate-400 transition">
-                GDPR
-              </Link>
+              <Link to="/gdpr" className="hover:text-slate-400 transition">GDPR</Link>
             </div>
           </div>
         </footer>
