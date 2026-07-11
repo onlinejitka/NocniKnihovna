@@ -10,7 +10,7 @@ export default function VOP() {
       <section className="space-y-2">
         <h3 className="font-bold text-slate-100 text-base">1. Úvodní ustanovení</h3>
         <p>
-          Tyto všeobecné obchodní podmínky platí pro nákup prémiového přístupu (Premium členství) na webové stránce <strong>Noční Knihovna (nocniknihovna.cz)</strong>. 
+          Tyto všeobecné obchodní podmínky platí pro nákup opakovaného měsíčního prémiového přístupu (Premium členství a připravované VIP členství) na webové stránce <strong>Noční Knihovna (nocniknihovna.cz)</strong>.
         </p>
         <p>
           Provozovatelem a poskytovatelem digitálního obsahu je:<br />
@@ -22,30 +22,38 @@ export default function VOP() {
       </section>
 
       <section className="space-y-2">
-        <h3 className="font-bold text-slate-100 text-base">2. Předmět smlouvy a digitální obsah</h3>
+        <h3 className="font-bold text-slate-100 text-base">2. Předmět smlouvy, předplatné a výhody</h3>
         <p>
-          Předmětem koupě je poskytnutí digitálního obsahu – jednorázové aktivace Premium přístupu ke sady rozšířených omalovánek, hlasovým nahrávkám a doplňkovým interaktivním hrám na webu nocniknihovna.cz. Cena za tento přístup je pevně stanovena na 75 Kč.
+          Předmětem smlouvy je poskytování digitálního obsahu formou <strong>opakovaného měsíčního předplatného</strong>. Aktivací členství získává zákazník přístup k prémiovým funkcím webu (rozšířené omalovánky, hlasové nahrávky, prémiové hry a AI generátor pohádek).
+        </p>
+        <p><strong>Garantované slevy na připravované fyzické produkty:</strong></p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li>Aktivní <strong>Premium členství</strong> garantuje zákazníkovi <strong>slevu 10%</strong> na nákup našich fyzických produktů.</li>
+          <li>Aktivní <strong>VIP členství</strong> (v tuto chvíli v přípravě) bude zákazníkovi garantovat <strong>slevu 15%</strong> na nákup našich fyzických produktů.</li>
+        </ul>
+      </section>
+
+      <section className="space-y-2">
+        <h3 className="font-bold text-slate-100 text-base">3. Platební mechanismus a zrušení předplatného</h3>
+        <p>
+          Platba předplatného probíhá automaticky každý měsíc prostřednictvím platební brány <strong>Stripe</strong>, která bezpečně uchovává platební údaje. Poplatek za členství (75 Kč / měsíc u tarifu Premium) je stržen vždy k odpovídajícímu dni v měsíci. 
+        </p>
+        <p>
+          Zákazník má plné právo své měsíční předplatné <strong>kdykoliv zrušit</strong>. Zrušení lze provést jednoduše kontaktováním provozovatelky, případně přes odkaz ve Stripe rozhraní. Po zrušení zůstává přístup aktivní do konce již zaplaceného zúčtovacího období, poté zaniká.
         </p>
       </section>
 
       <section className="space-y-2">
-        <h3 className="font-bold text-slate-100 text-base">3. Platební podmínky a doručení</h3>
+        <h3 className="font-bold text-slate-100 text-base">4. Odstoupení od smlouvy</h3>
         <p>
-          Platba probíhá bezpečně online prostřednictvím platební brány <strong>Stripe</strong>. Ihned po úspěšném dokončení platby je zákazníkovi automaticky vygenerován a na jím zadanou e-mailovou adresu odeslán unikátní přístupový kód (za technické podpory platformy Make.com). Vložením tohoto kódu na webu dojde k okamžitému odemčení obsahu.
+          Zákazník bere na vědomí, že u digitálního obsahu poskytovaného online dochází k jeho plnému zpřístupnění ihned po dokončení objednávky. Z tohoto důvodu <strong>nelze uplatnit 14denní lhůtu pro odstoupení od smlouvy bez udání důvodu</strong> na již započatý a zaplacený měsíc (v souladu s § 1837 písm. l) občanského zákoníku ČR). Každé další opakování platby však může zákazník včasným zrušením předplatného stopnout.
         </p>
       </section>
 
       <section className="space-y-2">
-        <h3 className="font-bold text-slate-100 text-base">4. Odstoupení od smlouvy (Důležité)</h3>
+        <h3 className="font-bold text-slate-100 text-base">5. Reklamace a podpora</h3>
         <p>
-          Vzhledem k tomu, že se jedná o dodání <strong>digitálního obsahu online</strong>, který je zákazníkovi zpřístupněn ihned po zaplacení, zákazník výslovně souhlasí s tím, že <strong>nemá právo na odstoupení od smlouvy do 14 dnů bez udání důvodu</strong> (v souladu s § 1837 písm. l) občanského zákoníku ČR). Digitální produkt je považován za zkonzumovaný v momentě doručení a aktivace kódu.
-        </p>
-      </section>
-
-      <section className="space-y-2">
-        <h3 className="font-bold text-slate-100 text-base">5. Reklamace a závěrečná ustanovení</h3>
-        <p>
-          V případě technických potíží s doručením kódu nebo nefunkčností webového rozhraní může zákazník kontaktovat provozovatelku na e-mailu přidruženém k profesní doméně jitkap.cz. Tyto podmínky jsou platné a účinné od 11. 7. 2026.
+          V případě jakýchkoliv technických potíží, nefunkčnosti přístupového kódu nebo dotazů k platbám mě kontaktujte na e-mailu dostupném na mé profesní doméně <strong>jitkap.cz</strong>. Tyto aktualizované podmínky jsou platné od 11. 7. 2026.
         </p>
       </section>
     </div>
