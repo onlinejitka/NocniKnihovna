@@ -1,27 +1,30 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkle, RotateCcw, HelpCircle, Lightbulb } from 'lucide-react';
+import { RotateCcw, Lightbulb, Maximize2, Minimize2 } from 'lucide-react';
 
-// Nastavení hry: počet světlušek a pozice lucerny (v procentech herního okna)
 const TOTAL_FIREFLIES = 8;
-const LANTERN_X = 50; // střed horizontálně
-const LANTERN_Y = 75; // spodní část vertikálně
+const LANTERN_X = 50; 
+const LANTERN_Y = 75; 
 
 export default function Hra() {
   const [fireflies, setFireflies] = useState([]);
   const [gameCompleted, setGameCompleted] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  
+  const gameContainerRef = useRef(null);
   const requestRef = useRef();
+  const [audioDuration, setAudioDuration] = useState('--:--');
 
-  // Inicializace světlušek s náhodnými pozicemi a rychlostmi
+  // Inicializace světlušek s upravenou, mnohem línější rychlostí
   const initGame = () => {
     const initial = Array.from({ length: TOTAL_FIREFLIES }).map((_, i) => ({
       id: i,
-      x: Math.random() * 80 + 10, // pozice v % (10 až 90)
-      y: Math.random() * 50 + 10, // pozice v % (10 až 60)
-      vx: (Math.random() - 0.5) * 0.3, // líná rychlost X
-      vy: (Math.random() - 0.5) * 0.3, // líná rychlost Y
+      x: Math.random() * 80 + 10, 
+      y: Math.random() * 45 + 10, 
+      vx: (Math.random() - 0.5) * 0.12, // Výrazně zpomaleno pro uklidňující drift
+      vy: (Math.random() - 0.5) * 0.12, // Výrazně zpomaleno pro uklidňující drift
       isCollected: false,
       isInside: false,
-      size: Math.random() * 6 + 8 // náhodná velikost světýlka
+      size: Math.random() * 5 + 8 // velikost viditelného jádra
     }));
     setFireflies(initial);
     setGameCompleted(false);
@@ -29,10 +32,20 @@ export default function Hra() {
 
   useEffect(() => {
     initGame();
-    return () => cancelAnimationFrame(requestRef.current);
+    
+    // Sledování změn stavu vestavěného fullscreenu (např. při zmáčknutí klávesy Esc)
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    
+    return () => {
+      cancelAnimationFrame(requestRef.current);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
   }, []);
 
-  // Hlavní herní smyčka běžící přes requestAnimationFrame pro maximální plynulost
+  // Hlavní herní smyčka
   const updateGame = () => {
     setFireflies((prevFireflies) => {
       let allInside = true;
@@ -41,33 +54,29 @@ export default function Hra() {
         if (f.isInside) return f;
         allInside = false;
 
-        // A: Světluška je chycená -> letí plynule přímo do lucerny
         if (f.isCollected) {
           const dx = LANTERN_X - f.x;
           const dy = LANTERN_Y - f.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
 
-          // Pokud dorazila dostatečně blízko do lucerny, schováme ji dovnitř
-          if (distance < 2) {
+          if (distance < 2.5) {
             return { ...f, isInside: true, x: LANTERN_X, y: LANTERN_Y };
           }
 
-          // Plynulý přesun směrem k lucerně
           return {
             ...f,
-            x: f.x + dx * 0.08,
-            y: f.y + dy * 0.08
+            x: f.x + dx * 0.06, // Plynulejší vtahování do lucerny
+            y: f.y + dy * 0.06
           };
         }
 
-        // B: Světluška volně létá -> líný pohyb s odrazy od stěn herního okna
         let nextX = f.x + f.vx;
         let nextY = f.y + f.vy;
         let nextVx = f.vx;
         let nextVy = f.vy;
 
         if (nextX < 4 || nextX > 96) nextVx = -nextVx;
-        if (nextY < 4 || nextY > 65) nextVy = -nextVy;
+        if (nextY < 4 || nextY > 62) nextVy = -nextVy;
 
         return {
           ...f,
@@ -93,17 +102,30 @@ export default function Hra() {
     return () => cancelAnimationFrame(requestRef.current);
   }, [gameCompleted]);
 
-  // Kliknutí / Klepnutí na světlušku
   const handleFireflyClick = (id) => {
     setFireflies((prev) =>
       prev.map((f) => (f.id === id ? { ...f, isCollected: true } : f))
     );
   };
 
+  // Funkce pro zapnutí a vypnutí režimu celé obrazovky (Fullscreen API)
+  const toggleFullscreen = () => {
+    if (!gameContainerRef.current) return;
+
+    if (!document.fullscreenElement) {
+      gameContainerRef.current.requestFullscreen()
+        .then(() => setIsFullscreen(true))
+        .catch((err) => console.error("Fullscreen selhal:", err));
+    } else {
+      document.exitFullscreen()
+        .then(() => setIsFullscreen(false));
+    }
+  };
+
   const insideCount = fireflies.filter((f) => f.isInside).length;
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-4xl mx-auto">
       {/* Textový úvod s vykáním */}
       <div className="text-center max-w-2xl mx-auto space-y-2">
         <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-400">
@@ -114,13 +136,37 @@ export default function Hra() {
         </p>
       </div>
 
-      {/* Hlavní herní plocha simulující noční oblohu */}
-      <div className="relative w-full aspect-[16/10] bg-[#05040a] border border-slate-900 rounded-3xl overflow-hidden shadow-2xl select-none group">
+      {/* TLAČÍTKO PRO CELOU OBRAZOVKU PŘED OKNEM HRY */}
+      <div className="flex justify-end px-2">
+        <button
+          onClick={toggleFullscreen}
+          className="inline-flex items-center space-x-2 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer shadow-md"
+        >
+          {isFullscreen ? (
+            <>
+              <Minimize2 size={14} className="text-amber-400" />
+              <span>Zmenšit okno</span>
+            </>
+          ) : (
+            <>
+              <Maximize2 size={14} className="text-amber-400" />
+              <span>Zobrazit na celou obrazovku</span>
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* RECONER PRO CELÉ OKNO HRY (Kontejner, který se zvětší na Fullscreen) */}
+      <div 
+        ref={gameContainerRef}
+        className={`relative w-full aspect-[16/10] bg-[#030206] border border-slate-900 overflow-hidden select-none group transition-all duration-300 ${
+          isFullscreen ? 'rounded-none border-none' : 'rounded-3xl shadow-2xl'
+        }`}
+      >
+        {/* Pozadí: Jemná snová mlhovina */}
+        <div className="absolute inset-0 bg-radial-gradient from-purple-950/20 via-transparent to-transparent pointer-events-none" />
         
-        {/* Pozadí: Mlhovina a hvězdy */}
-        <div className="absolute inset-0 bg-radial-gradient from-purple-950/10 via-transparent to-transparent pointer-events-none" />
-        
-        {/* VOLNĚ LÉTAJÍCÍ SVĚTLUŠKY */}
+        {/* SVĚTLUŠKY S VELKÝM NEVIDITELNÝM HITBOXEM */}
         {fireflies.map((f) => {
           if (f.isInside) return null;
           return (
@@ -131,49 +177,52 @@ export default function Hra() {
               style={{
                 left: `${f.x}%`,
                 top: `${f.y}%`,
-                width: `${f.size}px`,
-                height: `${f.size}px`,
+                width: '44px',  // OPRAVENO: Velký komfortní hitbox pro prst i myš
+                height: '44px', // OPRAVENO: Velký komfortní hitbox pro prst i myš
                 transform: 'translate(-50%, -50%)',
               }}
-              className={`absolute rounded-full bg-amber-300 transition-shadow duration-300 cursor-pointer ${
-                f.isCollected 
-                  ? 'shadow-[0_0_25px_rgba(251,191,36,1)] scale-110' 
-                  : 'shadow-[0_0_12px_rgba(251,191,36,0.7)] hover:shadow-[0_0_20px_rgba(251,191,36,1)] animate-pulse'
-              }`}
-            />
+              className="absolute flex items-center justify-center bg-transparent border-none outline-none cursor-pointer z-10 p-0"
+            >
+              {/* Viditelné svítící jádro světlušky s posíleným vícevrstvým jasem pro mobily */}
+              <div
+                style={{
+                  width: `${f.size}px`,
+                  height: `${f.size}px`,
+                }}
+                className={`rounded-full bg-amber-200 transition-all duration-300 ${
+                  f.isCollected 
+                    ? 'shadow-[0_0_20px_#fbbf24,0_0_40px_#fbbf24] bg-white scale-125' 
+                    : 'shadow-[0_0_10px_#fbbf24,0_0_25px_rgba(251,191,36,0.8)] animate-pulse'
+                }`}
+              />
+            </button>
           );
         })}
 
-        {/* GRAFICKÁ LUCERNA (Umístěná dole uprostřed) */}
+        {/* GRAFICKÁ LUCERNA */}
         <div 
           style={{ left: `${LANTERN_X}%`, top: `${LANTERN_Y}%`, transform: 'translate(-50%, -50%)' }}
           className="absolute w-20 h-28 flex flex-col items-center justify-end"
         >
-          {/* Držadlo lucerny */}
           <div className="w-8 h-6 border-2 border-slate-700 rounded-t-full -mb-1" />
-          {/* Stříška lucerny */}
           <div className="w-16 h-3 bg-slate-800 rounded-t-md border border-slate-700" />
           
-          {/* Skleněné tělo lucerny s dynamickým svitem podle počtu světlušek */}
-          <div className="w-14 h-20 bg-slate-900/80 border-2 border-slate-700 rounded-b-xl relative flex items-center justify-center overflow-hidden">
-            {/* Vnitřní záře zvětšující se s každou chycenou světluškou */}
+          <div className="w-14 h-20 bg-slate-900/90 border-2 border-slate-700 rounded-b-xl relative flex items-center justify-center overflow-hidden">
             <div 
               style={{ 
                 opacity: insideCount / TOTAL_FIREFLIES,
-                transform: `scale(${1 + (insideCount * 0.15)})`
+                transform: `scale(${1 + (insideCount * 0.2)})`
               }}
-              className="absolute w-10 h-10 bg-gradient-to-br from-amber-300 to-orange-400 rounded-full filter blur-md transition-all duration-500"
+              className="absolute w-10 h-10 bg-gradient-to-br from-amber-300 to-orange-500 rounded-full filter blur-md transition-all duration-500 shadow-[0_0_30px_rgba(251,191,36,0.6)]"
             />
-            {/* Ikona žárovky/plamínku uvnitř */}
             <Lightbulb 
               size={24} 
               className={`relative z-10 transition-colors duration-500 ${
-                insideCount > 0 ? 'text-amber-200' : 'text-slate-700'
+                insideCount > 0 ? 'text-amber-200 drop-shadow-[0_0_8px_rgba(251,191,36,1)]' : 'text-slate-700'
               }`} 
             />
           </div>
 
-          {/* Počítadlo chycených světlušek pod lucernou */}
           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-2 select-none">
             {insideCount} / {TOTAL_FIREFLIES}
           </span>
@@ -181,7 +230,7 @@ export default function Hra() {
 
         {/* OBRAZOVKA S PŘÁNÍM PO ÚSPĚŠNÉM DOKONČENÍ */}
         {gameCompleted && (
-          <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center text-center p-6 animate-fade-in z-20">
+          <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-sm flex flex-col items-center justify-center text-center p-6 animate-fade-in z-20">
             <span className="text-5xl mb-4 filter drop-shadow-[0_0_15px_rgba(245,158,11,0.4)] animate-bounce">🌙</span>
             <h3 className="text-xl md:text-2xl font-serif font-bold text-amber-300 max-w-md leading-snug">
               Lucerna jasně září...
