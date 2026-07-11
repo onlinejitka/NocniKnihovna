@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { RotateCcw, Maximize2, Minimize2, Sparkles, Lock, CheckCircle } from 'lucide-react';
+import { RotateCcw, Maximize2, Minimize2, Sparkles, Lock, CheckCircle, ShoppingBag } from 'lucide-react';
 
 const CONSTELLATIONS_DATA = [
   {
@@ -130,7 +130,6 @@ export default function Souhvezdi() {
       openStripePopup();
       return;
     }
-
     const isComplete = connected.length === requiredClicks;
     const isNextTarget = !isComplete && (
       (index === connected.length && index < activeConstellation.stars.length) ||
@@ -222,13 +221,7 @@ export default function Souhvezdi() {
               const isConnected = connected.includes(index);
 
               return (
-                <button
-                  key={index}
-                  onClick={() => handleStarClick(index)}
-                  disabled={!isUserVip && false} // Necháme klikatelné, aby vyvolalo zámek
-                  style={{ left: `${star.x}%`, top: `${star.y}%`, width: '44px', height: '44px', transform: 'translate(-50%, -50%)' }}
-                  className="absolute flex items-center justify-center bg-transparent border-none outline-none z-10 p-0 cursor-pointer"
-                >
+                <button key={index} onClick={() => handleStarClick(index)} style={{ left: `${star.x}%`, top: `${star.y}%`, width: '44px', height: '44px', transform: 'translate(-50%, -50%)' }} className="absolute flex items-center justify-center bg-transparent border-none outline-none z-10 p-0 cursor-pointer">
                   {isNextTarget && <div className="absolute w-6 h-6 rounded-full border border-amber-400/40 animate-ping pointer-events-none" />}
                   <div className={`rounded-full transition-all duration-500 ${isNextTarget ? 'w-3 h-3 bg-amber-300 shadow-[0_0_12px_#fbbf24] animate-pulse scale-110 border border-white/20' : isConnected ? 'w-2.5 h-2.5 bg-white shadow-[0_0_15px_#fff,0_0_25px_#fbbf24]' : 'w-2 h-2 bg-slate-700 shadow-none'}`} />
                 </button>
@@ -242,7 +235,6 @@ export default function Souhvezdi() {
               {isUserVip && <h4 className="text-sm font-medium text-slate-400">{activeConstellation.name}</h4>}
             </div>
 
-            {/* VIZUÁLNÍ ZÁMEK PŘES CELOU HRU POKUD NENÍ VIP */}
             {!isUserVip && (
               <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px] flex items-center justify-center z-30 transition-all duration-500">
                 <div onClick={openStripePopup} className="w-16 h-16 bg-slate-900/90 rounded-full flex items-center justify-center shadow-2xl border border-slate-700 cursor-pointer hover:scale-110 transition-transform">
@@ -259,20 +251,14 @@ export default function Souhvezdi() {
                 <p className="text-slate-400 text-xs md:text-sm max-w-sm mt-3 leading-relaxed px-4">
                   {activeConstellation.description} Obloha se krásně rozsvítila a doprovodí Vás do snové říše.
                 </p>
-                
                 <div className="mt-6 flex items-center space-x-3">
-                  <button onClick={resetLevel} className="inline-flex items-center space-x-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer">
-                    <RotateCcw size={12} /> <span>Znovu</span>
-                  </button>
-                  <button onClick={nextLevel} className="inline-flex items-center space-x-1.5 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 text-xs font-black px-5 py-2.5 rounded-xl uppercase tracking-wide transition cursor-pointer shadow-md">
-                    <Sparkles size={12} /> <span>Další souhvězdí</span>
-                  </button>
+                  <button onClick={resetLevel} className="inline-flex items-center space-x-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer"><RotateCcw size={12} /> <span>Znovu</span></button>
+                  <button onClick={nextLevel} className="inline-flex items-center space-x-1.5 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 text-xs font-black px-5 py-2.5 rounded-xl uppercase tracking-wide transition cursor-pointer shadow-md"><Sparkles size={12} /> <span>Další souhvězdí</span></button>
                 </div>
               </div>
             )}
           </div>
 
-          {/* PRODEJNÍ BOX (Zobrazí se pod plátnem, pokud není VIP) */}
           {!isUserVip && (
             <div className="max-w-xl mx-auto space-y-6 pt-6 animate-fade-in">
               <div className="bg-slate-900/40 border border-slate-800 p-6 md:p-8 rounded-3xl text-center space-y-6 shadow-xl">
@@ -282,57 +268,43 @@ export default function Souhvezdi() {
                     Tato snová hra je exkluzivní součástí Premium balíčku Noční Knihovny. Aktivací členství získáte okamžitý přístup k 8 různým souhvězdím, pexesu, všem rozšířeným omalovánkám, nahrávkám a AI generátoru.
                   </p>
                 </div>
-                <button onClick={openStripePopup} className="w-full md:w-auto inline-block text-center bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wide transition shadow-lg hover:shadow-orange-500/5 hover:opacity-95 cursor-pointer">
-                  Aktivovat Premium za 75 Kč ➔
- সম্পন্ন
-                </button>
+                <button onClick={openStripePopup} className="w-full md:w-auto inline-block text-center bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wide transition shadow-lg hover:shadow-orange-500/5 hover:opacity-95 cursor-pointer">Aktivovat Premium za 75 Kč ➔</button>
               </div>
-
               <form onSubmit={handleSaveCode} className="bg-slate-900/20 border border-slate-800/60 p-4 rounded-xl space-y-3">
-                <label className="block text-[11px] font-bold uppercase tracking-widest text-slate-400">
-                  🔑 Již máte svůj Premium přístupový kód?
-                </label>
+                <label className="block text-[11px] font-bold uppercase tracking-widest text-slate-400">🔑 Již máte svůj Premium přístupový kód?</label>
                 <div className="flex space-x-2">
-                  <input type="text" value={inputCode} onChange={(e) => setInputCode(e.target.value)} placeholder="Vložte Váš kód (např. sl-jiri-8x3a)..." className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500" />
-                  <button type="submit" className="bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold px-4 py-1.5 rounded-lg transition shrink-0 cursor-pointer">
-                    Uložit kód
-                  </button>
+                  <input type="text" value={inputCode} onChange={(e) => setInputCode(e.target.value)} placeholder="Vložte Váš kód..." className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none" />
+                  <button type="submit" className="bg-amber-400 text-slate-950 text-xs font-bold px-4 py-1.5 rounded-lg cursor-pointer">Uložit kód</button>
                 </div>
-                {codeSaved && (
-                  <p className="text-emerald-400 text-[11px] flex items-center space-x-1 animate-pulse">
-                    <CheckCircle size={12} /> <span>Kód byl úspěšně uložen! Ověřuji přístup...</span>
-                  </p>
-                )}
+                {codeSaved && <p className="text-emerald-400 text-[11px] flex items-center space-x-1 animate-pulse"><CheckCircle size={12} /> <span>Kód uložen!</span></p>}
               </form>
             </div>
           )}
         </>
       )}
-    </div>
 
-
-    {/* KOPÍRUJTE TENTO BLOK BANNERU PRO HRY A VLOŽTE JEJ NA KONEC SOUBORŮ HRA.JSX, SOUHVEZDI.JSX I PEXESO.JSX PŘED POSLEDNÍ </div> */}
-<div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800/80 rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden group mt-12">
-  <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 rounded-full filter blur-2xl group-hover:bg-amber-400/10 transition duration-500" />
-  <div className="flex flex-col sm:flex-row items-center gap-5 flex-1">
-    <div className="w-20 h-20 bg-slate-950 border border-slate-800/60 rounded-xl flex items-center justify-center shrink-0 shadow-inner bg-gradient-to-b from-slate-900 to-slate-950 text-amber-400/40">
-      <Sparkles size={24} />
+      {/* INTEGROVANÝ AFFILIATE BANNER NA HRAČKY */}
+      <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800/80 rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden group mt-12">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 rounded-full filter blur-2xl group-hover:bg-amber-400/10 transition duration-500" />
+        <div className="flex flex-col sm:flex-row items-center gap-5 flex-1">
+          <div className="w-20 h-20 bg-slate-950 border border-slate-800/60 rounded-xl flex items-center justify-center shrink-0 shadow-inner bg-gradient-to-b from-slate-900 to-slate-950 text-amber-400/40">
+            <Sparkles size={24} />
+          </div>
+          <div className="space-y-1.5 text-center sm:text-left">
+            <span className="text-[9px] font-bold text-amber-400/60 uppercase tracking-widest bg-amber-400/5 px-2 py-0.5 rounded border border-amber-400/10 inline-flex items-center space-x-1">
+              <Sparkles size={10} /> <span>Tip po hraní</span>
+            </span>
+            <p className="text-xs md:text-sm text-slate-300 leading-relaxed max-w-xl">
+              Hra pomalu skončila a očička jsou unavená. Pro klidný přesun do postýlky skvěle fungují milé plyšové hračky a usínáčci, kteří se stanou věrnými strážci krásných snových říší Vašich dětí.
+            </p>
+          </div>
+        </div>
+        <div className="shrink-0 w-full sm:w-auto self-center">
+          <a href="https://www.alza.cz/hracky/pro-nejmenshi-plysaci/18851509.htm" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 text-xs font-bold px-5 py-3 rounded-xl transition cursor-pointer shadow-md">
+            <ShoppingBag size={13} /> <span>Prohlédnout hračky</span>
+          </a>
+        </div>
+      </div>
     </div>
-    <div className="space-y-1.5 text-center sm:text-left">
-      <span className="text-[9px] font-bold text-amber-400/60 uppercase tracking-widest bg-amber-400/5 px-2 py-0.5 rounded border border-amber-400/10 inline-flex items-center space-x-1">
-        <Sparkles size={10} /> <span>Tip po hraní</span>
-      </span>
-      <p className="text-xs md:text-sm text-slate-300 leading-relaxed max-w-xl">
-        Hra pomalu skončila a očička jsou unavená. Pro klidný přesun do postýlce skvěle fungují milé plyšové hračky a usínáčci, kteří se stanou věrnými strážci krásných snových říší Vašich dětí.
-      </p>
-    </div>
-  </div>
-  <div className="shrink-0 w-full sm:w-auto self-center">
-    <a href="https://www.alza.cz/hracky/pro-nejmenshi-plysaci/18851509.htm" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 text-xs font-bold px-5 py-3 rounded-xl transition cursor-pointer shadow-md">
-      <ShoppingBag size={13} />
-      <span>Prohlédnout hračky</span>
-    </a>
-  </div>
-</div>
   );
 }
