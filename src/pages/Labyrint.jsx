@@ -3,14 +3,41 @@ import { Star, Moon, Lock, CheckCircle, RotateCcw, Sparkles, ShoppingBag, Cloud,
 
 const GRID_SIZE = 5;
 
-// Definice bludiště: 0 = čistý mrak (bezpečný), 1 = bouřkový mrak (překážka)
-const MAZE_LAYOUT = [
-  [0, 0, 1, 0, 0],
-  [1, 0, 0, 0, 1],
-  [0, 1, 1, 0, 0],
-  [0, 0, 0, 1, 0],
-  [1, 1, 0, 0, 0]
-];
+// Funkce, která vygeneruje vždy unikátní bludiště s garantovanou cestou
+const generateDynamicMaze = () => {
+  // Začneme s tabulkou plnou bouřkových mraků (1)
+  const maze = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(1));
+  
+  let r = 0, c = 0;
+  maze[r][c] = 0; // Start je čistý
+  const pathCells = [[0, 0]];
+  
+  // Krok za krokem vyvrtáme stoprocentně průchozí tunel do pravého dolního rohu
+  while (r < GRID_SIZE - 1 || c < GRID_SIZE - 1) {
+    const options = [];
+    if (r < GRID_SIZE - 1) options.push('D'); // Dolů
+    if (c < GRID_SIZE - 1) options.push('R'); // Vpravo
+    
+    const move = options[Math.floor(Math.random() * options.length)];
+    if (move === 'D') r++;
+    else c++;
+    
+    maze[r][c] = 0; // Označíme jako bezpečný mrak
+    pathCells.push([r, c]);
+  }
+  
+  // Zbytek políček, které nejsou součástí garantované cesty, náhodně promícháme
+  for (let i = 0; i < GRID_SIZE; i++) {
+    for (let j = 0; j < GRID_SIZE; j++) {
+      const isPartofGuaranteedPath = pathCells.some(([pr, pc]) => pr === i && pc === j);
+      if (!isPartofGuaranteedPath) {
+        // 65% šance na bouřkový mrak, 35% na volný mrak (vytváří falešné uličky)
+        maze[i][j] = Math.random() < 0.65 ? 1 : 0;
+      }
+    }
+  }
+  return maze;
+};
 
 export default function Labyrint() {
   const [isUserVip, setIsUserVip] = useState(false);
@@ -19,7 +46,9 @@ export default function Labyrint() {
   const [inputCode, setInputCode] = useState(passcode);
   const [codeSaved, setCodeSaved] = useState(false);
 
-  const [path, setPath] = useState([[0, 0]]); // Startovní pozice
+  // Stav pro dynamické bludiště
+  const [mazeLayout, setMazeLayout] = useState([]);
+  const [path, setPath] = useState([[0, 0]]);
   const [gameCompleted, setGameCompleted] = useState(false);
   const [stormAlert, setStormAlert] = useState(false);
 
@@ -29,16 +58,20 @@ export default function Labyrint() {
       .then(res => res.json())
       .then(data => {
         if (data) setIsUserVip(data.isUserVip);
+        setMazeLayout(generateDynamicMaze()); // Vygenerování prvního bludiště
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        setMazeLayout(generateDynamicMaze());
+        setLoading(false);
+      });
   }, [passcode]);
 
   const handleCloudClick = (r, c) => {
     if (!isUserVip || gameCompleted) return;
 
-    // Pokud klikne na bouřkový mrak, vyvoláme jemné varování
-    if (MAZE_LAYOUT[r][c] === 1) {
+    // Kontrola bouřkového mraku z dynamického rozvržení
+    if (mazeLayout[r] && mazeLayout[r][c] === 1) {
       setStormAlert(true);
       setTimeout(() => setStormAlert(false), 800);
       return;
@@ -47,7 +80,6 @@ export default function Labyrint() {
     const lastNode = path[path.length - 1];
     const [lastR, lastC] = lastNode;
 
-    // Musí klikat pouze na bezprostředně sousedící políčka (pohyb nahoru, dolů, vlevo, vpravo)
     const isNeighbor = (Math.abs(lastR - r) === 1 && lastC === c) || (Math.abs(lastC - c) === 1 && lastR === r);
     const isAlreadyInPath = path.some(([nodeR, nodeC]) => nodeR === r && nodeC === c);
 
@@ -63,6 +95,7 @@ export default function Labyrint() {
 
   const initGame = () => {
     setPath([[0, 0]]);
+    setMazeLayout(generateDynamicMaze()); // Vygeneruje zbrusu novou mapu
     setGameCompleted(false);
     setStormAlert(false);
   };
@@ -87,26 +120,25 @@ export default function Labyrint() {
           Cesta nebeské hvězdičky
         </h2>
         <p className="text-slate-400 text-sm">
-          Pozor na temné bouřkové mraky! Najděte s dětmi bezpečnou svítící cestičku od zářící hvězdy (vlevo nahoře) až k měsíčku (vpravo dole).
+          Mapa mraků se mění s každým novým rituálem. Najděte s dětmi bezpečnou svítící cestičku od zářící hvězdy (vlevo nahoře) až k měsíčku (vpravo dole).
         </p>
       </div>
 
       {loading ? (
         <div className="text-center py-20 text-slate-400 flex flex-col items-center justify-center space-y-4">
           <div className="animate-spin inline-block w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full"></div>
-          <p className="text-sm font-medium">Rozsvěcím mlžný labyrint...</p>
+          <p className="text-sm font-medium">Generuji unikátní mlžný labyrint...</p>
         </div>
       ) : (
         <>
           <div className="flex justify-center h-6">
             {stormAlert && (
               <p className="text-purple-400 text-xs font-bold uppercase tracking-wider flex items-center space-x-1.5 animate-bounce">
-                <AlertCircle size={14} /> <span>Pozor, tam je bouřkový mrak! Zkuste jinou cestu.</span>
+                <AlertCircle size={14} /> <span>Tmavý mrak bleskl! Zkuste jinou cestu.</span>
               </p>
             )}
           </div>
 
-          {/* Hrací pole labyrintu */}
           <div className={`relative max-w-md mx-auto aspect-square bg-[#030107] border rounded-3xl p-6 flex flex-col justify-between shadow-2xl overflow-hidden transition-colors duration-300 ${stormAlert ? 'border-purple-500/50 bg-purple-950/5' : 'border-slate-900'}`}>
             <div className="grid grid-cols-5 gap-3 h-full w-full relative z-10">
               {Array.from({ length: GRID_SIZE }).map((_, r) => 
@@ -115,15 +147,11 @@ export default function Labyrint() {
                   const isEnd = r === GRID_SIZE - 1 && c === GRID_SIZE - 1;
                   const isActive = path.some(([nodeR, nodeC]) => nodeR === r && nodeC === c);
                   const isLast = path[path.length - 1][0] === r && path[path.length - 1][1] === c;
-                  const isStorm = MAZE_LAYOUT[r][c] === 1;
+                  const isStorm = mazeLayout[r] && mazeLayout[r][c] === 1;
 
                   let cellStyle = "bg-slate-900/30 border-slate-800/60 text-slate-600 hover:border-slate-700";
-                  
-                  // Styl pro bouřkové překážky
                   if (isStorm) cellStyle = "bg-purple-950/20 border-purple-900/40 text-purple-400/50";
-                  // Styl pro aktivovanou prošlou cestu
                   if (isActive) cellStyle = "bg-amber-500/10 border-amber-400/80 text-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.15)]";
-                  // Styl pro aktuální pozici hvězdičky
                   if (isLast) cellStyle = "bg-amber-400 border-amber-300 text-slate-950 shadow-[0_0_15px_#fbbf24]";
 
                   return (
@@ -152,7 +180,6 @@ export default function Labyrint() {
               )}
             </div>
 
-            {/* Zámek přes herní plochu pro nečleny */}
             {!isUserVip && (
               <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px] flex items-center justify-center z-30">
                 <div onClick={openStripePopup} className="w-14 h-16 bg-slate-900/90 rounded-full flex items-center justify-center shadow-2xl border border-slate-700 cursor-pointer hover:scale-110 transition-transform">
@@ -161,26 +188,24 @@ export default function Labyrint() {
               </div>
             )}
 
-            {/* Obrazovka vítězství */}
             {gameCompleted && isUserVip && (
               <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-sm flex flex-col items-center justify-center text-center p-6 animate-fade-in z-20">
                 <span className="text-4xl mb-3 filter drop-shadow-[0_0_12px_rgba(251,191,36,0.5)]">✨⭐🌙</span>
-                <h3 className="text-xl font-serif font-bold text-amber-300">Hvězdička našla měsíček!</h3>
+                <h3 className="text-xl font-serif font-bold text-amber-300">Hvězdička zvládla nové bludiště!</h3>
                 <p className="text-slate-400 text-xs md:text-sm max-w-xs mt-2 leading-relaxed px-2">
-                  Díky Vaší moudré navigaci proplula hvězdička bezpečně tmou. Celá obloha teď klidně svítí a vypráví sny. Je čas zavřít očička.
+                  Zářící stezka bezpečně protnula noční mraky. Obloha teď klidně svítí a vypráví sny. Je čas zavřít očička.
                 </p>
-                <button onClick={initGame} className="mt-5 inline-flex items-center space-x-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer"><RotateCcw size={12} /> <span>Hrát znovu</span></button>
+                <button onClick={initGame} className="mt-5 inline-flex items-center space-x-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer"><RotateCcw size={12} /> <span>Zkusit jinou mapu</span></button>
               </div>
             )}
           </div>
 
-          {/* Paywall a uložení e-mailu */}
           {!isUserVip && (
             <div className="max-w-xl mx-auto space-y-6 pt-4">
               <div className="bg-slate-900/40 border border-slate-800 p-6 rounded-3xl text-center space-y-4 shadow-xl">
                 <h3 className="text-xl font-bold text-amber-300">Prémiový snový labyrint</h3>
                 <p className="text-slate-400 text-xs md:text-sm leading-relaxed max-w-md mx-auto">
-                  Tato logická cesta je součástí Premium balíčku Noční Knihovny. Aktivací předplatného ihned odemknete všechny prémiové hry, rozšířené omalovánky a generátor pohádek.
+                  Tato měnící se logická cesta je součástí Premium balíčku Noční Knihovny. Aktivací předplatného ihned odemknete všechny prémiové hry, rozšířené omalovánky a generátor pohádek.
                 </p>
                 <button onClick={openStripePopup} className="bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wide transition cursor-pointer shadow-lg hover:opacity-95">Aktivovat Premium za 75 Kč ➔</button>
               </div>
