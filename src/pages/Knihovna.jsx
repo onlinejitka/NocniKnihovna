@@ -135,9 +135,11 @@ export default function Knihovna() {
         </div>
       )}
 
-      {/* AFFILIATE BANNER KNIHOVNY */}
+ {/* AFFILIATE BANNER KNIHOVNY */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800/80 rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden group mt-16 max-w-4xl mx-auto animate-fade-in">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 rounded-full filter blur-2xl group-hover:bg-amber-400/10 transition duration-500" />
+        {/* OPRAVENO: Přidáno pointer-events-none, aby světlo neblokovalo klikání na odkaz */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 rounded-full filter blur-2xl group-hover:bg-amber-400/10 transition duration-500 pointer-events-none" />
+        
         <div className="flex flex-col sm:flex-row items-center gap-5 flex-1">
           <div className="w-20 h-20 bg-slate-950 border border-slate-800/60 rounded-xl flex items-center justify-center shrink-0 shadow-inner bg-gradient-to-b from-slate-900 to-slate-950 text-amber-400/40">
             <BookOpen size={24} />
@@ -152,7 +154,7 @@ export default function Knihovna() {
           </div>
         </div>
         <div className="shrink-0 w-full sm:w-auto self-center">
-          <a href="https://www.alza.cz/media/pohadky-a-basnicky/18886058.htm?23293" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 text-xs font-bold px-5 py-3 rounded-xl transition cursor-pointer shadow-md">
+          <a href="https://www.alza.cz/media/pohadky-a-basnicky/18886058.htm?idp=23293" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 text-xs font-bold px-5 py-3 rounded-xl transition cursor-pointer shadow-md">
             <ShoppingBag size={13} />
             <span>Zobrazit dětské knihy</span>
           </a>
