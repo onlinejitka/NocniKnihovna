@@ -8,32 +8,35 @@ export default function GDPR() {
       </h2>
       
       <p>
-        Správcem osobních údajů je <strong>Jitka Pekárková</strong>, IČO: 87458021, se sídlem Primátorská 38, Praha 8. Ochrana Vašeho soukromí a osobních údajů Vašich dětí je pro mě naprostou prioritou.
+        Správcem osobních údajů je <strong>Jitka Pekárková</strong>, IČO: 87458021, se sídlem Primátorská 38, Praha 8. Tyto zásady popisují, jak nakládám s Vašimi údaji na webu <strong>nocniknihovna.cz</strong> v souvislosti s předplatným a integrovanými službami.
       </p>
 
       <section className="space-y-2">
-        <h3 className="font-bold text-slate-100 text-base">1. Jaké údaje sbírám a proč?</h3>
+        <h3 className="font-bold text-slate-100 text-base">1. Účel a rozsah zpracování osobních údajů</h3>
         <p>
-          Při zakoupení Premium členství zpracovávám pouze Váš <strong>e-mail</strong>. Tento údaj je nezbytný pro splnění smlouvy – konkrétně pro vygenerování a bezpečné zaslání Vašeho přístupového kódu. Bez zadání e-mailu nelze nákup technicky dokončit.
+          Při registraci a správě měsíčního předplatného zpracovávám Váš <strong>e-mail</strong> a nezbytné transakční údaje. Tyto údaje slouží výhradně pro plnění smlouvy (generování přístupového kódu přes Make.com, vedení aktivního členství v databázi Notion a párování slev na fyzické produkty). Platební údaje (čísla karet) zpracovává přímo a bezpečně pouze certifikovaná brána Stripe.
         </p>
       </section>
 
       <section className="space-y-2">
-        <h3 className="font-bold text-slate-100 text-base">2. Kdo má k údajům přístup?</h3>
+        <h3 className="font-bold text-slate-100 text-base">2. Soubory cookies a třetí strany</h3>
         <p>
-          Vaše e-maily nikomu neprodávám ani je nepoužívám pro nevyžádaný marketing. Pro zajištění chodu nákupního procesu je však předávám těmto spolehlivým zpracovatelům:
+          Tento web využívá pokročilé funkce třetích stran, které mohou do Vašeho prohlížeče ukládat své vlastní cookies za účelem správného zobrazení obsahu a měření statistik:
         </p>
         <ul className="list-disc pl-6 space-y-1">
-          <li><strong>Stripe</strong> (zabezpečená platební brána zpracovávající samotnou platbu)</li>
-          <li><strong>Make.com</strong> (automatizační služba, která propojí platbu se zasláním e-mailu)</li>
-          <li><strong>Notion</strong> (interní zabezpečená databáze, kde jsou uloženy aktivní přístupové kódy)</li>
+          <li><strong>YouTube</strong> (pro přehrávání a náhledy videí pohádek a vybarvování)</li>
+          <li><strong>Spotify</strong> (pro přehrávání integrovaného audia a písniček)</li>
+          <li><strong>Alza.cz</strong> (pro správné fungování doporučujících affiliate bannerů a odkazů)</li>
         </ul>
+        <p>
+          Ukládání těchto cookies můžete kdykoliv ovlivnit nastavením své cookie lišty na tomto webu nebo přímo ve svém internetovém prohlížeči.
+        </p>
       </section>
 
       <section className="space-y-2">
-        <h3 className="font-bold text-slate-100 text-base">3. Doba uchování a Vaše práva</h3>
+        <h3 className="font-bold text-slate-100 text-base">3. Vaše práva</h3>
         <p>
-          Údaje spojené s Premium členstvím uchovávám po dobu platnosti Vašeho přístupu. Podle nařízení GDPR máte plné právo požadovat informaci, jaké údaje zpracovávám, vyžádat si jejich opravu, nebo mě kontaktovat s žádostí o úplné smazání Vašeho kódu i e-mailu z databáze.
+          Jako zákazník máte plné právo požadovat přehled o svých zpracovávaných údajích, žádat jejich úpravu, nebo se na mě obrátit s požadavkem na úplné zrušení předplatného a smazání e-mailu z mých systémů. V případě dotazů mě můžete kontaktovat přes kontakty na mém profesním webu <strong>jitkap.cz</strong>.
         </p>
       </section>
     </div>
