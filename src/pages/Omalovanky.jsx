@@ -245,12 +245,12 @@ export default function Omalovanky() {
               <Sparkles size={10} /> <span>Doporučení pro tisk a tvorbu</span>
             </span>
             <p className="text-xs md:text-sm text-slate-300 leading-relaxed max-w-xl">
-              Pro dokonalý kreativní zážitek doporučujeme kvalitní trojhranné pastelky s měkkou tuhou, které se dětem skvěle drží, nebo spolehlivé domácí tiskárny pro čistý tisk našich snových šablon.
+              Pro dokonalý kreativní zážitek doporučujeme kvalitní trojhranné pastelky s měkkou tuhou, které se dětem skvěle drží a mají silný pigment, a k tomu spolehlivou domácí tiskárnu pro čistý tisk našich omalovánek.
             </p>
           </div>
         </div>
         <div className="shrink-0 w-full sm:w-auto self-center">
-          <a href="https://www.alza.cz/hracky/pastelky/18857283.htm" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 text-xs font-bold px-5 py-3 rounded-xl transition cursor-pointer shadow-md">
+          <a href="https://www.alza.cz/inkoustove-tiskarny/18842930.htm?idp=23293" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 text-xs font-bold px-5 py-3 rounded-xl transition cursor-pointer shadow-md">
             <ShoppingBag size={13} />
             <span>Zobrazit na Alze</span>
           </a>
