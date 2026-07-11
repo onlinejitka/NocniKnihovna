@@ -1,49 +1,41 @@
 import { Client } from '@notionhq/client';
 
-export default async function handler(req, res) {
-  const token = process.env.NOTION_TOKEN;
-  const databaseId = process.env.NOTION_RIDDLES_DB_ID; // Nová proměnná pro ID databáze hádanek
+const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
-  if (!token || !databaseId) {
-    return res.status(500).json({ error: 'Chybí konfigurace NOTION_RIDDLES_DB_ID ve Vercelu.' });
+export default async function handler(req, res) {
+  const dbId = process.env.NOTION_RIDDLES_DB_ID;
+  
+  if (!dbId) {
+    return res.status(500).json({ error: 'Chybí ID databáze hádanek (NOTION_RIDDLES_DB_ID).' });
   }
 
-  const notion = new Client({ auth: token });
-
   try {
-    const response = await notion.databases.query({
-      database_id: databaseId,
-    });
-
-    const publishedRiddles = response.results.filter(page => {
+    const response = await notion.databases.query({ database_id: dbId });
+    
+    const publishedPages = response.results.filter(page => {
       const statusValue = page.properties.Status?.select?.name || page.properties.Status?.status?.name;
-      return statusValue === 'Publikováno';
+      return statusValue === 'Publikováno' || statusValue === 'Publikováno (HH)';
     });
 
-    const riddles = publishedRiddles.map(page => {
+    const items = publishedPages.map(page => {
       const props = page.properties;
-      
-      // Normalizace věkových skupin pro frontend
-      let ageRaw = props.Věk?.select?.name || '3-5 let';
-      let ageKey = '3-5';
-      if (ageRaw.includes('6-9')) ageKey = '6-9';
-      if (ageRaw.includes('10+')) ageKey = '10+';
+      const getTxt = (prop) => prop?.rich_text?.[0]?.plain_text || prop?.title?.[0]?.plain_text || '';
 
-      return {
-        id: page.id,
-        question: props.Otázka?.title?.[0]?.plain_text || 'Bez textu',
-        options: [
-          props.A?.rich_text?.[0]?.plain_text || '',
-          props.B?.rich_text?.[0]?.plain_text || '',
-          props.C?.rich_text?.[0]?.plain_text || '',
-          props.D?.rich_text?.[0]?.plain_text || ''
-        ].filter(Boolean), // Odstraní prázdné možnosti, pokud by nějaké byly
-        answer: props.Správná?.select?.name || props.Správná?.rich_text?.[0]?.plain_text || '',
-        age: ageKey
-      };
+      const question = getTxt(props['Otázka']);
+      const optionA = getTxt(props['A']);
+      const optionB = getTxt(props['B']);
+      const optionC = getTxt(props['C']);
+      const optionD = getTxt(props['D']);
+      
+      const correctAnswer = getTxt(props['Správná']) || props['Správná']?.select?.name || '';
+      const ageGroup = props['Věk']?.select?.name || 'Ostatní';
+
+      const options = [optionA, optionB, optionC, optionD].filter(Boolean);
+
+      return { id: page.id, question, options, correctAnswer, ageGroup };
     });
 
-    return res.status(200).json(riddles);
+    return res.status(200).json({ items });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
