@@ -12,7 +12,6 @@ export default function Omalovanky() {
       .then(res => res.json())
       .then(data => {
         if (data && data.items) {
-          // Zobrazí pouze položky, které obsahují nějakou omalovánku
           setItems(data.items.filter(item => item.urlOmalovankyHlavni || item.hasPremiumOmalovanky));
         }
         setLoading(false);
@@ -27,7 +26,7 @@ export default function Omalovanky() {
           Kreativní omalovánky
         </h2>
         <p className="text-slate-400 text-sm">
-          Stáhněte si naše ručně dočištěné snové šablony. Děti si mohou při poslechu pohádek vybarvovat a rozvíjet svou fantazii.
+          Prohlédněte si a stáhněte naše snové šablony k vybarvení. Děti si mohou při poslechu pohádek kreslit a rozvíjet svou fantazii.
         </p>
       </div>
 
@@ -39,25 +38,36 @@ export default function Omalovanky() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
           {items.map(item => (
-            <div key={item.id} className="bg-slate-900/40 border border-slate-800 rounded-2xl overflow-hidden flex flex-col hover:border-amber-500/40 transition-colors">
-              <div className="aspect-video w-full overflow-hidden relative bg-slate-950 flex items-center justify-center p-6">
-                <Palette size={48} className="text-slate-800" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent" />
+            <div key={item.id} className="group bg-slate-900/40 border border-slate-800 rounded-2xl overflow-hidden flex flex-col hover:border-amber-500/40 transition-all duration-300 shadow-md">
+              
+              {/* OPRAVENO: Nyní se zde přímo zobrazuje reálný PNG náhled omalovánky */}
+              <div className="aspect-video w-full overflow-hidden relative bg-slate-950 flex items-center justify-center border-b border-slate-900/60">
+                {item.urlOmalovankyHlavni ? (
+                  <img 
+                    src={item.urlOmalovankyHlavni} 
+                    alt={item.title} 
+                    className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500 filter brightness-90 group-hover:brightness-100" 
+                  />
+                ) : (
+                  <Palette size={40} className="text-slate-800" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-50" />
               </div>
-              <div className="p-5 flex-1 flex flex-col justify-between">
+
+              <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-100">{item.title}</h3>
-                  <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest">{item.type}</p>
+                  <span className="text-[10px] font-mono tracking-widest text-amber-400/60 uppercase">{item.type}</span>
+                  <h3 className="text-base font-bold text-slate-100 group-hover:text-amber-300 transition-colors mt-0.5">{item.title}</h3>
                 </div>
-                <div className="mt-5 space-y-2">
+                <div className="space-y-2">
                   {item.urlOmalovankyHlavni && (
-                    <a href={item.urlOmalovankyHlavni} target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold py-2.5 rounded-xl transition">
-                      <Download size={14} /> <span>Stáhnout PDF zdarma</span>
+                    <a href={item.urlOmalovankyHlavni} download target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold py-2.5 rounded-xl transition cursor-pointer">
+                      <Download size={14} /> <span>Uložit obrázek (PNG)</span>
                     </a>
                   )}
                   {item.hasPremiumOmalovanky && (
-                    <Link to={`/${item.slug}`} className="w-full flex items-center justify-center space-x-2 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold py-2.5 rounded-xl transition">
-                      <Lock size={12} /> <span>Rozšířená sada (Premium)</span>
+                    <Link to={`/${item.slug}`} className="w-full flex items-center justify-center space-x-2 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black py-2.5 rounded-xl transition uppercase tracking-wide">
+                      <Lock size={12} strokeWidth={2.5} /> <span>Sada pro vybarvování</span>
                     </Link>
                   )}
                 </div>
@@ -67,7 +77,7 @@ export default function Omalovanky() {
         </div>
       )}
 
-      {/* AFFILIATE BANNER PRO OMALOVÁNKY (Pastelky a tiskárny) */}
+      {/* Affiliate Banner */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800/80 rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden group mt-16 max-w-4xl mx-auto">
         <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 rounded-full filter blur-2xl group-hover:bg-amber-400/10 transition duration-500" />
         <div className="flex flex-col sm:flex-row items-center gap-5 flex-1">
