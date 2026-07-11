@@ -47,7 +47,7 @@ export default function PohadkaDetail() {
 
   const isSong = item.type === 'Písnička';
   const defaultUrl = isSong ? "https://www.alza.cz/hracky/detske-hudebni-nastroje/18851214.htm" : "https://www.alza.cz/media/knihy-pro-deti/18856641.htm";
-  const defaultText = isSong ? "Jemné tóny a melodie pomáhají zklidnit dětskou mysm před spánkem. Prozkoumejte náš výběr dětských hudebních nástrojů." : "Vybrali jsme pro Vás ty nejkrásnější tištěné pohádkové knížky pro společné chvíle a klidné čtení v postýlce.";
+  const defaultText = isSong ? "Jemné tóny a melodie pomáhají zklidnit dětskou mysl před spánkem. Prozkoumejte náš výběr dětských hudebních nástrojů." : "Vybrali jsme pro Vás ty nejkrásnější tištěné pohádkové knížky pro společné chvíle a klidné čtení v postýlce.";
 
   const finalAffiliateUrl = item.affiliateUrl || defaultUrl; 
   const finalAffiliateText = item.affiliateText || defaultText;
@@ -78,7 +78,6 @@ export default function PohadkaDetail() {
         )}
       </div>
 
-      {/* OPRAVENO: Skutečný náhled PNG omalovánky a opravené texty na PNG stažení */}
       {item.urlOmalovankyHlavni && (
         <div className="bg-slate-900/30 border border-slate-800/80 rounded-2xl p-4 md:p-5 flex flex-col sm:flex-row items-center gap-5 shadow-lg">
           <div className="w-20 h-20 bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shrink-0 flex items-center justify-center shadow-inner relative">
@@ -143,6 +142,13 @@ export default function PohadkaDetail() {
             <span>Zobrazit nabídku</span>
           </a>
         </div>
+      </div>
+
+      <div className="pt-2 flex justify-center">
+        <Link to="/omalovanky" className="inline-flex items-center space-x-2 text-[11px] font-medium text-slate-500 hover:text-slate-400 transition">
+          <span>Chcete vidět i ostatní omalovánky v galerii? Prohlédnout vše</span>
+          <ArrowRight size={10} />
+        </Link>
       </div>
     </div>
   );
