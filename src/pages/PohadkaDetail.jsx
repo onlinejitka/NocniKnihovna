@@ -46,8 +46,15 @@ export default function PohadkaDetail() {
   }
 
   const isSong = item.type === 'Písnička';
-  const defaultUrl = isSong ? "https://www.alza.cz/hracky/detske-hudebni-nastroje/18851214.htm" : "https://www.alza.cz/media/knihy-pro-deti/18856641.htm";
-  const defaultText = isSong ? "Jemné tóny a melodie pomáhají zklidnit dětskou mysl před spánkem. Prozkoumejte náš výběr dětských hudebních nástrojů." : "Vybrali jsme pro Vás ty nejkrásnější tištěné pohádkové knížky pro společné chvíle a klidné čtení v postýlce.";
+  
+  // AKTUALIZOVÁNO: Nový cílený odkaz na dětské hudební nástroje se správným Alza trackingem
+  const defaultUrl = isSong 
+    ? "https://www.alza.cz/hracky/hudebni-nastroje-pro-deti/18857266.htm?idp=23293" 
+    : "https://www.alza.cz/media/knihy-pro-deti/18856641.htm";
+    
+  const defaultText = isSong
+    ? "Jemné tóny a melodie pomáhají zklidnit dětskou mysl před spánkem. Prozkoumejte náš výběr dětských hudebních nástrojů a dřevěných zvonkoher ideálních pro večerní rituály."
+    : "Vybrali jsme pro Vás ty nejkrásnější tištěné pohádkové knížky pro společné chvíle a klidné čtení v postýlce.";
 
   const finalAffiliateUrl = item.affiliateUrl || defaultUrl; 
   const finalAffiliateText = item.affiliateText || defaultText;
@@ -113,7 +120,8 @@ export default function PohadkaDetail() {
       )}
 
       <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800/80 rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 rounded-full filter blur-2xl group-hover:bg-amber-400/10 transition duration-500" />
+        {/* OPRAVENO: Přidáno pointer-events-none, aby designové světlo neblokovalo proklik */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 rounded-full filter blur-2xl group-hover:bg-amber-400/10 transition duration-500 pointer-events-none" />
         
         <div className="flex flex-col sm:flex-row items-center gap-5 flex-1">
           <div className="w-24 h-24 bg-slate-950 border border-slate-800/60 rounded-xl flex items-center justify-center shrink-0 overflow-hidden shadow-inner relative p-1 bg-gradient-to-b from-slate-900 to-slate-950">
@@ -130,7 +138,7 @@ export default function PohadkaDetail() {
             <span className="text-[9px] font-bold text-amber-400/60 uppercase tracking-widest bg-amber-400/5 px-2 py-0.5 rounded border border-amber-400/10 inline-flex items-center space-x-1">
               <Sparkles size={10} /> <span>Tip z naší knihovny</span>
             </span>
-            <p className="text-xs md:text-sm text-slate-300 leading-relaxed max-w-lg">
+            <p className="text-xs md:text-sm text-slate-300 leading-relaxed max-w-xl">
               {finalAffiliateText}
             </p>
           </div>
