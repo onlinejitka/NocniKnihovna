@@ -149,7 +149,7 @@ export default function Knihovna() {
               <Sparkles size={10} /> <span>Tip na večerní čtení</span>
             </span>
             <p className="text-xs md:text-sm text-slate-300 leading-relaxed max-w-xl">
-              Chcete rozvíjet dětskou představivost i mimo obrazovku? Vybrali jsme pro Vás ty nejkrásnější tištěné pohádkové knížky pro společné chvíle a klidné usínání.
+              Chcete rozvíjet dětskou představivost i mimo obrazovku? Pořiďte si nové tištěné pohádkové knížky pro společné chvíle a klidné usínání.
             </p>
           </div>
         </div>
