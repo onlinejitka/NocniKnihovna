@@ -6,8 +6,8 @@ import Hadanky from './pages/Hadanky';
 import Omalovanky from './pages/Omalovanky';
 import Hra from './pages/Hra';
 import Souhvezdi from './pages/Souhvezdi';
-// NOVINKA: Změnili jsme importy. Přidali jsme Lightbulb.
-import { BookOpen, HelpCircle, Sparkles, Palette, Lightbulb, Star, Menu, X, ChevronDown, Gamepad2 } from 'lucide-react';
+import Pexeso from './pages/Pexeso'; // Import nové hry Pexeso
+import { BookOpen, HelpCircle, Sparkles, Palette, Lightbulb, Star, LayoutGrid, Menu, X, ChevronDown, Gamepad2 } from 'lucide-react';
 
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -16,7 +16,8 @@ function Header() {
 
   const closeMenu = () => setIsMobileMenuOpen(false);
 
-  const isGamesActive = currentPath === '/hra' || currentPath === '/souhvezdi';
+  // Přidáno Pexeso do kontroly aktivního stavu pro ikonu Hry
+  const isGamesActive = currentPath === '/hra' || currentPath === '/souhvezdi' || currentPath === '/pexeso';
 
   return (
     <header className="border-b border-slate-800/60 bg-slate-950/40 backdrop-blur sticky top-0 z-50">
@@ -55,15 +56,18 @@ function Header() {
             </button>
             
             <div className="absolute top-full right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-2xl p-2 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              {/* ODKAZ NA SVĚTLUŠKY S NOVOU IKONOU ŽÁROVKY */}
               <Link to="/hra" className={`flex items-center space-x-2 px-3 py-2.5 rounded-xl text-sm transition ${currentPath === '/hra' ? 'bg-slate-800 text-amber-400 font-bold' : 'text-slate-300 hover:text-amber-400 hover:bg-slate-800'}`}>
                 <Lightbulb size={14} className={currentPath === '/hra' ? 'text-amber-400' : 'text-slate-400'} /> 
                 <span>Světlušky</span>
               </Link>
-              {/* ODKAZ NA SOUHVĚZDÍ S IKONOU HVĚZDY */}
               <Link to="/souhvezdi" className={`flex items-center space-x-2 px-3 py-2.5 rounded-xl text-sm transition mt-1 ${currentPath === '/souhvezdi' ? 'bg-slate-800 text-amber-400 font-bold' : 'text-slate-300 hover:text-amber-400 hover:bg-slate-800'}`}>
                 <Star size={14} className={currentPath === '/souhvezdi' ? 'text-amber-300' : 'text-slate-400'} /> 
                 <span>Souhvězdí</span>
+              </Link>
+              {/* ODKAZ NA NOVÉ PEXESO */}
+              <Link to="/pexeso" className={`flex items-center space-x-2 px-3 py-2.5 rounded-xl text-sm transition mt-1 ${currentPath === '/pexeso' ? 'bg-slate-800 text-amber-400 font-bold' : 'text-slate-300 hover:text-amber-400 hover:bg-slate-800'}`}>
+                <LayoutGrid size={14} className={currentPath === '/pexeso' ? 'text-amber-300' : 'text-slate-400'} /> 
+                <span>Stínové pexeso</span>
               </Link>
             </div>
           </div>
@@ -96,6 +100,11 @@ function Header() {
               <Star size={18} className={currentPath === '/souhvezdi' ? 'text-amber-300' : 'text-slate-400'} /> 
               <span>Souhvězdí</span>
             </Link>
+            {/* ODKAZ NA NOVÉ PEXESO V MOBILNÍM MENU */}
+            <Link to="/pexeso" onClick={closeMenu} className={`flex items-center space-x-3 px-3 py-3 rounded-xl text-base font-medium transition mt-1 ${currentPath === '/pexeso' ? 'bg-slate-800 text-amber-400 shadow-md' : 'text-slate-300'}`}>
+              <LayoutGrid size={18} className={currentPath === '/pexeso' ? 'text-amber-300' : 'text-slate-400'} /> 
+              <span>Stínové pexeso</span>
+            </Link>
           </div>
 
           <a href="https://generator.nocniknihovna.cz" target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium text-slate-300 hover:text-white mt-4 border border-slate-800 bg-slate-900/30">
@@ -119,6 +128,7 @@ export default function App() {
             <Route path="/omalovanky" element={<Omalovanky />} />
             <Route path="/hra" element={<Hra />} />
             <Route path="/souhvezdi" element={<Souhvezdi />} />
+            <Route path="/pexeso" element={<Pexeso />} /> {/* Registrace cesty pexesa */}
             <Route path="/:slug" element={<PohadkaDetail />} />
           </Routes>
         </main>
