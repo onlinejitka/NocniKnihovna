@@ -130,12 +130,42 @@ export default function App() {
           </Routes>
         </main>
         
-        {/* OPRAVENO: Kompletně přepsaná patička s přesným popisem autorského procesu */}
-        <footer className="border-t border-slate-900 bg-slate-950/60 text-slate-500 py-8 text-center text-xs mt-auto px-4 space-y-1.5">
-          <p>© {new Date().getFullYear()} Noční Knihovna. Všechna práva vyhrazená.</p>
-          <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Veškeré nahrávky pro Vás zaznamenávám svým vlastním hlasem. Ilustrace jsou spoluvytvářené s pomocí AI a mnou ručně graficky upravené. Omalovánky ve videích následně vybarvuji já nebo mé děti.
-          </p>
+        {/* AKTUALIZOVANÁ DVOUÚROVŇOVÁ PATIČKA */}
+        <footer className="border-t border-slate-900 bg-slate-950/60 text-slate-500 py-10 text-center text-xs mt-auto px-4 space-y-6">
+          
+          {/* Horní řádek: Autorský příběh */}
+          <div className="space-y-1.5">
+            <p>© {new Date().getFullYear()} Noční Knihovna. Všechna práva vyhrazená.</p>
+            <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed">
+              Veškeré nahrávky pro Vás zaznamenávám svým vlastním hlasem. Ilustrace jsou spoluvytvářené s pomocí AI a mnou ručně graficky upravené. Omalovánky ve videích následně vybarvuji já nebo mé děti.
+            </p>
+          </div>
+
+          {/* Spodní řádek: Fakturační údaje, Profesní odkaz a Dokumenty */}
+          <div className="pt-4 border-t border-slate-900/60 max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-600">
+            {/* Vlevo: Vaše fakturační údaje (Doplňte své jméno, sídlo a IČO) */}
+            <div className="text-center sm:text-left space-y-0.5">
+              <p className="font-medium text-slate-500">Provozovatel: [Vaše Jméno a Příjmení]</p>
+              <p>Sídlo: [Vaše Ulice, PSČ Město] • IČO: [Vaše IČO]</p>
+              <p>Fyzická osoba zapsaná v živnostenském rejstříku.</p>
+            </div>
+
+            {/* Vpravo: Odkazy na dokumenty a Váš osobní profesní web */}
+            <div className="flex flex-wrap justify-center sm:justify-end gap-x-4 gap-y-2 font-medium">
+              <a href="https://[vas-profesni-web].cz" target="_blank" rel="noopener noreferrer" className="text-amber-500/70 hover:text-amber-400 transition underline decoration-amber-500/30">
+                O autorce
+              </a>
+              <span className="text-slate-800 hidden sm:inline">•</span>
+              <a href="#" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition">
+                Obchodní podmínky
+              </a>
+              <span className="text-slate-800">•</span>
+              <a href="#" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition">
+                Ochrana osobních údajů (GDPR)
+              </a>
+            </div>
+          </div>
+
         </footer>
       </div>
     </Router>
