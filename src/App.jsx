@@ -6,9 +6,9 @@ import Hadanky from './pages/Hadanky';
 import Omalovanky from './pages/Omalovanky';
 import Hra from './pages/Hra';
 import Souhvezdi from './pages/Souhvezdi';
-import { BookOpen, HelpCircle, Sparkles, Palette, Sparkle, Star, Menu, X, ChevronDown, Gamepad2 } from 'lucide-react';
+// NOVINKA: Změnili jsme importy. Přidali jsme Lightbulb.
+import { BookOpen, HelpCircle, Sparkles, Palette, Lightbulb, Star, Menu, X, ChevronDown, Gamepad2 } from 'lucide-react';
 
-// Centrální hlavička s logikou pro mobilní a rozbalovací menu
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -16,14 +16,12 @@ function Header() {
 
   const closeMenu = () => setIsMobileMenuOpen(false);
 
-  // Kontrola, zda jsme zrovna v herní sekci (kvůli podsvícení tlačítka "Hry")
   const isGamesActive = currentPath === '/hra' || currentPath === '/souhvezdi';
 
   return (
     <header className="border-b border-slate-800/60 bg-slate-950/40 backdrop-blur sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
         
-        {/* LOGO */}
         <Link to="/" onClick={closeMenu} className="flex items-center space-x-3 cursor-pointer">
           <span className="text-3xl">🌙</span>
           <div>
@@ -32,7 +30,6 @@ function Header() {
           </div>
         </Link>
 
-        {/* HAMBURGER TLAČÍTKO (Pouze pro mobily) */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="md:hidden p-2 text-amber-400 hover:bg-slate-900 rounded-xl transition"
@@ -41,7 +38,6 @@ function Header() {
           {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
 
-        {/* POČÍTAČOVÉ MENU (Skryté na mobilech) */}
         <nav className="hidden md:flex items-center space-x-2 bg-slate-900/60 p-1.5 rounded-full border border-slate-800">
           <Link to="/" className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
             <BookOpen size={14} /> <span>Knihovna</span>
@@ -53,18 +49,18 @@ function Header() {
             <Palette size={14} /> <span>Omalovánky</span>
           </Link>
 
-          {/* ROZBALOVACÍ MENU PRO HRY (Hover) */}
           <div className="relative group">
             <button className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${isGamesActive ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
               <Gamepad2 size={14} /> <span>Hry</span> <ChevronDown size={14} className="opacity-70 transition-transform group-hover:rotate-180" />
             </button>
             
-            {/* Samotné pod-menu (Objeví se při přejetí myší) */}
             <div className="absolute top-full right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-2xl p-2 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              {/* ODKAZ NA SVĚTLUŠKY S NOVOU IKONOU ŽÁROVKY */}
               <Link to="/hra" className={`flex items-center space-x-2 px-3 py-2.5 rounded-xl text-sm transition ${currentPath === '/hra' ? 'bg-slate-800 text-amber-400 font-bold' : 'text-slate-300 hover:text-amber-400 hover:bg-slate-800'}`}>
-                <Sparkle size={14} className={currentPath === '/hra' ? 'text-amber-400' : 'text-slate-400'} /> 
+                <Lightbulb size={14} className={currentPath === '/hra' ? 'text-amber-400' : 'text-slate-400'} /> 
                 <span>Světlušky</span>
               </Link>
+              {/* ODKAZ NA SOUHVĚZDÍ S IKONOU HVĚZDY */}
               <Link to="/souhvezdi" className={`flex items-center space-x-2 px-3 py-2.5 rounded-xl text-sm transition mt-1 ${currentPath === '/souhvezdi' ? 'bg-slate-800 text-amber-400 font-bold' : 'text-slate-300 hover:text-amber-400 hover:bg-slate-800'}`}>
                 <Star size={14} className={currentPath === '/souhvezdi' ? 'text-amber-300' : 'text-slate-400'} /> 
                 <span>Souhvězdí</span>
@@ -78,7 +74,6 @@ function Header() {
         </nav>
       </div>
 
-      {/* MOBILNÍ MENU OVERLAY (Zobrazí se po kliknutí na Hamburger) */}
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-20 left-0 w-full bg-slate-950/95 backdrop-blur-xl border-b border-slate-800 px-4 py-6 flex flex-col space-y-3 shadow-2xl z-50 animate-fade-in h-[calc(100vh-80px)] overflow-y-auto">
           <Link to="/" onClick={closeMenu} className={`flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium transition ${currentPath === '/' ? 'bg-amber-400/10 text-amber-400' : 'text-slate-300'}`}>
@@ -91,11 +86,10 @@ function Header() {
             <Palette size={18} /> <span>Omalovánky</span>
           </Link>
 
-          {/* Oddělená sekce s Hrami pro mobily */}
           <div className="bg-slate-900/50 rounded-2xl p-3 border border-slate-800 mt-2 shadow-inner">
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-3">Uklidňující hry</p>
             <Link to="/hra" onClick={closeMenu} className={`flex items-center space-x-3 px-3 py-3 rounded-xl text-base font-medium transition ${currentPath === '/hra' ? 'bg-slate-800 text-amber-400 shadow-md' : 'text-slate-300'}`}>
-              <Sparkle size={18} className={currentPath === '/hra' ? 'text-amber-400' : 'text-slate-400'} /> 
+              <Lightbulb size={18} className={currentPath === '/hra' ? 'text-amber-400' : 'text-slate-400'} /> 
               <span>Světlušky</span>
             </Link>
             <Link to="/souhvezdi" onClick={closeMenu} className={`flex items-center space-x-3 px-3 py-3 rounded-xl text-base font-medium transition mt-1 ${currentPath === '/souhvezdi' ? 'bg-slate-800 text-amber-400 shadow-md' : 'text-slate-300'}`}>
@@ -113,15 +107,11 @@ function Header() {
   );
 }
 
-// Hlavní obal aplikace
 export default function App() {
   return (
     <Router>
       <div className="min-h-screen text-slate-200 selection:bg-amber-500/30 selection:text-amber-200 flex flex-col">
-        
-        {/* Nová flexibilní hlavička */}
         <Header />
-
         <main className="flex-grow max-w-6xl mx-auto w-full px-4 py-10">
           <Routes>
             <Route path="/" element={<Knihovna />} />
@@ -132,12 +122,10 @@ export default function App() {
             <Route path="/:slug" element={<PohadkaDetail />} />
           </Routes>
         </main>
-
         <footer className="border-t border-slate-900 bg-slate-950/60 text-slate-500 py-8 text-center text-xs mt-auto">
           <p>© {new Date().getFullYear()} Noční Knihovna. Všechna práva vyhrazena.</p>
           <p className="mt-1 text-slate-600">Čtené s láskou, kreslené a vybarvené ručně.</p>
         </footer>
-
       </div>
     </Router>
   );
