@@ -152,7 +152,7 @@ export default function Knihovna() {
           </div>
         </div>
         <div className="shrink-0 w-full sm:w-auto self-center">
-          <a href="https://www.alza.cz/media/knihy-pro-deti/18856641.htm" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 text-xs font-bold px-5 py-3 rounded-xl transition cursor-pointer shadow-md">
+          <a href="https://www.alza.cz/media/pohadky-a-basnicky/18886058.htm?23293" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 text-xs font-bold px-5 py-3 rounded-xl transition cursor-pointer shadow-md">
             <ShoppingBag size={13} />
             <span>Zobrazit dětské knihy</span>
           </a>
