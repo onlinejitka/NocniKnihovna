@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { RotateCcw, Maximize2, Minimize2, Sparkles } from 'lucide-react';
 
-const CONSTELLATIONS = [
+const CONSTELLATIONS_DATA = [
   {
     name: "Kouzelná hvězdička",
     emoji: "⭐",
@@ -62,16 +62,29 @@ const CONSTELLATIONS = [
 
 const PENTATONIC_SCALE = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00];
 
+// Funkce pro náhodné zamíchání pole (Fisher-Yates shuffle)
+const shuffleArray = (array) => {
+  const newArr = [...array];
+  for (let i = newArr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+  }
+  return newArr;
+};
+
 export default function Souhvezdi() {
+  // Stav udržující aktuálně zamíchané pořadí her
+  const [order, setOrder] = useState(() => shuffleArray(CONSTELLATIONS_DATA));
   const [currentIdx, setCurrentIdx] = useState(0);
   const [connected, setConnected] = useState([]); 
   const [shapeRevealed, setShapeRevealed] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   
   const containerRef = useRef(null);
-  const activeConstellation = CONSTELLATIONS[currentIdx];
+  
+  // Vybereme aktuální souhvězdí ze zamíchaného seznamu
+  const activeConstellation = order[currentIdx];
 
-  // Dynamický výpočet potřebného počtu kliknutí (u uzavřených obrazců musí hráč kliknout o jednou víc)
   const requiredClicks = activeConstellation.closed 
     ? activeConstellation.stars.length + 1 
     : activeConstellation.stars.length;
@@ -108,11 +121,10 @@ export default function Souhvezdi() {
   };
 
   const handleStarClick = (index) => {
-    // Definujeme, na kterou hvězdu se smí kliknout
     const isComplete = connected.length === requiredClicks;
     const isNextTarget = !isComplete && (
-      (index === connected.length && index < activeConstellation.stars.length) || // Standardní postup vpřed
-      (activeConstellation.closed && connected.length === activeConstellation.stars.length && index === 0) // Návrat na první hvězdu
+      (index === connected.length && index < activeConstellation.stars.length) ||
+      (activeConstellation.closed && connected.length === activeConstellation.stars.length && index === 0)
     );
 
     if (!isNextTarget) return;
@@ -121,7 +133,6 @@ export default function Souhvezdi() {
     const newConnected = [...connected, index];
     setConnected(newConnected);
 
-    // Jakmile je naklikáno dostatek hvězd, hru vyhodnotíme
     if (newConnected.length === requiredClicks) {
       setTimeout(() => {
         setShapeRevealed(true);
@@ -132,7 +143,14 @@ export default function Souhvezdi() {
   const nextLevel = () => {
     setConnected([]);
     setShapeRevealed(false);
-    setCurrentIdx((prev) => (prev + 1) % CONSTELLATIONS.length);
+    
+    // Pokud jsme projeli všechna souhvězdí, zamícháme je znovu pro další hraní
+    if (currentIdx + 1 >= order.length) {
+      setOrder(shuffleArray(CONSTELLATIONS_DATA));
+      setCurrentIdx(0);
+    } else {
+      setCurrentIdx((prev) => prev + 1);
+    }
   };
 
   const resetLevel = () => {
@@ -149,6 +167,8 @@ export default function Souhvezdi() {
     }
   };
 
+  if (!activeConstellation) return null;
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="text-center max-w-2xl mx-auto space-y-2">
@@ -162,7 +182,7 @@ export default function Souhvezdi() {
 
       <div className="flex justify-between items-center px-2">
         <span className="text-xs font-semibold text-amber-400/80 uppercase tracking-widest bg-slate-900/40 border border-slate-800/60 px-3 py-1.5 rounded-xl">
-          Souhvězdí: {currentIdx + 1} / {CONSTELLATIONS.length}
+          Souhvězdí: {currentIdx + 1} / {order.length}
         </span>
         <button
           onClick={toggleFullscreen}
@@ -200,13 +220,11 @@ export default function Souhvezdi() {
         </svg>
 
         {activeConstellation.stars.map((star, index) => {
-          // Zjišťujeme, zda je tato hvězda dalším logickým cílem (včetně návratu na první hvězdu)
           const isNextTarget = connected.length < requiredClicks && (
             (index === connected.length && index < activeConstellation.stars.length) ||
             (activeConstellation.closed && connected.length === activeConstellation.stars.length && index === 0)
           );
 
-          // Hvězda svítí jasně, pokud už jí prošla čára (její index je v poli "connected")
           const isConnected = connected.includes(index);
 
           return (
