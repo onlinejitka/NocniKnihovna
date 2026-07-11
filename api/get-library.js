@@ -102,11 +102,8 @@ export default async function handler(req, res) {
       const title = props.Název?.title?.[0]?.plain_text || 'Bez názvu';
       const autor = props.Autor?.select?.name || props.Autor?.rich_text?.[0]?.plain_text || '';
       
-      // OPRAVENO: Zajištění stoprocentního načtení odkazu na YouTube z obou možných názvů sloupců
       const youtubeUrl = props['YouTube Link']?.url || props.YouTube?.url || props.YouTube?.rich_text?.[0]?.plain_text || '';
       const youtubeId = extractYouTubeId(youtubeUrl);
-      
-      // OPRAVENO: Automatické vygenerování ostrého náhledu z YouTube pro hlavní knihovnu
       const thumbnail = youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : '';
 
       const spotifyUrl = props['Spotify Link']?.url || '';
@@ -118,6 +115,10 @@ export default async function handler(req, res) {
       const urlOmalovanky02 = props['URL omalovánky 02']?.url || '';
       const urlOmalovanky03 = props['URL omalovánky 03']?.url || '';
 
+      // NOVINKA: Načítání affiliate parametrů přímo ze sloupců v Notion databázi
+      const affiliateUrl = props['Affiliate URL']?.url || '';
+      const affiliateText = props['Affiliate Text']?.rich_text?.[0]?.plain_text || '';
+
       const premiumImages = [urlOmalovanky01, urlOmalovanky02, urlOmalovanky03].filter(Boolean);
 
       return {
@@ -128,10 +129,12 @@ export default async function handler(req, res) {
         type,
         youtubeId,
         spotifyId,
-        thumbnail, // Posíláme opravený náhled na frontend
+        thumbnail,
         urlOmalovankyHlavni, 
         urlAudio,            
         premiumImages,       
+        affiliateUrl,   // Posíláme do frontendu
+        affiliateText,  // Posíláme do frontendu
         urlOmalovanky01: isUserVip ? urlOmalovanky01 : '',
         urlOmalovanky02: isUserVip ? urlOmalovanky02 : '',
         urlOmalovanky03: isUserVip ? urlOmalovanky03 : '',
