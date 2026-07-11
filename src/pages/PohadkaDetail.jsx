@@ -1,311 +1,142 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Lock, Music, Download, CheckCircle, Play } from 'lucide-react';
-
-const AUDIO_TYPE_LABELS = {
-  'Pohádka': 'Hlasová nahrávka pohádky',
-  'Říkadlo': 'Hlasová nahrávka říkadla',
-  'Písnička': 'Hlasová nahrávka písničky'
-};
+import { ArrowLeft, Play, ArrowRight, ShoppingBag, Sparkles } from 'lucide-react';
 
 export default function PohadkaDetail() {
   const { slug } = useParams();
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [passcode, setPasscode] = useState(localStorage.getItem('sl_passcode') || '');
-  const [inputCode, setInputCode] = useState(passcode);
-  const [codeSaved, setCodeSaved] = useState(false);
-  const [audioDuration, setAudioDuration] = useState('--:--');
+  const [error, setError] = useState(null);
 
-  const loadData = () => {
+  useEffect(() => {
+    const savedCode = localStorage.getItem('sl_passcode') || '';
     setLoading(true);
-    fetch(`/api/get-library?slug=${slug}&passcode=${passcode}`)
-      .then(res => res.json())
+    
+    fetch(`/api/get-library?slug=${slug}&passcode=${savedCode}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Nepodařilo se načíst detail příběhu.');
+        return res.json();
+      })
       .then(data => {
         setItem(data);
         setLoading(false);
       })
       .catch(err => {
         console.error(err);
+        setError(err.message);
         setLoading(false);
       });
-  };
-
-  useEffect(() => {
-    loadData();
-  }, [slug, passcode]);
-
-  const handleSaveCode = (e) => {
-    e.preventDefault();
-    localStorage.setItem('sl_passcode', inputCode.trim());
-    setPasscode(inputCode.trim());
-    setCodeSaved(true);
-    setTimeout(() => setCodeSaved(false), 3000);
-  };
-
-  // FUNKCE PRO ODCHYCENÍ A OTEVŘENÍ STRIPE V CENTROVANÉM POPUP OKNĚ (VNOŘENÉ OKNO)
-  const openStripePopup = (e) => {
-    e.preventDefault();
-    const url = "https://buy.stripe.com/8x2fZh8CZ2H2eD73aQ9IQ0q";
-    const width = 500;
-    const height = 710;
-    // Výpočet pozice přesně na střed obrazovky uživatele
-    const left = window.screen.width / 2 - width / 2;
-    const top = window.screen.height / 2 - height / 2;
-    
-    window.open(
-      url, 
-      'StripePremiumCheckout', 
-      `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=no, width=${width}, height=${height}, top=${top}, left=${left}`
-    );
-  };
+  }, [slug]);
 
   if (loading) {
     return (
       <div className="text-center py-20 text-slate-400 flex flex-col items-center justify-center space-y-4">
         <div className="animate-spin inline-block w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full"></div>
-        <p className="text-sm font-medium tracking-wide">Otevírám stránku knihovny...</p>
+        <p className="text-sm font-medium">Rozsvěcím čtecí lampičku...</p>
       </div>
     );
   }
 
-  if (!item) {
+  if (error || !item) {
     return (
-      <div className="text-center py-20 text-slate-400">
-        <p className="text-xl mb-4">Obsah nebyl nalezen 🌙</p>
-        <Link to="/" className="text-amber-400 hover:underline">Zpět do knihovny</Link>
+      <div className="max-w-xl mx-auto bg-slate-900/40 border border-slate-800 p-8 rounded-2xl text-center space-y-4">
+        <p className="text-slate-300 font-medium">Příběh se nepodařilo otevřít.</p>
+        <Link to="/" className="text-amber-400 text-xs font-bold hover:underline">➔ Zpět do knihovny</Link>
       </div>
     );
   }
+
+  // ROZHODOVACÍ LOGIKA PRO AFFILIATE BANNER
+  // Pokud v Notionu u pohádky nic nevyplníte, nasadí se tato univerzální lampička
+  const finalAffiliateUrl = item.affiliateUrl || "https://www.alza.cz/kod/HRAbz14725"; 
+  const finalAffiliateText = item.affiliateText || "Pro dokonalou snovou atmosféru v pokojíčku využíváme při večerním čtení toto uklidňující projektové světýlko, které si děti zamilovaly.";
 
   return (
-    <div className="max-w-4xl mx-auto animate-fade-in space-y-8">
-      
-      {item.hasAudio && item.urlAudio && (
-        <audio 
-          src={item.urlAudio} 
-          preload="metadata" 
-          onLoadedMetadata={(e) => {
-            const mins = Math.floor(e.target.duration / 60);
-            const secs = Math.floor(e.target.duration % 60).toString().padStart(2, '0');
-            setAudioDuration(`${mins}:${secs}`);
-          }}
-          className="hidden"
-        />
-      )}
-
-      {/* OPRAVENO: Tlačítko zpět předává stav, takže se uživatel vrátí do správné sekce (např. Písničky) */}
-      <Link 
-        to="/" 
-        state={{ activeTab: item.type }} 
-        className="inline-flex items-center space-x-2 text-slate-400 hover:text-amber-400 transition group"
-      >
-        <ArrowLeft size={18} className="transform group-hover:-translate-x-1 transition-transform" />
-        <span>Zpět do sekce {item.type === 'Pohádka' ? 'Pohádky' : item.type === 'Říkadlo' ? 'Říkadla' : 'Písničky'}</span>
+    <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
+      {/* Tlačítko zpět */}
+      <Link to="/" className="inline-flex items-center space-x-2 text-xs font-bold text-slate-400 hover:text-amber-400 transition">
+        <ArrowLeft size={14} /> <span>Zpět do knihovny</span>
       </Link>
 
-      <div>
-        <h2 className="text-4xl font-bold text-amber-400 mb-1">{item.title}</h2>
-        {item.autor && <p className="text-slate-400 italic mb-3">Autor: {item.autor}</p>}
-        <span className="inline-block bg-slate-800 text-amber-300 text-xs px-3 py-1 rounded-full font-medium">
-          {item.type}
-        </span>
+      {/* Titulek */}
+      <div className="space-y-1">
+        <span className="text-xs font-bold text-amber-400/80 uppercase tracking-widest bg-amber-400/5 px-2.5 py-1 rounded-md border border-amber-400/10">{item.type}</span>
+        <h2 className="text-3xl md:text-4xl font-serif font-black text-slate-100 pt-2">{item.title}</h2>
+        {item.autor && <p className="text-sm text-slate-400 italic">Napsal/a: {item.autor}</p>}
       </div>
 
-      {/* SEKCE 1: OMALOVÁNKA ZDARMA */}
-      {item.urlOmalovankyHlavni && (
-        <div className="bg-emerald-950/20 border border-emerald-500/30 p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-lg">
-          <div className="space-y-1">
-            <h4 className="text-sm font-bold text-emerald-400 uppercase tracking-wider flex items-center space-x-2">
-              <span>🎁</span> <span>Hlavní omalovánka ke stažení zdarma</span>
-            </h4>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Tento základní kreslicí list k motivu „{item.title}“ si můžete ihned stáhnout a vytisknout.
-            </p>
-          </div>
-          <div className="shrink-0">
-            <a 
-              href={item.urlOmalovankyHlavni} 
-              target="_blank" 
-              rel="noreferrer" 
-              className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black px-5 py-3 rounded-xl transition shadow-md"
-            >
-              <Download size={14} /> <span>Stáhnout zdarma (PDF)</span>
-            </a>
-          </div>
-        </div>
-      )}
-
-      {/* SEKCE 2: PREMIUM BOX */}
-      {(item.hasAudio || item.hasPremiumOmalovanky) && (
-        <div className="bg-slate-900/40 border border-slate-800/80 p-6 md:p-8 rounded-2xl shadow-xl space-y-6">
-          
-          {item.isUserVip ? (
-            /* STAV: ODEMČENO */
-            <div className="space-y-6">
-              <div className="flex items-center space-x-2 text-emerald-400 font-semibold text-sm">
-                <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Premium balíček úspěšně odemčen ✨</span>
-              </div>
-              
-              {item.hasAudio && (
-                <div className="space-y-1.5">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block px-1">
-                    {AUDIO_TYPE_LABELS[item.type] || 'Hlasová nahrávka'}
-                  </span>
-                  <audio src={item.urlAudio} controls className="w-full accent-amber-400 bg-slate-950 rounded-xl p-2" />
-                </div>
-              )}
-
-              {item.hasPremiumOmalovanky && (
-                <div className="space-y-4 pt-2">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block px-1">
-                    Rozšířené Premium omalovánky v balíčku
-                  </span>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {[
-                      { url: item.urlOmalovanky01, label: 'Omalovánka 01' },
-                      { url: item.urlOmalovanky02, label: 'Omalovánka 02' },
-                      { url: item.urlOmalovanky03, label: 'Omalovánka 03' }
-                    ].filter(o => o.url).map((omalovanka, index) => (
-                      <div key={index} className="flex flex-col space-y-2">
-                        <div className="relative aspect-[4/3] rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
-                          <img src={omalovanka.url} alt={omalovanka.label} className="w-full h-full object-cover" />
-                        </div>
-                        <a href={omalovanka.url} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 text-[11px] font-bold py-2 rounded-lg transition">
-                          <Download size={12} /> <span>Stáhnout</span>
-                        </a>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            /* STAV: UZAMČENO - Kompletně přepsáno na vykaní a Premium */
-            <div className="space-y-6">
-              
-              {item.hasAudio && (
-                <div className="space-y-1.5">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block px-1">
-                    {AUDIO_TYPE_LABELS[item.type] || 'Hlasová nahrávka'}
-                  </span>
-                  <div className="w-full bg-slate-950/60 rounded-xl p-3 flex items-center space-x-4 border border-slate-900 select-none opacity-40">
-                    <div className="bg-slate-800 p-2 rounded-full text-slate-500">
-                      <Play size={16} fill="currentColor" />
-                    </div>
-                    <div className="flex-1 h-1.5 bg-slate-800 rounded-full relative">
-                      <div className="absolute left-0 top-0 bottom-0 w-1/12 bg-amber-500/40 rounded-full"></div>
-                    </div>
-                    <span className="text-xs font-mono text-slate-500">0:00 / {audioDuration}</span>
-                    <Lock size={14} className="text-amber-500/60 shrink-0" />
-                  </div>
-                </div>
-              )}
-
-              {item.hasPremiumOmalovanky && (
-                <div className="space-y-3">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block px-1">
-                    Rozšířené Premium omalovánky (Sada {item.premiumImages.length} listů)
-                  </span>
-                  
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {item.premiumImages.map((imgUrl, idx) => (
-                      <div key={idx} className="relative aspect-[4/3] rounded-xl overflow-hidden border border-slate-900 bg-slate-950/50 select-none">
-                        <img 
-                          src={imgUrl} 
-                          alt="Náhled prémiového listu" 
-                          className="w-full h-full object-cover opacity-20 filter blur-[0.5px]"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center bg-slate-950/20">
-                          <Lock size={18} className="text-amber-400/80 bg-slate-950/80 p-1 rounded-full border border-slate-800 shadow" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="pt-1">
-                    <div className="inline-flex items-center space-x-2 bg-slate-950/40 border border-slate-900 text-slate-500 text-xs font-bold px-4 py-2.5 rounded-xl select-none opacity-40">
-                      <Download size={14} /> 
-                      <span>Stáhnout bonusové omalovánky v PDF</span>
-                      <Lock size={12} className="ml-1 text-amber-500/60" />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Prodejní banner - Změna odkazu na popup funkci openStripePopup */}
-              <div className="border-t border-slate-800/60 pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-gradient-to-r from-amber-500/5 to-transparent p-4 rounded-xl border border-amber-500/10">
-                <div className="space-y-1">
-                  <h4 className="text-sm font-bold text-amber-300 flex items-center space-x-1.5">
-                    <Lock size={14} className="text-amber-400" />
-                    <span>Chcete dětem odemknout nahrávku a celou sadu omalovánek?</span>
-                  </h4>
-                  <p className="text-xs text-slate-400 max-w-xl leading-relaxed">
-                    Aktivací Premium členství získáte okamžitý přístup k doprovodným nahrávkám, rozšířeným kreativním sadám ke stažení a našemu inteligentnímu AI generátoru pohádek na míru.
-                  </p>
-                </div>
-                <div className="shrink-0">
-                  <button 
-                    onClick={openStripePopup}
-                    className="w-full md:w-auto inline-block text-center bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black px-5 py-2.5 rounded-xl text-xs uppercase tracking-wide transition shadow-lg hover:shadow-orange-500/5 hover:opacity-95 cursor-pointer"
-                  >
-                    Aktivovat přístup za 75 Kč ➔
-                  </button>
-                </div>
-              </div>
-
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* YouTube přehrávač */}
-      {item.youtubeId && (
-        <div className="aspect-video w-full rounded-2xl overflow-hidden shadow-2xl border border-slate-800 bg-slate-900">
-          <iframe src={`https://www.youtube.com/embed/${item.youtubeId}`} title={item.title} className="w-full h-full" allowFullScreen></iframe>
-        </div>
-      )}
-
-      {/* Spotify přehrávač */}
-      {item.spotifyId && (
-        <div>
-          <iframe src={`https://open.spotify.com/embed/${item.spotifyId}`} width="100%" height="152" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" className="rounded-xl border border-slate-800"></iframe>
-        </div>
-      )}
-
-      {/* Zrcadlově přesný text z Notion */}
-      {item.content && (
-        <div className="prose prose-invert max-w-none bg-slate-900/40 p-6 md:p-10 rounded-2xl border border-slate-800/60 shadow-xl leading-relaxed text-slate-300 font-normal whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: item.content }} />
-      )}
-
-      {/* FORMULÁŘ PRO ZADÁNÍ PREMIUM KÓDU */}
-      <div className="border-t border-slate-900 pt-8 max-w-md">
-        <form onSubmit={handleSaveCode} className="bg-slate-900/20 border border-slate-800/80 p-4 rounded-xl space-y-3">
-          <label className="block text-[11px] font-bold uppercase tracking-widest text-slate-400">
-            🔑 Už máte svůj Premium přístupový kód?
-          </label>
-          <div className="flex space-x-2">
-            <input 
-              type="text" 
-              value={inputCode} 
-              onChange={(e) => setInputCode(e.target.value)} 
-              placeholder="Vložte kód z e-mailu (např. sl-jiri-8x3a)..." 
-              className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+      {/* MULTIMEDIÁLNÍ INTEGRACE (YouTube / Spotify) */}
+      <div className="grid grid-cols-1 gap-4">
+        {item.youtubeId && (
+          <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-800 shadow-xl bg-slate-950">
+            <iframe 
+              src={`https://www.youtube.com/embed/${item.youtubeId}?rel=0`}
+              title={`Noční Knihovna - ${item.title}`}
+              className="absolute inset-0 w-full h-full"
+              allowFullScreen
             />
-            <button 
-              type="submit" 
-              className="bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold px-4 py-1.5 rounded-lg transition shrink-0"
-            >
-              Uložit kód
-            </button>
           </div>
-          {codeSaved && (
-            <p className="text-emerald-400 text-[11px] flex items-center space-x-1 animate-pulse">
-              <CheckCircle size={12} /> <span>Kód uložen! Aktualizuji stránku...</span>
-            </p>
-          )}
-        </form>
+        )}
+
+        {item.spotifyId && (
+          <div className="w-full rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-md">
+            <iframe 
+              src={`https://open.spotify.com/embed/${item.spotifyId}`}
+              width="100%" 
+              height="152" 
+              allow="encrypted-media" 
+              title="Spotify přehrávač"
+              className="border-none"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* TEXT POHÁDKY */}
+      {item.content ? (
+        <div 
+          className="bg-slate-900/20 border border-slate-900 p-6 md:p-8 rounded-2xl font-serif text-slate-200 text-lg leading-relaxed space-y-4 shadow-sm"
+          dangerouslySetInnerHTML={{ __html: item.content }}
+        />
+      ) : (
+        <div className="p-4 bg-slate-900/20 border border-slate-900 rounded-xl text-center text-slate-500 text-sm italic">
+          Textová verze k tomuto motivu se připravuje. Pusťte si zatím audio nebo video výše.
+        </div>
+      )}
+
+      {/* INTEGROVANÝ ELEGANTNÍ AFFILIATE BANNER */}
+      <div className="bg-gradient-to-br from-slate-900/60 to-slate-950/40 border border-slate-800/80 rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row items-center sm:items-start justify-between gap-5 shadow-lg relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/5 rounded-full filter blur-xl group-hover:bg-amber-400/10 transition duration-500" />
+        <div className="space-y-2 text-center sm:text-left flex-1">
+          <span className="text-[9px] font-bold text-amber-400/60 uppercase tracking-widest bg-amber-400/5 px-2 py-0.5 rounded border border-amber-400/10 inline-flex items-center space-x-1">
+            <Sparkles size={10} /> <span>Tip z naší knihovny</span>
+          </span>
+          <p className="text-xs md:text-sm text-slate-300 leading-relaxed max-w-xl">
+            {finalAffiliateText}
+          </p>
+        </div>
+        <div className="shrink-0 w-full sm:w-auto self-center">
+          <a 
+            href={finalAffiliateUrl.startsWith('http') ? finalAffiliateUrl : `https://${finalAffiliateUrl}`}
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 text-xs font-bold px-5 py-3 rounded-xl transition cursor-pointer shadow-md"
+          >
+            <ShoppingBag size={13} />
+            <span>Zobrazit doporučené</span>
+          </a>
+        </div>
+      </div>
+
+      {/* Odkaz na omalovánky na konci */}
+      <div className="pt-4 flex justify-center border-t border-slate-900">
+        <Link 
+          to="/omalovanky" 
+          className="inline-flex items-center space-x-2 text-xs font-bold text-amber-400/90 hover:text-amber-400 bg-slate-900/40 hover:bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl transition shadow-sm"
+        >
+          <span>Chci stáhnout omalovánku k tomuto motivu</span>
+          <ArrowRight size={12} />
+        </Link>
       </div>
     </div>
   );
