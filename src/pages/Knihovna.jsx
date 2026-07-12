@@ -192,14 +192,25 @@ export default function Knihovna() {
                     <span className="text-[10px] tracking-widest uppercase text-amber-500/50 font-mono mb-2">písnička</span>
                     <h4 className="font-serif text-xl md:text-2xl text-amber-100/90 font-medium italic px-2 line-clamp-2 leading-snug">„{item.title}“</h4>
                   </div>
-                ) : (
+                ) : item.thumbnail ? (
+                  /* 1. VOLBA: Pokud existuje YouTube náhledovka, použije se */
                   <img src={item.thumbnail} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                ) : item.urlOmalovankyHlavni ? (
+                  /* 2. VOLBA: Pokud není YouTube, ale je hlavní omalovánka, ukáže se omalovánka */
+                  <img src={item.urlOmalovankyHlavni} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 filter brightness-95 contrast-105" />
+                ) : (
+                  /* 3. VOLBA: Univerzální líbivý placeholder pro chybějící média */
+                  <div className="w-full h-full bg-black flex flex-col items-center justify-center p-6 text-center select-none border-b border-slate-900/50 group-hover:bg-slate-950 transition-colors duration-300">
+                    <div className="text-amber-100/90 mb-1.5 transform group-hover:scale-110 transition-transform duration-300"><BookOpen size={22} /></div>
+                    <span className="text-[10px] tracking-widest uppercase text-amber-500/50 font-mono mb-2">{item.type?.toLowerCase() || 'pohádka'}</span>
+                    <h4 className="font-serif text-xl md:text-2xl text-amber-100/90 font-medium italic px-2 line-clamp-2 leading-snug">„{item.title}“</h4>
+                  </div>
                 )}
                 
                 {/* Typ obsahu (vlevo nahoře) */}
-                <span className="absolute top-2 left-2 bg-slate-950/80 text-amber-400 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border border-slate-800">{item.type}</span>
+                <span className="absolute top-2 left-2 bg-slate-950/80 text-amber-400 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border border-slate-800/50">{item.type}</span>
 
-                {/* AKTUALIZOVÁNO: Čisté barevné ikonky v pravém dolním rohu náhledovky */}
+                {/* Čisté barevné ikonky v pravém dolním rohu náhledovky */}
                 <div className="absolute bottom-2 right-2 flex items-center space-x-1 bg-slate-950/70 backdrop-blur-md px-2 py-1 rounded-xl border border-slate-800/60 shadow-lg">
                   {/* Ikona textu (vždy přítomná) */}
                   <div className="text-slate-400 p-0.5" title="Obsahuje text ke čtení">
