@@ -170,9 +170,11 @@ export default function Knihovna() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
           {filteredItems.map(item => (
             <Link key={item.id} to={`/${item.slug}`} className="group bg-slate-900/40 border border-slate-800 rounded-2xl overflow-hidden cursor-pointer hover:border-amber-500/50 transition-all flex flex-col">
+              
+              {/* Náhledová plocha s obrázkem / textem */}
               <div className="aspect-video w-full overflow-hidden relative bg-slate-950">
                 
-                {/* Ikona zámečku pro Premium obsah */}
+                {/* Ikona zámečku pro Premium obsah (vpravo nahoře) */}
                 {item.isPremium && (
                   <div className="absolute top-2 right-2 bg-slate-950/80 backdrop-blur border border-amber-500/30 p-1.5 rounded-full z-10 shadow-md">
                     <Lock size={12} className="text-amber-400" />
@@ -193,40 +195,49 @@ export default function Knihovna() {
                 ) : (
                   <img src={item.thumbnail} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 )}
+                
+                {/* Typ obsahu (vlevo nahoře) */}
                 <span className="absolute top-2 left-2 bg-slate-950/80 text-amber-400 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border border-slate-800">{item.type}</span>
+
+                {/* AKTUALIZOVÁNO: Čisté barevné ikonky v pravém dolním rohu náhledovky */}
+                <div className="absolute bottom-2 right-2 flex items-center space-x-1 bg-slate-950/70 backdrop-blur-md px-2 py-1 rounded-xl border border-slate-800/60 shadow-lg">
+                  {/* Ikona textu (vždy přítomná) */}
+                  <div className="text-slate-400 p-0.5" title="Obsahuje text ke čtení">
+                    <BookOpen size={13} />
+                  </div>
+
+                  {/* Audio ikona */}
+                  {item.hasAudio && (
+                    <div className="text-indigo-400 p-0.5" title="Obsahuje audio nahrávku">
+                      <Headphones size={13} />
+                    </div>
+                  )}
+
+                  {/* Video ikona */}
+                  {item.hasVideo && (
+                    <div className="text-rose-400 p-0.5" title="Obsahuje video pohádku">
+                      <Video size={13} />
+                    </div>
+                  )}
+
+                  {/* Omalovánka ikona */}
+                  {item.hasOmalovanka && (
+                    <div className="text-emerald-400 p-0.5" title="Obsahuje omalovánku k tisku">
+                      <Palette size={13} />
+                    </div>
+                  )}
+                </div>
+
               </div>
+
+              {/* Informace pod náhledovým obrázkem */}
               <div className="p-5 flex-1 flex flex-col justify-between">
                 <div>
                   <h3 className="text-lg font-bold text-slate-100 group-hover:text-amber-300 transition-colors">{item.title}</h3>
                   {item.autor && <p className="text-xs text-slate-400 mt-1">{item.autor}</p>}
-
-                  {/* Lišta dostupnosti obsahu */}
-                  <div className="flex flex-wrap gap-1.5 mt-4 pt-3 border-t border-slate-800/40">
-                    <div className="flex items-center space-x-1 bg-slate-950/80 border border-slate-800/60 px-2 py-0.5 rounded text-slate-400" title="Text ke čtení">
-                      <BookOpen size={10} /> <span className="text-[9px] font-medium">Text</span>
-                    </div>
-
-                    {item.hasAudio && (
-                      <div className="flex items-center space-x-1 bg-indigo-950/40 border border-indigo-900/40 px-2 py-0.5 rounded text-indigo-300" title="Obsahuje audio nahrávku">
-                        <Headphones size={10} /> <span className="text-[9px] font-medium">Audio</span>
-                      </div>
-                    )}
-
-                    {item.hasVideo && (
-                      <div className="flex items-center space-x-1 bg-rose-950/40 border border-rose-900/40 px-2 py-0.5 rounded text-rose-300" title="Obsahuje video pohádku">
-                        <Video size={10} /> <span className="text-[9px] font-medium">Video</span>
-                      </div>
-                    )}
-
-                    {item.hasOmalovanka && (
-                      <div className="flex items-center space-x-1 bg-emerald-950/40 border border-emerald-900/40 px-2 py-0.5 rounded text-emerald-300" title="Obsahuje omalovánky k tisku">
-                        <Palette size={10} /> <span className="text-[9px] font-medium">Kreslení</span>
-                      </div>
-                    )}
-                  </div>
                 </div>
 
-                <div className="text-xs text-amber-400/80 font-medium mt-4 group-hover:text-amber-400 transition-colors">
+                <div className="text-xs text-amber-400/80 font-medium mt-6 group-hover:text-amber-400 transition-colors">
                   {BUTTON_LABELS[item.type] || 'Otevřít obsah →'}
                 </div>
               </div>
