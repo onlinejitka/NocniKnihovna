@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { AlertTriangle, Info, Music, BookOpen, Sparkles, ShoppingBag } from 'lucide-react';
+import { AlertTriangle, Info, Music, BookOpen, Sparkles, ShoppingBag, Search, Headphones, Video, Palette, Lock } from 'lucide-react';
 
 const TAB_LABELS = {
   'vse': 'Vše z knihovny',
@@ -23,6 +23,10 @@ export default function Knihovna() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // NOVINKA: Stavy pro vyhledávání a filtrování autorů
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterAuthor, setFilterAuthor] = useState('Vše');
+
   useEffect(() => {
     const savedCode = localStorage.getItem('sl_passcode') || '';
     setLoading(true);
@@ -34,11 +38,6 @@ export default function Knihovna() {
       .then(data => {
         if (data && Array.isArray(data.items)) {
           setItems(data.items);
-          if (location.state?.activeTab && location.state.activeTab !== 'vse') {
-            setFilteredItems(data.items.filter(item => item.type === location.state.activeTab));
-          } else {
-            setFilteredItems(data.items);
-          }
         }
         setLoading(false);
       })
@@ -49,13 +48,30 @@ export default function Knihovna() {
       });
   }, [location.state]);
 
+  // AKTUALIZOVÁNO: Kombinovaná filtrace (Záložky + Vyhledávání + Autor)
   useEffect(() => {
-    if (activeTab === 'vse') {
-      setFilteredItems(items);
-    } else {
-      setFilteredItems(items.filter(item => item.type === activeTab));
+    let result = [...items];
+
+    // 1. Filtr podle aktivní záložky
+    if (activeTab !== 'vse') {
+      result = result.filter(item => item.type === activeTab);
     }
-  }, [activeTab, items]);
+
+    // 2. Filtr podle vyhledávacího políčka
+    if (searchTerm.trim() !== '') {
+      result = result.filter(item => item.title.toLowerCase().includes(searchTerm.toLowerCase()));
+    }
+
+    // 3. Filtr podle vybraného autora
+    if (filterAuthor !== 'Vše') {
+      result = result.filter(item => item.autor === filterAuthor);
+    }
+
+    setFilteredItems(result);
+  }, [activeTab, items, searchTerm, filterAuthor]);
+
+  // NOVINKA: Automatické seskupení unikátních autorů z načtených dat z Notionu
+  const uniqueAuthors = ['Vše', ...new Set(items.map(item => item.autor).filter(Boolean))];
 
   // DYNAMICKÁ LOGIKA PRO SPODNÍ AFFILIATE BANNER PODLE AKTIVNÍ ZÁLOŽKY
   const isSongTab = activeTab === 'Písnička';
@@ -83,6 +99,35 @@ export default function Knihovna() {
         <p className="text-slate-400 text-sm max-w-2xl mx-auto leading-relaxed px-4">
           Podkladové černobílé omalovánky sice navrhuji s pomocí AI, ale každý list poté sama ručně graficky pročišťuji a doupravuji. V doprovodných zrychlených videích pak tyto sady vybarvuji já nebo mé děti. Většinu základních omalovánek si zde můžete zcela zdarma stáhnout v PDF.
         </p>
+      </div>
+
+      {/* NOVINKA: Ovládací vyhledávací a filtrační panel */}
+      <div className="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-4 flex flex-col sm:flex-row gap-4 max-w-4xl mx-auto shadow-xl animate-fade-in">
+        {/* Vyhledávací pole */}
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500" size={16} />
+          <input 
+            type="text" 
+            placeholder="Vyhledat podle názvu..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:border-amber-500/50 transition shadow-inner"
+          />
+        </div>
+
+        {/* Roletka pro výběr autora */}
+        <div className="flex items-center space-x-2 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1 shadow-inner">
+          <span className="text-slate-500 text-xs font-medium">Autor:</span>
+          <select 
+            value={filterAuthor} 
+            onChange={(e) => setFilterAuthor(e.target.value)}
+            className="bg-transparent text-slate-300 text-xs focus:outline-none cursor-pointer py-1.5 min-w-[130px]"
+          >
+            {uniqueAuthors.map(author => (
+              <option key={author} value={author} className="bg-slate-900">{author}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="flex flex-col items-center space-y-4 border-b border-slate-900 pb-6">
@@ -114,11 +159,27 @@ export default function Knihovna() {
         </div>
       )}
 
+      {/* NOVINKA: Výstraha v případě, že vyhledávání nic nenašlo */}
+      {!loading && !error && filteredItems.length === 0 && (
+        <div className="text-center py-16 text-slate-500 bg-slate-900/20 rounded-2xl border border-slate-900 max-w-md mx-auto">
+          <Sparkles size={32} className="mx-auto mb-3 opacity-20 text-amber-400" />
+          <p className="text-sm">Takový kousek v knihovně zrovna nemáme.</p>
+        </div>
+      )}
+
       {!loading && !error && filteredItems.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
           {filteredItems.map(item => (
             <Link key={item.id} to={`/${item.slug}`} className="group bg-slate-900/40 border border-slate-800 rounded-2xl overflow-hidden cursor-pointer hover:border-amber-500/50 transition-all flex flex-col">
               <div className="aspect-video w-full overflow-hidden relative bg-slate-950">
+                
+                {/* NOVINKA: Ikona zámečku pro Premium (HeroHero) obsah přímo přes náhledový obrázek */}
+                {item.isPremium && (
+                  <div className="absolute top-2 right-2 bg-slate-950/80 backdrop-blur border border-amber-500/30 p-1.5 rounded-full z-10 shadow-md">
+                    <Lock size={12} className="text-amber-400" />
+                  </div>
+                )}
+
                 {item.type === 'Říkadlo' ? (
                   <div className="w-full h-full bg-black flex flex-col items-center justify-center p-6 text-center select-none border-b border-slate-900/50 group-hover:bg-slate-950 transition-colors duration-300">
                     <span className="text-[10px] tracking-widest uppercase text-amber-500/50 font-mono mb-2">říkadlo</span>
@@ -139,41 +200,35 @@ export default function Knihovna() {
                 <div>
                   <h3 className="text-lg font-bold text-slate-100 group-hover:text-amber-300 transition-colors">{item.title}</h3>
                   {item.autor && <p className="text-xs text-slate-400 mt-1">{item.autor}</p>}
-                </div>
-                <div className="text-xs text-amber-400/80 font-medium mt-4 group-hover:text-amber-400 transition-colors">
-                  {BUTTON_LABELS[item.type] || 'Otevřít obsah →'}
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
 
-      {/* DYNAMICKÝ INTELIGENTNÍ BANNER KNIHOVNY */}
-      <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800/80 rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden group mt-16 max-w-4xl mx-auto animate-fade-in">
-        {/* OPRAVENO: Přidáno pointer-events-none, aby designové světlo neblokovalo prokliky */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 rounded-full filter blur-2xl group-hover:bg-amber-400/10 transition duration-500 pointer-events-none" />
-        <div className="flex flex-col sm:flex-row items-center gap-5 flex-1">
-          <div className="w-20 h-20 bg-slate-950 border border-slate-800/60 rounded-xl flex items-center justify-center shrink-0 shadow-inner bg-gradient-to-b from-slate-900 to-slate-950 text-amber-400/40">
-            {/* Ikona se mění dynamicky podle vybraného typu obsahu */}
-            {isSongTab ? <Music size={24} /> : <BookOpen size={24} />}
-          </div>
-          <div className="space-y-1.5 text-center sm:text-left">
-            <span className="text-[9px] font-bold text-amber-400/60 uppercase tracking-widest bg-amber-400/5 px-2 py-0.5 rounded border border-amber-400/10 inline-flex items-center space-x-1">
-              <Sparkles size={10} /> <span>{bannerLabel}</span>
-            </span>
-            <p className="text-xs md:text-sm text-slate-300 leading-relaxed max-w-xl">
-              {bannerText}
-            </p>
-          </div>
-        </div>
-        <div className="shrink-0 w-full sm:w-auto self-center">
-          <a href={bannerUrl} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 text-xs font-bold px-5 py-3 rounded-xl transition cursor-pointer shadow-md group-hover:border-amber-400/30">
-            <ShoppingBag size={13} />
-            <span>{bannerButtonLabel}</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  );
-}
+                  {/* NOVINKA: Lišta dostupnosti obsahu generovaná automaticky z vlastností v API */}
+                  <div className="flex flex-wrap gap-1.5 mt-4 pt-3 border-t border-slate-800/40">
+                    {/* Text je přítomen vždy */}
+                    <div className="flex items-center space-x-1 bg-slate-950/80 border border-slate-800/60 px-2 py-0.5 rounded text-slate-400" title="Text ke čtení">
+                      <BookOpen size={10} /> <span className="text-[9px] font-medium">Text</span>
+                    </div>
+
+                    {/* Audio značka */}
+                    {item.hasAudio && (
+                      <div className="flex items-center space-x-1 bg-indigo-950/40 border border-indigo-900/40 px-2 py-0.5 rounded text-indigo-300" title="Obsahuje mluvené slovo">
+                        <Headphones size={10} /> <span className="text-[9px] font-medium">Audio</span>
+                      </div>
+                    )}
+
+                    {/* Video značka */}
+                    {item.hasVideo && (
+                      <div className="flex items-center space-x-1 bg-rose-950/40 border border-rose-900/40 px-2 py-0.5 rounded text-rose-300" title="Obsahuje video pohádku">
+                        <Video size={10} /> <span className="text-[9px] font-medium">Video</span>
+                      </div>
+                    )}
+
+                    {/* Omalovánka značka */}
+                    {item.hasOmalovanka && (
+                      <div className="flex items-center space-x-1 bg-emerald-950/40 border border-emerald-900/40 px-2 py-0.5 rounded text-emerald-300" title="Obsahuje omalovánky k tisku">
+                        <Palette size={10} /> <span className="text-[9px] font-medium">Kreslení</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="text-xs text-amber-400/80 font-medium mt-4 group-hover:text-amber-400 transition
