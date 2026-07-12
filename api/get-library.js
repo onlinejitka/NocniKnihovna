@@ -15,7 +15,7 @@ function extractSpotifyId(url) {
   return match ? `${match[1]}/${match[2]}` : '';
 }
 
-// NOVINKA: Univerzální extraktor - ať vložíte link, nebo uploadnete soubor, vždy ho najde
+// Univerzální extraktor - ať vložíte link, nebo uploadnete soubor, vždy ho najde
 function extractFileUrl(prop) {
   if (!prop) return '';
   if (prop.type === 'url') return prop.url || '';
@@ -109,6 +109,9 @@ export default async function handler(req, res) {
       const affiliateImage = extractFileUrl(props['Affiliate Image']);
 
       const premiumImages = [urlOmalovanky01, urlOmalovanky02, urlOmalovanky03].filter(Boolean);
+      
+      // Pokus o získání titulního obrázku z Notionu (Cover)
+      const coverImage = page.cover?.external?.url || page.cover?.file?.url || '';
 
       return {
         id: page.id, title, autor, slug: itemSlug, type, youtubeId, spotifyId, thumbnail,
@@ -116,7 +119,14 @@ export default async function handler(req, res) {
         urlOmalovanky01: isUserVip ? urlOmalovanky01 : '',
         urlOmalovanky02: isUserVip ? urlOmalovanky02 : '',
         urlOmalovanky03: isUserVip ? urlOmalovanky03 : '',
-        hasAudio: !!urlAudio,
+        
+        // --- NOVINKA: PŘÍZNAKY A ZÁKLADNÍ INFO ---
+        image: coverImage || thumbnail || 'https://images.unsplash.com/photo-1550684376-efcbd6e3f031?w=800',
+        isPremium: props['HeroHero']?.checkbox || false, // Pro ikonu zámečku
+        hasText: true, // Text mají všechny
+        hasAudio: !!urlAudio || !!spotifyId, // Má to zvukový odkaz?
+        hasVideo: !!youtubeId, // Má to YT odkaz?
+        hasOmalovanka: !!urlOmalovankyHlavni || premiumImages.length > 0, // Je tam obrázek ke stažení?
         hasPremiumOmalovanky: premiumImages.length > 0
       };
     });
