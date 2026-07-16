@@ -6,6 +6,7 @@ import Hadanky from './pages/Hadanky';
 import Omalovanky from './pages/Omalovanky';
 import Hra from './pages/Hra';
 import Souhvezdi from './pages/Souhvezdi';
+import Scrabble from './pages/Scrabble';
 import Pexeso from './pages/Pexeso';
 import Ovecky from './pages/Ovecky'; // Nový import
 import Labyrint from './pages/Labyrint'; // Nový import
@@ -163,6 +164,7 @@ export default function App() {
             <Route path="/hra" element={<Hra />} />
             <Route path="/ovecky" element={<Ovecky />} /> {/* Registrace cesty */}
             <Route path="/souhvezdi" element={<Souhvezdi />} />
+            <Route path="/scrabble" element={<Scrabble />} />
             <Route path="/pexeso" element={<Pexeso />} />
             <Route path="/labyrint" element={<Labyrint />} /> {/* Registrace cesty */}
             <Route path="/obchodni-podminky" element={<VOP />} />
