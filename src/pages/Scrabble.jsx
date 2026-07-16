@@ -9,7 +9,22 @@ const WORDS_DATABASE = [
   { word: 'HVĚZDA', hint: '⭐ Malé třpytivé světýlko na tmavém nebi.' },
   { word: 'KNIHA', hint: '📖 Je plná pohádek, obrázků a krásného čtení.' },
   { word: 'LES', hint: '🌲 Rostou tu stromy, houby a bydlí tu zvířátka.' },
-  { word: 'DOMOV', hint: '🏡 Místo, kde je nám nejtepleji a máme tam svou postýlku.' }
+  { word: 'DOMOV', hint: '🏡 Místo, kde je nám nejtepleji a máme tam svou postýlku.' },
+  { word: 'POSTÝLKA', hint: '🛏️ Naše měkoučké hnízdečko, kam se večer zachumláme.' },
+  { word: 'POHÁDKA', hint: '🧚 Tajuplný vyprávěný příběh o princeznách, dracích nebo skřítcích.' },
+  { word: 'POLŠTÁŘ', hint: '☁️ Měkký obláček, na který si večer položíme unavenou hlavičku.' },
+  { word: 'PEŘINA', hint: '🛌 Teplý nadýchaný mrak, který nás v noci hřeje a chrání.' },
+  { word: 'USÍNÁČEK', hint: '🧸 Plyšový kamarád, kterého pevně objímáme při usínání.' },
+  { word: 'SEN', hint: '💭 Krásné dobrodružství, které prožíváme se zavřenýma očima.' },
+  { word: 'SKŘÍTEK', hint: '🧝 Malý kouzelný tvoreček, který v noci hlídá dětské sny.' },
+  { word: 'SVĚTLUŠKA', hint: '🪰 Malinký brouček, který si ve tmě svítí jako lucernička.' },
+  { word: 'KOČKA', hint: '🐈 Vrnící chlupaté zvířátko, které se rádo tulí v peřinách.' },
+  { word: 'STROM', hint: '🌳 Zelený obr v lese, na jehož větvích v noci spí ptáčci.' },
+  { word: 'ZÁMEK', hint: '🏰 Velký tajuplný dům s věžemi, kde spí zakletá princezna.' },
+  { word: 'VÍLA', hint: '🧚 Kouzelná lesní bytost s křídly, která tančí za svitu měsíce.' },
+  { word: 'PYŽAMO', hint: '👕 Naše pohodlné noční oblečení, do kterého vklouzneme před spaním.' },
+  { word: 'SVÍČKA', hint: '🕯️ Malý hřejivý plamínek, který nám večer svítí u postýlky.' },
+  { word: 'MEDVĚD', hint: '🐻 Velký huňatý spáč, který dokáže prospat celou dlouhou zimu.' }
 ];
 
 export default function Scrabble() {
