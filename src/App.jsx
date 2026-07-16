@@ -12,7 +12,7 @@ import Ovecky from './pages/Ovecky'; // Nový import
 import Labyrint from './pages/Labyrint'; // Nový import
 import VOP from './pages/VOP';
 import GDPR from './pages/GDPR';
-import { BookOpen, HelpCircle, Sparkles, Palette, Lightbulb, Star, LayoutGrid, Menu, X, ChevronDown, Gamepad2, Info } from 'lucide-react';
+import { BookOpen, HelpCircle, Sparkles, Palette, Lightbulb, Star, LayoutGrid, Menu, X, ChevronDown, Gamepad2, Info, LayoutGrid, Type  } from 'lucide-react';
 
 function CookieBar() {
   const [visible, setVisible] = useState(false);
@@ -84,6 +84,8 @@ function Header() {
           <Link to="/omalovanky" className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/omalovanky' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
             <Palette size={14} /> <span>Omalovánky</span>
           </Link>
+           
+   
 
           {/* MENÚ HRY PRO POČÍTAČE */}
           <div className="relative group">
@@ -97,6 +99,9 @@ function Header() {
               </Link>
               <Link to="/ovecky" className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800 mt-1">
                 <span>🐑</span> <span>Ovečky (Zdarma)</span>
+              </Link>
+              <Link to="/scrabble" className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800 mt-1">
+                <span>🐑</span> <span>Písmenka (Zdarma)</span>
               </Link>
               <div className="border-t border-slate-800/60 my-1 mx-2" />
               <Link to="/souhvezdi" className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800">
@@ -134,6 +139,7 @@ function Header() {
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-3">Hry Zdarma</p>
             <Link to="/hra" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-slate-300"><Lightbulb size={16} /> <span>Světlušky</span></Link>
             <Link to="/ovecky" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-slate-300"><span>🐑</span> <span>Počítání oveček</span></Link>
+            <Link to="/scrabble" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-slate-300"><span>🐑</span> <span>Vyplnění písmenek</span></Link>
             
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pt-3 mb-2 pl-3">Premium Hry 🔒</p>
             <Link to="/souhvezdi" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-amber-400"><Star size={16} /> <span>Souhvězdí</span></Link>
