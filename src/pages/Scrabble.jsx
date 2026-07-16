@@ -28,34 +28,29 @@ const WORDS_DATABASE = [
 ];
 
 export default function Scrabble() {
-  // NÁHODNÝ VÝBĚR SLOVA HNED NA ZAČÁTKU
+  // Náhodný výběr slova hned na začátku
   const [wordIndex, setWordIndex] = useState(() => Math.floor(Math.random() * WORDS_DATABASE.length));
   const [currentWordData, setCurrentWordData] = useState(WORDS_DATABASE[wordIndex]);
   
-  // Stav pro políčka, kam se písmena doplňují (např. [null, null, null, null])
   const [placedLetters, setPlacedLetters] = useState([]);
-  // Stav pro hromádku písmen dole (zamíchaná písmena)
   const [letterPool, setLetterPool] = useState([]);
   
   const [isCorrect, setIsCorrect] = useState(false);
   const [shakeError, setShakeError] = useState(false);
 
-  // Inicializace nové hry / nového slova
+  // Inicializace nového slova
   const initWord = (index) => {
     const data = WORDS_DATABASE[index];
     setCurrentWordData(data);
     setIsCorrect(false);
     setShakeError(false);
 
-    // Vytvoříme prázdná políčka o délce slova
     setPlacedLetters(Array(data.word.length).fill(null));
 
-    // Připravíme písmena: správná písmena + 2 náhodná navíc pro větší zábavu
     const correctLetters = data.word.split('');
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ';
     const extraLetters = Array(2).fill(null).map(() => alphabet[Math.floor(Math.random() * alphabet.length)]);
     
-    // Spojíme je a náhodně zamícháme
     const allLetters = [...correctLetters, ...extraLetters]
       .map((char, i) => ({ id: i, char, used: false }))
       .sort(() => Math.random() - 0.5);
@@ -67,58 +62,58 @@ export default function Scrabble() {
     initWord(wordIndex);
   }, [wordIndex]);
 
-  // Kliknutí na písmenko v dolní nabídce (přesun do volného políčka)
+  // Přesun z dolní nabídky nahoru
   const handlePoolLetterClick = (clickedItem) => {
     if (isCorrect || clickedItem.used) return;
 
-    // Najdeme první volné políčko shora
     const firstEmptyIndex = placedLetters.indexOf(null);
-    if (firstEmptyIndex === -1) return; // Všechna políčka jsou plná
+    if (firstEmptyIndex === -1) return;
 
-    // Obsadíme políčko shora
     const newPlaced = [...placedLetters];
     newPlaced[firstEmptyIndex] = { poolId: clickedItem.id, char: clickedItem.char };
     setPlacedLetters(newPlaced);
 
-    // Označíme písmenko dole jako použité
     setLetterPool(prev => prev.map(item => 
       item.id === clickedItem.id ? { ...item, used: true } : item
     ));
   };
 
-  // Kliknutí na již umístěné písmenko shora (vrátíme ho zpět dolů)
+  // Návrat z horní pozice dolů
   const handlePlacedLetterClick = (placedItem, index) => {
     if (isCorrect || !placedItem) return;
 
-    // Uvolníme políčko shora
     const newPlaced = [...placedLetters];
     newPlaced[index] = null;
     setPlacedLetters(newPlaced);
 
-    // Vrátíme písmenko zpět do dolní nabídky
     setLetterPool(prev => prev.map(item => 
       item.id === placedItem.poolId ? { ...item, used: false } : item
     ));
+    
+    // Okamžitě zhasneme chybu, jakmile uživatel začne situaci opravovat
     setShakeError(false);
   };
 
-  // Kontrola, zda je slovo správně složené
+  // OPRAVENÁ KONTROLA: Ošetření prázdného pole na startu + okamžitý reset chyb
   useEffect(() => {
-    // Kontrolujeme pouze pokud jsou již vyplněná všechna políčka
+    if (placedLetters.length === 0) return; // Pojistka proti startovnímu bugu prázdného pole
+
     const isFull = placedLetters.every(item => item !== null);
     if (isFull) {
       const spelledWord = placedLetters.map(item => item.char).join('');
       if (spelledWord === currentWordData.word) {
         setIsCorrect(true);
+        setShakeError(false);
       } else {
         setShakeError(true);
       }
     } else {
       setIsCorrect(false);
+      setShakeError(false); // Reset chyb a poskakování, dokud slovo není kompletní
     }
   }, [placedLetters, currentWordData]);
 
-  // ZCELA NÁHODNÝ VÝBĚR DALŠÍHO SLOVA BEZ OPAKOVÁNÍ
+  // Náhodný výběr dalšího slova bez opakování
   const handleNextWord = () => {
     setWordIndex(prevIndex => {
       let newIndex;
@@ -145,7 +140,7 @@ export default function Scrabble() {
       {/* Herní plocha */}
       <div className="bg-[#05030a] border border-slate-900 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
         
-        {/* Nápověda (Karta s vysvětlením) */}
+        {/* Nápověda */}
         <div className="bg-slate-900/40 border border-slate-800/50 rounded-2xl p-4 flex items-start space-x-3 mb-8 max-w-xl mx-auto">
           <div className="bg-amber-400/10 p-2 rounded-xl text-amber-400 shrink-0">
             <HelpCircle size={20} />
@@ -156,7 +151,7 @@ export default function Scrabble() {
           </div>
         </div>
 
-        {/* Políčka pro skládání slova - ODEBRÁN hover efekt pro znehybnění */}
+        {/* Políčka pro skládání slova - pevná a nehybná */}
         <div className={`flex justify-center gap-2 md:gap-3 mb-10 ${shakeError ? 'animate-bounce' : ''}`}>
           {placedLetters.map((letterItem, index) => (
             <button
@@ -222,7 +217,7 @@ export default function Scrabble() {
 
       </div>
 
-      {/* Spodní Doporučující Banner (Hračky/Knihy) */}
+      {/* Spodní Doporučující Banner */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800/80 rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden group max-w-4xl mx-auto">
         <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 rounded-full filter blur-2xl group-hover:bg-amber-400/10 transition duration-500 pointer-events-none" />
         <div className="flex flex-col sm:flex-row items-center gap-5 flex-1">
