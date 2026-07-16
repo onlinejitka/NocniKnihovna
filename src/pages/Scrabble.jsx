@@ -13,8 +13,9 @@ const WORDS_DATABASE = [
 ];
 
 export default function Scrabble() {
-  const [wordIndex, setWordIndex] = useState(0);
-  const [currentWordData, setCurrentWordData] = useState(WORDS_DATABASE[0]);
+  // NÁHODNÝ VÝBĚR SLOVA HNED NA ZAČÁTKU
+  const [wordIndex, setWordIndex] = useState(() => Math.floor(Math.random() * WORDS_DATABASE.length));
+  const [currentWordData, setCurrentWordData] = useState(WORDS_DATABASE[wordIndex]);
   
   // Stav pro políčka, kam se písmena doplňují (např. [null, null, null, null])
   const [placedLetters, setPlacedLetters] = useState([]);
@@ -70,7 +71,7 @@ export default function Scrabble() {
     ));
   };
 
-  // Kliknutí na již umístěné písmenko shora (víceme-li ho zpět dolů)
+  // Kliknutí na již umístěné písmenko shora (vrátíme ho zpět dolů)
   const handlePlacedLetterClick = (placedItem, index) => {
     if (isCorrect || !placedItem) return;
 
@@ -102,12 +103,15 @@ export default function Scrabble() {
     }
   }, [placedLetters, currentWordData]);
 
+  // ZCELA NÁHODNÝ VÝBĚR DALŠÍHO SLOVA BEZ OPAKOVÁNÍ
   const handleNextWord = () => {
-    if (wordIndex < WORDS_DATABASE.length - 1) {
-      setWordIndex(prev => prev + 1);
-    } else {
-      setWordIndex(0); // Restart na začátek
-    }
+    setWordIndex(prevIndex => {
+      let newIndex;
+      do {
+        newIndex = Math.floor(Math.random() * WORDS_DATABASE.length);
+      } while (newIndex === prevIndex && WORDS_DATABASE.length > 1);
+      return newIndex;
+    });
   };
 
   return (
@@ -137,7 +141,7 @@ export default function Scrabble() {
           </div>
         </div>
 
-        {/* Políčka pro skládání slova */}
+        {/* Políčka pro skládání slova - ODEBRÁN hover efekt pro znehybnění */}
         <div className={`flex justify-center gap-2 md:gap-3 mb-10 ${shakeError ? 'animate-bounce' : ''}`}>
           {placedLetters.map((letterItem, index) => (
             <button
@@ -149,7 +153,7 @@ export default function Scrabble() {
                     ? 'bg-emerald-500/10 border-emerald-400 text-emerald-300 shadow-[0_0_15px_rgba(52,211,153,0.2)]'
                     : shakeError
                       ? 'bg-red-500/10 border-red-500 text-red-400'
-                      : 'bg-amber-400 border-amber-300 text-slate-950 shadow-[0_4px_10px_rgba(251,191,36,0.2)] hover:scale-105'
+                      : 'bg-amber-400 border-amber-300 text-slate-950 shadow-[0_4px_10px_rgba(251,191,36,0.2)]'
                   : 'bg-slate-950 border-slate-800 hover:border-slate-700 text-transparent'
                 }`}
             >
