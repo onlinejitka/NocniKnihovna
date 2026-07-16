@@ -35,15 +35,21 @@ export default function Scrabble() {
   const [placedLetters, setPlacedLetters] = useState([]);
   const [letterPool, setLetterPool] = useState([]);
   
-  const [isCorrect, setIsCorrect] = useState(false);
+  // ROZDĚLENÉ STAVY: 1. Slovo je správně (písmo zelená + hvězdy) | 2. Vyhodnocovací okno
+  const [isWordSpelledCorrectly, setIsWordSpelledCorrectly] = useState(false);
+  const [showWinModal, setShowWinModal] = useState(false);
+  
   const [shakeError, setShakeError] = useState(false);
+  const [starParticles, setStarParticles] = useState([]);
 
   // Inicializace nového slova
   const initWord = (index) => {
     const data = WORDS_DATABASE[index];
     setCurrentWordData(data);
-    setIsCorrect(false);
+    setIsWordSpelledCorrectly(false);
+    setShowWinModal(false);
     setShakeError(false);
+    setStarParticles([]);
 
     setPlacedLetters(Array(data.word.length).fill(null));
 
@@ -64,7 +70,7 @@ export default function Scrabble() {
 
   // Přesun z dolní nabídky nahoru
   const handlePoolLetterClick = (clickedItem) => {
-    if (isCorrect || clickedItem.used) return;
+    if (isWordSpelledCorrectly || clickedItem.used) return;
 
     const firstEmptyIndex = placedLetters.indexOf(null);
     if (firstEmptyIndex === -1) return;
@@ -80,7 +86,7 @@ export default function Scrabble() {
 
   // Návrat z horní pozice dolů
   const handlePlacedLetterClick = (placedItem, index) => {
-    if (isCorrect || !placedItem) return;
+    if (isWordSpelledCorrectly || !placedItem) return;
 
     const newPlaced = [...placedLetters];
     newPlaced[index] = null;
@@ -90,26 +96,44 @@ export default function Scrabble() {
       item.id === placedItem.poolId ? { ...item, used: false } : item
     ));
     
-    // Okamžitě zhasneme chybu, jakmile uživatel začne situaci opravovat
     setShakeError(false);
   };
 
-  // OPRAVENÁ KONTROLA: Ošetření prázdného pole na startu + okamžitý reset chyb
+  // KONTROLA SLOVA S ODLOŽENÝM ZOBRAZENÍM MODÁLU
   useEffect(() => {
-    if (placedLetters.length === 0) return; // Pojistka proti startovnímu bugu prázdného pole
+    if (placedLetters.length === 0) return;
 
     const isFull = placedLetters.every(item => item !== null);
     if (isFull) {
       const spelledWord = placedLetters.map(item => item.char).join('');
       if (spelledWord === currentWordData.word) {
-        setIsCorrect(true);
+        setIsWordSpelledCorrectly(true);
         setShakeError(false);
+
+        // Generování souřadnic pro oslavné létající hvězdičky
+        const particles = Array.from({ length: 18 }).map((_, i) => ({
+          id: i,
+          left: `${15 + Math.random() * 70}%`,
+          top: `${20 + Math.random() * 50}%`,
+          size: Math.random() * 16 + 10,
+          delay: `${Math.random() * 0.6}s`
+        }));
+        setStarParticles(particles);
+
+        // Zpoždění vyhodnocovacího okna o 2.2 vteřiny
+        const timer = setTimeout(() => {
+          setShowWinModal(true);
+        }, 2200);
+
+        return () => clearTimeout(timer);
       } else {
         setShakeError(true);
       }
     } else {
-      setIsCorrect(false);
-      setShakeError(false); // Reset chyb a poskakování, dokud slovo není kompletní
+      setIsWordSpelledCorrectly(false);
+      setShowWinModal(false);
+      setShakeError(false);
+      setStarParticles([]);
     }
   }, [placedLetters, currentWordData]);
 
@@ -126,6 +150,19 @@ export default function Scrabble() {
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto px-4 select-none">
+      
+      {/* Vstříknutí CSS animací pro výbuch a vznášení slavnostních hvězd */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes hvezdnaOslava {
+          0% { transform: scale(0) rotate(0deg); opacity: 0; }
+          40% { opacity: 1; }
+          100% { transform: scale(1.6) rotate(180deg) translateY(-30px); opacity: 0; }
+        }
+        .animace-hvezdy {
+          position: absolute;
+          animation: hvezdnaOslava 1.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+      `}} />
       
       {/* Hlavička hry */}
       <div className="text-center max-w-2xl mx-auto space-y-2">
@@ -151,16 +188,16 @@ export default function Scrabble() {
           </div>
         </div>
 
-        {/* Políčka pro skládání slova - pevná a nehybná */}
+        {/* Políčka pro skládání slova */}
         <div className={`flex justify-center gap-2 md:gap-3 mb-10 ${shakeError ? 'animate-bounce' : ''}`}>
           {placedLetters.map((letterItem, index) => (
             <button
               key={index}
               onClick={() => handlePlacedLetterClick(letterItem, index)}
-              className={`w-12 h-14 md:w-16 md:h-20 rounded-2xl border-2 flex items-center justify-center font-bold text-xl md:text-3xl transition-all duration-200 cursor-pointer
+              className={`w-12 h-14 md:w-16 md:h-20 rounded-2xl border-2 flex items-center justify-center font-bold text-xl md:text-3xl transition-all duration-300 cursor-pointer
                 ${letterItem 
-                  ? isCorrect 
-                    ? 'bg-emerald-500/10 border-emerald-400 text-emerald-300 shadow-[0_0_15px_rgba(52,211,153,0.2)]'
+                  ? isWordSpelledCorrectly 
+                    ? 'bg-emerald-500/10 border-emerald-400 text-emerald-300 shadow-[0_0_25px_rgba(52,211,153,0.35)] scale-105'
                     : shakeError
                       ? 'bg-red-500/10 border-red-500 text-red-400'
                       : 'bg-amber-400 border-amber-300 text-slate-950 shadow-[0_4px_10px_rgba(251,191,36,0.2)]'
@@ -177,7 +214,7 @@ export default function Scrabble() {
           {letterPool.map((item) => (
             <button
               key={item.id}
-              disabled={item.used || isCorrect}
+              disabled={item.used || isWordSpelledCorrectly}
               onClick={() => handlePoolLetterClick(item)}
               className={`w-12 h-12 md:w-14 md:h-14 rounded-xl border font-bold text-lg md:text-xl transition-all duration-200 cursor-pointer
                 ${item.used 
@@ -190,8 +227,23 @@ export default function Scrabble() {
           ))}
         </div>
 
-        {/* Úspěšné dokončení slova */}
-        {isCorrect && (
+        {/* OSLAVNÉ HVĚZDIČKY: Létají po správném dokončení přes hrací plochu */}
+        {isWordSpelledCorrectly && starParticles.map((star) => (
+          <div 
+            key={star.id} 
+            className="animace-hvezdy text-amber-300 pointer-events-none"
+            style={{
+              left: star.left,
+              top: star.top,
+              animationDelay: star.delay
+            }}
+          >
+            <Star size={star.size} className="fill-amber-300 filter drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
+          </div>
+        ))}
+
+        {/* Úspěšné dokončení slova - Vyhodnocovací okno vyskočí s nastavenou prodlevou */}
+        {showWinModal && (
           <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-sm flex flex-col items-center justify-center text-center p-6 animate-fade-in z-20">
             <span className="text-4xl mb-3 filter drop-shadow-[0_0_12px_rgba(251,191,36,0.5)]">✨🎉⭐</span>
             <h3 className="text-2xl font-serif font-bold text-amber-300">Správně! Jsi šikula!</h3>
