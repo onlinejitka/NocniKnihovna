@@ -12,7 +12,7 @@ import Ovecky from './pages/Ovecky'; // Nový import
 import Labyrint from './pages/Labyrint'; // Nový import
 import VOP from './pages/VOP';
 import GDPR from './pages/GDPR';
-import { BookOpen, HelpCircle, Sparkles, Palette, Lightbulb, Star, LayoutGrid, Menu, X, ChevronDown, Gamepad2, Info, LayoutGrid, Type  } from 'lucide-react';
+import { BookOpen, HelpCircle, Sparkles, Palette, Lightbulb, Star, LayoutGrid, Menu, X, ChevronDown, Gamepad2, Info, Type  } from 'lucide-react';
 
 function CookieBar() {
   const [visible, setVisible] = useState(false);
