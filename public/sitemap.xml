@@ -21,6 +21,13 @@
     <priority>0.8</priority>
   </url>
 
+  <!-- Scrabble (Scrabble) -->
+  <url>
+    <loc>https://nocniknihovna.cz/pismenka</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
   <!-- Hry -->
   <url>
     <loc>https://nocniknihovna.cz/hra</loc>
