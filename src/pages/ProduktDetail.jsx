@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useCart } from '../CartContext';
-import { ShoppingBag, Download, Lock, Plus, Check, ArrowLeft, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ShoppingBag, Download, Lock, Plus, Check, ArrowLeft, Sparkles, CheckCircle2, Crown, ArrowRight } from 'lucide-react';
 
 export default function ProduktDetail() {
   const { slug } = useParams();
@@ -10,10 +10,12 @@ export default function ProduktDetail() {
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState('');
   const [buyingId, setBuyingId] = useState(null);
+  const [inputEmail, setInputEmail] = useState('');
   
-  const { cartItems, addToCart } = useCart();
+  // Načteme stav Premium členství z paměti košíku
+  const { cartItems, addToCart, isVip: isPremium, vipEmail: premiumEmail, setVipEmail: setPremiumEmail } = useCart();
 
-useEffect(() => {
+  useEffect(() => {
     setLoading(true);
     fetch('/api/get-products')
       .then(res => res.json())
@@ -27,39 +29,8 @@ useEffect(() => {
             const others = data.products.filter(p => p.id !== current.id);
             setRelatedProducts(others.slice(0, 3));
 
-            // 🚀 1. ZMĚNA TITULKU PROHLÍŽEČE A VYHLEDÁVAČE
+            // Změna titulku v prohlížeči
             document.title = `${current.title} | E-shop Noční Knihovna`;
-
-            // 🤖 2. NEVIDITELNÁ VIZITKA PRO GOOGLE A AI (JSON-LD Schema)
-            let script = document.getElementById('ai-product-schema');
-            if (!script) {
-              script = document.createElement('script');
-              script.id = 'ai-product-schema';
-              script.type = 'application/ld+json';
-              document.head.appendChild(script);
-            }
-            script.textContent = JSON.stringify({
-              "@context": "https://schema.org/",
-              "@type": "Product",
-              "name": current.title,
-              "image": current.image ? [current.image] : [],
-              "description": current.detailDescription || current.description || "Tvořivý pracovní list z Noční Knihovny.",
-              "brand": {
-                "@type": "Brand",
-                "name": "Noční Knihovna"
-              },
-              "offers": {
-                "@type": "Offer",
-                "url": window.location.href,
-                "priceCurrency": "CZK",
-                "price": current.price,
-                "availability": "https://schema.org/InStock",
-                "seller": {
-                  "@type": "Organization",
-                  "name": "Noční Knihovna"
-                }
-              }
-            });
           }
         }
         setLoading(false);
@@ -69,13 +40,18 @@ useEffect(() => {
         setLoading(false);
       });
 
-    // Úklid po opuštění stránky
     return () => {
       document.title = 'Noční Knihovna | Klidné usínání plné příběhů';
-      const script = document.getElementById('ai-product-schema');
-      if (script) script.remove();
     };
   }, [slug]);
+
+  // Aktivace Premium slevy
+  const handleApplyPremium = (e) => {
+    e.preventDefault();
+    if (inputEmail.trim()) {
+      setPremiumEmail(inputEmail.trim().toLowerCase());
+    }
+  };
 
   const handleBuyNow = async (prod) => {
     setBuyingId(prod.id);
@@ -83,7 +59,10 @@ useEffect(() => {
       const res = await fetch('/api/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId: prod.id })
+        body: JSON.stringify({ 
+          productId: prod.id,
+          vipEmail: premiumEmail || inputEmail
+        })
       });
       const data = await res.json();
       if (data.url) {
@@ -108,6 +87,8 @@ useEffect(() => {
   );
 
   const inCart = cartItems.some(i => i.id === product.id);
+  const originalPrice = Number(product.price) || 0;
+  const discountedPrice = Math.round(originalPrice * 0.9);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-16 animate-fade-in">
@@ -123,15 +104,15 @@ useEffect(() => {
         
         {/* Galerie obrázků */}
         <div className="space-y-4">
-          <div className="aspect-square w-full bg-slate-950 rounded-3xl overflow-hidden border border-slate-800 shadow-2xl relative">
+          <div className="aspect-video w-full bg-slate-950 rounded-3xl overflow-hidden border border-slate-800 shadow-2xl relative">
             {activeImage ? (
               <img src={activeImage} alt={product.title} className="w-full h-full object-cover transition-all duration-300" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-slate-700"><ShoppingBag size={48} /></div>
             )}
             <span className="absolute top-4 left-4 bg-slate-950/80 text-amber-300 text-xs font-bold px-3 py-1 rounded-full border border-slate-800 flex items-center gap-1.5 shadow-md">
-              {product.type === 'VIP' ? <Lock size={12} /> : <Download size={12} />}
-              {product.type === 'VIP' ? 'VIP Přístup' : 'PDF ke stažení ihned'}
+              {product.type === 'VIP' || product.type === 'Premium' ? <Lock size={12} /> : <Download size={12} />}
+              {product.type === 'VIP' || product.type === 'Premium' ? 'Premium Přístup' : 'PDF ke stažení ihned'}
             </span>
           </div>
 
@@ -162,10 +143,20 @@ useEffect(() => {
             </p>
           </div>
 
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 space-y-4">
+          {/* KARTA NÁKUPU A CENY */}
+          <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 space-y-4 shadow-xl">
             <div className="flex items-baseline justify-between border-b border-slate-800 pb-4">
               <span className="text-sm text-slate-400">Cena balíčku:</span>
-              <span className="text-3xl font-black text-amber-300">{product.price} Kč</span>
+              
+              {/* PŘEŠKRTNUTÍ CENY PRO PREMIUM */}
+              {isPremium ? (
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-black text-emerald-400">{discountedPrice} Kč</span>
+                  <span className="text-sm text-slate-500 line-through font-bold">{originalPrice} Kč</span>
+                </div>
+              ) : (
+                <span className="text-3xl font-black text-amber-300">{originalPrice} Kč</span>
+              )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
@@ -190,6 +181,39 @@ useEffect(() => {
               </button>
             </div>
           </div>
+
+          {/* BOX PRO ZADÁNÍ PREMIUM E-MAILU V DETAILU */}
+          {isPremium ? (
+            <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 p-3.5 rounded-2xl text-xs font-bold shadow-md">
+              <Crown size={16} className="text-emerald-400 shrink-0" />
+              <span>Aktivní Premium členství – na balíček je uplatněna 10% sleva.</span>
+            </div>
+          ) : (
+            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 text-left shadow-xl space-y-2.5">
+              <div className="flex items-center space-x-2 text-amber-300 font-bold text-xs">
+                <Crown size={16} className="text-amber-400" />
+                <span>Jste Premium členem Noční Knihovny?</span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                Zadejte e-mail s vaším členstvím a získejte 10% slevu na tento balíček.
+              </p>
+              <form onSubmit={handleApplyPremium} className="flex gap-2">
+                <input
+                  type="email"
+                  placeholder="Váš Premium e-mail..."
+                  value={inputEmail}
+                  onChange={(e) => setInputEmail(e.target.value)}
+                  className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 flex-grow focus:outline-none focus:border-amber-400"
+                />
+                <button
+                  type="submit"
+                  className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs px-3.5 py-2 rounded-xl transition cursor-pointer shrink-0 shadow-md"
+                >
+                  Uplatnit
+                </button>
+              </form>
+            </div>
+          )}
 
           {/* Výhody */}
           <div className="space-y-2.5 text-xs text-slate-300 pt-2 border-t border-slate-900">
@@ -218,7 +242,7 @@ useEffect(() => {
             {relatedProducts.map(rel => (
               <Link to={`/eshop/${rel.slug}`} key={rel.id} className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between hover:border-amber-500/40 transition group">
                 <div className="space-y-3">
-                  <div className="aspect-square w-full bg-slate-950 rounded-xl overflow-hidden">
+                  <div className="aspect-video w-full bg-slate-950 rounded-xl overflow-hidden">
                     {rel.image ? <img src={rel.image} alt={rel.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" /> : <div className="w-full h-full flex items-center justify-center text-slate-800"><ShoppingBag /></div>}
                   </div>
                   <h4 className="font-bold text-sm text-slate-200 group-hover:text-amber-300 transition">{rel.title}</h4>
