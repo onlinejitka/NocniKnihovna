@@ -123,7 +123,7 @@ useEffect(() => {
         
         {/* Galerie obrázků */}
         <div className="space-y-4">
-          <div className="aspect-video w-full bg-slate-950 rounded-3xl overflow-hidden border border-slate-800 shadow-2xl relative">
+          <div className="aspect-square w-full bg-slate-950 rounded-3xl overflow-hidden border border-slate-800 shadow-2xl relative">
             {activeImage ? (
               <img src={activeImage} alt={product.title} className="w-full h-full object-cover transition-all duration-300" />
             ) : (
@@ -218,7 +218,7 @@ useEffect(() => {
             {relatedProducts.map(rel => (
               <Link to={`/eshop/${rel.slug}`} key={rel.id} className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between hover:border-amber-500/40 transition group">
                 <div className="space-y-3">
-                  <div className="aspect-video w-full bg-slate-950 rounded-xl overflow-hidden">
+                  <div className="aspect-square w-full bg-slate-950 rounded-xl overflow-hidden">
                     {rel.image ? <img src={rel.image} alt={rel.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" /> : <div className="w-full h-full flex items-center justify-center text-slate-800"><ShoppingBag /></div>}
                   </div>
                   <h4 className="font-bold text-sm text-slate-200 group-hover:text-amber-300 transition">{rel.title}</h4>
