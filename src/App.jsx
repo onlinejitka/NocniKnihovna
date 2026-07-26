@@ -13,6 +13,7 @@ import Ovecky from './pages/Ovecky';
 import Labyrint from './pages/Labyrint';
 import VOP from './pages/VOP';
 import GDPR from './pages/GDPR';
+import Dekuji from './pages/Dekuji';
 // OPRAVENO: Přidána ikona ShoppingBag z lucide-react
 import { BookOpen, HelpCircle, Sparkles, Palette, Lightbulb, Star, LayoutGrid, Menu, X, ChevronDown, Gamepad2, Info, Type, ShoppingBag } from 'lucide-react';
 
@@ -190,6 +191,7 @@ export default function App() {
             <Route path="/obchodni-podminky" element={<VOP />} />
             <Route path="/gdpr" element={<GDPR />} />
             <Route path="/:slug" element={<PohadkaDetail />} />
+            <Route path="/dekuji" element={<Dekuji />} />
           </Routes>
         </main>
         
