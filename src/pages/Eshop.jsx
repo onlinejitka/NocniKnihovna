@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ShoppingBag, Download, Lock, Plus, Check } from 'lucide-react';
 import { useCart } from '../CartContext';
 
@@ -64,10 +65,12 @@ export default function Eshop() {
 
             return (
               <div key={product.id} className="bg-slate-900/50 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-amber-500/40 transition shadow-xl">
-                <div className="space-y-4">
+                
+                {/* ODKAZ NA DETAIL PRODUKTU (Obrázek + Název) */}
+                <Link to={`/eshop/${product.slug}`} className="space-y-4 group cursor-pointer block">
                   <div className="aspect-video w-full bg-slate-950 rounded-xl overflow-hidden relative border border-slate-800/80">
                     {product.image ? (
-                      <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
+                      <img src={product.image} alt={product.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-amber-400/30">
                         <ShoppingBag size={40} />
@@ -80,10 +83,10 @@ export default function Eshop() {
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-bold text-slate-100">{product.title}</h3>
-                    <p className="text-xs text-slate-400 mt-2 leading-relaxed">{product.description}</p>
+                    <h3 className="text-lg font-bold text-slate-100 group-hover:text-amber-300 transition">{product.title}</h3>
+                    <p className="text-xs text-slate-400 mt-2 leading-relaxed line-clamp-2">{product.description}</p>
                   </div>
-                </div>
+                </Link>
 
                 <div className="mt-6 pt-4 border-t border-slate-800/60 space-y-3">
                   <div className="flex items-center justify-between">
