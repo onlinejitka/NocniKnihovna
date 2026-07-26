@@ -70,7 +70,7 @@ export default function Eshop() {
         
         {/* UPRAVENÝ PODTITULEK */}
         <p className="text-slate-300 text-sm md:text-base leading-relaxed">
-          Pořiďte si tvořivé a výukové balíčky pro své děti nebo si rovnou aktivujte Premium členství pro slevu 10% a přístup ke všem omalovánkám, audio obsahu, i generátoru pohádek.
+          Pořiďte si tvořivé a výukové balíčky pro své děti nebo si rovnou aktivujte Premium členství pro slevu 10% a přístup ke všem omalovánkám, hrám, audio obsahu, i generátoru pohádek.
         </p>
 
         {/* SEKCÍ PREMIUM ČLENSTVÍ */}
