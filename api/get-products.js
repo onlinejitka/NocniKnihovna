@@ -17,9 +17,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         filter: {
           property: 'Status',
-          select: {
-            equals: 'Publikováno'
-          }
+          select: { equals: 'Publikováno' }
         }
       })
     });
@@ -39,6 +37,19 @@ export default async function handler(req, res) {
       const props = page.properties;
       const getRichText = (prop) => prop?.rich_text?.[0]?.plain_text || '';
       
+      const mainImage = getRichText(props.Obrázek) || props.Obrázek?.url || '';
+      
+      // Zpracování galerie obrázků oddělených čárkou
+      const galleryRaw = getRichText(props.Galerie);
+      const gallery = galleryRaw 
+        ? galleryRaw.split(',').map(url => url.trim()).filter(Boolean) 
+        : [];
+      
+      // Přidáme hlavní obrázek jako první do galerie, pokud tam ještě není
+      if (mainImage && !gallery.includes(mainImage)) {
+        gallery.unshift(mainImage);
+      }
+
       return {
         id: page.id,
         title: props.Název?.title?.[0]?.plain_text || 'Bez názvu',
@@ -46,7 +57,9 @@ export default async function handler(req, res) {
         price: props.Cena?.number || 0,
         type: props.Typ?.select?.name || 'PDF',
         description: getRichText(props.Popis) || '',
-        image: getRichText(props.Obrázek) || props.Obrázek?.url || '',
+        detailDescription: getRichText(props.Detail_Popis) || getRichText(props.Popis) || '',
+        image: mainImage,
+        gallery: gallery
       };
     });
 
