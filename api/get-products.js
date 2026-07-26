@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // OPRAVENO: Primárně načítáme NOTION_TOKEN z vašeho Vercelu
   const NOTION_SECRET = process.env.NOTION_TOKEN || process.env.NOTION_SECRET;
   const DATABASE_ID = process.env.NOTION_DATABASE_ID_PRODUCTS;
 
@@ -15,17 +14,15 @@ export default async function handler(req, res) {
         'Notion-Version': '2022-06-28',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        filter: {
-          or: [
-            { property: 'Status', status: { equals: 'Publikováno' } },
-            { property: 'Status', select: { equals: 'Publikováno' } }
-          ]
-        }
-      })
+      body: JSON.stringify({}) // Dočasně bez filtru pro snadný test
     });
 
     const data = await response.json();
+
+    // Pokud Notion vrátil chybové hlášení (např. chybějící oprávnění Connections)
+    if (data.object === 'error') {
+      return res.status(400).json({ error: `Chyba Notionu: ${data.message}` });
+    }
 
     if (!data.results) {
       return res.status(200).json({ products: [] });
