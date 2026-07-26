@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Download, Lock, Plus, Check, Crown } from 'lucide-react';
+import { ShoppingBag, Download, Lock, Plus, Check, Crown, ArrowRight, Sparkles } from 'lucide-react';
 import { useCart } from '../CartContext';
 
 export default function Eshop() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [buyingId, setBuyingId] = useState(null);
+  const [inputEmail, setInputEmail] = useState('');
 
-  // Načteme z paměti košíku i stav VIP a e-mail
-  const { cartItems, addToCart, isVip, vipEmail } = useCart();
+  // Načteme z paměti košíku stav Premium členství i funkci pro uložení e-mailu
+  const { cartItems, addToCart, isVip: isPremium, vipEmail: premiumEmail, setVipEmail: setPremiumEmail } = useCart();
 
   useEffect(() => {
     fetch('/api/get-products')
@@ -24,6 +25,14 @@ export default function Eshop() {
       });
   }, []);
 
+  // Aktivace Premium slevy přímo v obchůdku
+  const handleApplyPremium = (e) => {
+    e.preventDefault();
+    if (inputEmail.trim()) {
+      setPremiumEmail(inputEmail.trim().toLowerCase());
+    }
+  };
+
   // Koupit hned (přímá platba za tento 1 kus)
   const handleBuyNow = async (product) => {
     setBuyingId(product.id);
@@ -33,7 +42,7 @@ export default function Eshop() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           productId: product.id,
-          vipEmail: vipEmail // Posíláme VIP e-mail i při přímém nákupu!
+          vipEmail: premiumEmail || inputEmail
         })
       });
       const data = await res.json();
@@ -52,7 +61,9 @@ export default function Eshop() {
 
   return (
     <div className="space-y-10 max-w-5xl mx-auto px-4">
-      <div className="text-center max-w-2xl mx-auto space-y-3">
+      
+      {/* Hlavička obchůdku */}
+      <div className="text-center max-w-2xl mx-auto space-y-4">
         <h2 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-400">
           Pohádkový Obchůdek
         </h2>
@@ -60,15 +71,57 @@ export default function Eshop() {
           Stáhněte si tvořivé balíčky pracovních listů nebo si aktivujte Premium přístup k celému audio obsahu.
         </p>
 
-        {/* Upozornění pro rozpoznaného VIP člena */}
-        {isVip && (
-          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-4 py-2 rounded-full text-xs font-bold mt-2 animate-fade-in shadow-lg">
-            <Crown size={14} />
-            <span>Máte aktivní VIP členství – na všechny produkty platí 10% sleva!</span>
+        {/* SEKCÍ PREMIUM ČLENSTVÍ */}
+        {isPremium ? (
+          /* Zobrazení pro již aktivované členy */
+          <div className="inline-flex items-center gap-2.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-5 py-2.5 rounded-full text-xs font-bold animate-fade-in shadow-lg">
+            <Crown size={16} className="text-emerald-400" />
+            <span>Máte aktivní Premium členství – na všechny produkty platí 10% sleva!</span>
+            <button 
+              onClick={() => { setPremiumEmail(''); setInputEmail(''); }} 
+              className="text-[10px] text-slate-400 hover:text-slate-200 underline ml-2 cursor-pointer"
+              title="Odhlásit kód"
+            >
+              (změnit)
+            </button>
+          </div>
+        ) : (
+          /* Zobrazení formuláře pro neaktivované nebo nepřihlášené */
+          <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-5 text-left max-w-xl mx-auto shadow-xl space-y-3">
+            <div className="flex items-center space-x-2 text-amber-300 font-bold text-xs md:text-sm">
+              <Crown size={16} className="text-amber-400" />
+              <span>Jste Premium členem Noční Knihovny?</span>
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Zadejte e-mail, pod kterým máte aktivní Premium členství, a aktivujte si 10% slevu na všechny balíčky.
+            </p>
+            <form onSubmit={handleApplyPremium} className="flex gap-2">
+              <input
+                type="email"
+                placeholder="Váš Premium e-mail..."
+                value={inputEmail}
+                onChange={(e) => setInputEmail(e.target.value)}
+                className="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 flex-grow focus:outline-none focus:border-amber-400"
+              />
+              <button
+                type="submit"
+                className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs px-4 py-2 rounded-xl transition cursor-pointer shrink-0 shadow-md"
+              >
+                Uplatnit slevu
+              </button>
+            </form>
+            <div className="text-[11px] text-slate-500 pt-1 flex items-center justify-between border-t border-slate-800/60">
+              <span>Nemáte ještě Premium členství?</span>
+              <Link to="/omalovanky" className="text-amber-400 hover:underline font-semibold flex items-center gap-1">
+                <span>Aktivovat Premium za 75 Kč</span>
+                <ArrowRight size={12} />
+              </Link>
+            </div>
           </div>
         )}
       </div>
 
+      {/* NABÍDKA PRODUKTŮ */}
       {loading ? (
         <div className="text-center py-16 text-slate-400">Načítám nabídku obchůdku...</div>
       ) : (
@@ -92,8 +145,8 @@ export default function Eshop() {
                       </div>
                     )}
                     <span className="absolute top-2 left-2 bg-slate-950/80 text-amber-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-slate-800 flex items-center gap-1">
-                      {product.type === 'VIP' ? <Lock size={10} /> : <Download size={10} />}
-                      {product.type === 'VIP' ? 'VIP Přístup' : 'PDF ke stažení'}
+                      {product.type === 'VIP' || product.type === 'Premium' ? <Lock size={10} /> : <Download size={10} />}
+                      {product.type === 'VIP' || product.type === 'Premium' ? 'Premium Přístup' : 'PDF ke stažení'}
                     </span>
                   </div>
 
@@ -106,9 +159,9 @@ export default function Eshop() {
                 <div className="mt-6 pt-4 border-t border-slate-800/60 space-y-3">
                   <div className="flex items-center justify-between">
                     
-                    {/* CENA (S PŘEŠKRTNUTÍM PRO VIP) */}
+                    {/* CENA (PŘEŠKRTNUTÁ PRO PREMIUM ČLENY) */}
                     <div>
-                      {isVip ? (
+                      {isPremium ? (
                         <div className="flex items-baseline gap-2">
                           <span className="text-2xl font-black text-emerald-400">{discountedPrice} Kč</span>
                           <span className="text-xs text-slate-500 line-through font-bold">{originalPrice} Kč</span>
