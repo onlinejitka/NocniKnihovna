@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Download, Lock, Plus, Check, Crown, ArrowRight, Sparkles } from 'lucide-react';
+import { ShoppingBag, Download, Lock, Plus, Check, Crown, ArrowRight } from 'lucide-react';
 import { useCart } from '../CartContext';
 
 export default function Eshop() {
@@ -67,8 +67,10 @@ export default function Eshop() {
         <h2 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-400">
           Pohádkový Obchůdek
         </h2>
-        <p className="text-slate-300 text-sm md:text-base">
-          Stáhněte si tvořivé balíčky pracovních listů nebo si aktivujte Premium přístup k celému audio obsahu.
+        
+        {/* UPRAVENÝ PODTITULEK */}
+        <p className="text-slate-300 text-sm md:text-base leading-relaxed">
+          Pořiďte si tvořivé a výukové balíčky pro své děti nebo si rovnou aktivujte Premium členství pro slevu 10% a přístup ke všem omalovánkám, audio obsahu, i generátoru pohádek.
         </p>
 
         {/* SEKCÍ PREMIUM ČLENSTVÍ */}
