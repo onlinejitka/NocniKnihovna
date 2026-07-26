@@ -16,10 +16,10 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         filter: {
-          or: [
-            { property: 'Status', select: { equals: 'Publikováno' } },
-            { property: 'Status', status: { equals: 'Publikováno' } }
-          ]
+          property: 'Status',
+          select: {
+            equals: 'Publikováno'
+          }
         }
       })
     });
@@ -27,7 +27,8 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (data.object === 'error') {
-      return res.status(400).json({ error: `Chyba Notionu: ${data.message}` });
+      console.error('Notion API Error:', data.message);
+      return res.status(400).json({ error: data.message });
     }
 
     if (!data.results) {
