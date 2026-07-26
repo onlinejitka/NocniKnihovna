@@ -12,34 +12,52 @@ export function CartProvider({ children }) {
     }
   });
 
+  // Načtení uloženého VIP e-mailu z paměti prohlížeče
+  const [vipEmail, setVipEmail] = useState(() => {
+    return localStorage.getItem('nocni_knihovna_vip_email') || 
+           localStorage.getItem('sl_premium_code') || 
+           localStorage.getItem('premium_code') || '';
+  });
+
   useEffect(() => {
     localStorage.setItem('nocni_knihovna_cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // Přidat do košíku (u digitálních produktů nedublujeme stejné PDF)
+  useEffect(() => {
+    if (vipEmail) {
+      localStorage.setItem('nocni_knihovna_vip_email', vipEmail.trim().toLowerCase());
+    }
+  }, [vipEmail]);
+
   const addToCart = (product) => {
     setCartItems((prev) => {
       const exists = prev.some((item) => item.id === product.id);
-      if (exists) return prev; // Už v košíku je
+      if (exists) return prev;
       return [...prev, product];
     });
   };
 
-  // Odebrat z košíku
   const removeFromCart = (id) => {
     setCartItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  // Vyprázdnit košík (např. po úspěšném nákupu)
   const clearCart = () => {
     setCartItems([]);
   };
 
-  const totalPrice = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+  const isVip = Boolean(vipEmail);
+
+  // Výpočet ceny (při VIP automaticky odečte 10 %)
+  const totalPrice = cartItems.reduce((sum, item) => {
+    const price = Number(item.price) || 0;
+    const finalPrice = isVip ? Math.round(price * 0.9) : price;
+    return sum + finalPrice;
+  }, 0);
+
   const totalCount = cartItems.length;
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart, totalPrice, totalCount }}>
+    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart, totalPrice, totalCount, vipEmail, setVipEmail, isVip }}>
       {children}
     </CartContext.Provider>
   );
