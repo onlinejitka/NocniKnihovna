@@ -138,7 +138,7 @@ export default function Eshop() {
                 
                 {/* ODKAZ NA DETAIL PRODUKTU */}
                 <Link to={`/eshop/${product.slug}`} className="space-y-4 group cursor-pointer block">
-                  <div className="aspect-video w-full bg-slate-950 rounded-xl overflow-hidden relative border border-slate-800/80">
+                  <div className="aspect-square w-full bg-slate-950 rounded-xl overflow-hidden relative border border-slate-800/80">
                     {product.image ? (
                       <img src={product.image} alt={product.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
                     ) : (
