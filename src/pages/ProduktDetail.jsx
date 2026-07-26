@@ -13,7 +13,7 @@ export default function ProduktDetail() {
   
   const { cartItems, addToCart } = useCart();
 
-  useEffect(() => {
+useEffect(() => {
     setLoading(true);
     fetch('/api/get-products')
       .then(res => res.json())
@@ -24,9 +24,42 @@ export default function ProduktDetail() {
           
           if (current) {
             setActiveImage(current.image || (current.gallery?.[0] || ''));
-            // Vybereme až 3 související produkty (vynecháme ten aktuální)
             const others = data.products.filter(p => p.id !== current.id);
             setRelatedProducts(others.slice(0, 3));
+
+            // 🚀 1. ZMĚNA TITULKU PROHLÍŽEČE A VYHLEDÁVAČE
+            document.title = `${current.title} | E-shop Noční Knihovna`;
+
+            // 🤖 2. NEVIDITELNÁ VIZITKA PRO GOOGLE A AI (JSON-LD Schema)
+            let script = document.getElementById('ai-product-schema');
+            if (!script) {
+              script = document.createElement('script');
+              script.id = 'ai-product-schema';
+              script.type = 'application/ld+json';
+              document.head.appendChild(script);
+            }
+            script.textContent = JSON.stringify({
+              "@context": "https://schema.org/",
+              "@type": "Product",
+              "name": current.title,
+              "image": current.image ? [current.image] : [],
+              "description": current.detailDescription || current.description || "Tvořivý pracovní list z Noční Knihovny.",
+              "brand": {
+                "@type": "Brand",
+                "name": "Noční Knihovna"
+              },
+              "offers": {
+                "@type": "Offer",
+                "url": window.location.href,
+                "priceCurrency": "CZK",
+                "price": current.price,
+                "availability": "https://schema.org/InStock",
+                "seller": {
+                  "@type": "Organization",
+                  "name": "Noční Knihovna"
+                }
+              }
+            });
           }
         }
         setLoading(false);
@@ -35,6 +68,13 @@ export default function ProduktDetail() {
         console.error(err);
         setLoading(false);
       });
+
+    // Úklid po opuštění stránky
+    return () => {
+      document.title = 'Noční Knihovna | Klidné usínání plné příběhů';
+      const script = document.getElementById('ai-product-schema');
+      if (script) script.remove();
+    };
   }, [slug]);
 
   const handleBuyNow = async (prod) => {
