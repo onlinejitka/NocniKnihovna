@@ -9,11 +9,12 @@ import Hra from './pages/Hra';
 import Souhvezdi from './pages/Souhvezdi';
 import Scrabble from './pages/Scrabble';
 import Pexeso from './pages/Pexeso';
-import Ovecky from './pages/Ovecky'; // Nový import
-import Labyrint from './pages/Labyrint'; // Nový import
+import Ovecky from './pages/Ovecky';
+import Labyrint from './pages/Labyrint';
 import VOP from './pages/VOP';
 import GDPR from './pages/GDPR';
-import { BookOpen, HelpCircle, Sparkles, Palette, Lightbulb, Star, LayoutGrid, Menu, X, ChevronDown, Gamepad2, Info, Type  } from 'lucide-react';
+// OPRAVENO: Přidána ikona ShoppingBag z lucide-react
+import { BookOpen, HelpCircle, Sparkles, Palette, Lightbulb, Star, LayoutGrid, Menu, X, ChevronDown, Gamepad2, Info, Type, ShoppingBag } from 'lucide-react';
 
 function CookieBar() {
   const [visible, setVisible] = useState(false);
@@ -57,7 +58,7 @@ function Header() {
   const currentPath = location.pathname;
 
   const closeMenu = () => setIsMobileMenuOpen(false);
-  const isGamesActive = ['/hra', '/souhvezdi', '/pexeso', '/ovecky', '/labyrint'].includes(currentPath);
+  const isGamesActive = ['/hra', '/souhvezdi', '/pexeso', '/ovecky', '/labyrint', '/scrabble'].includes(currentPath);
 
   return (
     <header className="border-b border-slate-800/60 bg-slate-950/40 backdrop-blur sticky top-0 z-50">
@@ -79,19 +80,20 @@ function Header() {
           <Link to="/" className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
             <BookOpen size={14} /> <span>Knihovna</span>
           </Link>
-           <Link to="/" className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
-            <Cart size={14} /> <span>Eshop</span>
+          
+          {/* OPRAVENO: Správná ikona ShoppingBag a odkaz na /eshop */}
+          <Link to="/eshop" className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/eshop' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
+            <ShoppingBag size={14} /> <span>Eshop</span>
           </Link>
+
           <Link to="/hadanky" className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/hadanky' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
             <HelpCircle size={14} /> <span>Hádanky</span>
           </Link>
           <Link to="/omalovanky" className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/omalovanky' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
             <Palette size={14} /> <span>Omalovánky</span>
           </Link>
-           
-   
 
-          {/* MENÚ HRY PRO POČÍTAČE */}
+          {/* MENU HRY PRO POČÍTAČE */}
           <div className="relative group">
             <button className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${isGamesActive ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
               <Gamepad2 size={14} /> <span>Hry</span> <ChevronDown size={14} className="opacity-70 transition-transform group-hover:rotate-180" />
@@ -105,7 +107,7 @@ function Header() {
                 <span>🐑</span> <span>Ovečky (Zdarma)</span>
               </Link>
               <Link to="/scrabble" className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800 mt-1">
-                <span>🐑</span> <span>Písmenka (Zdarma)</span>
+                <Type size={12} /> <span>Písmenka (Zdarma)</span>
               </Link>
               <div className="border-t border-slate-800/60 my-1 mx-2" />
               <Link to="/souhvezdi" className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800">
@@ -126,15 +128,18 @@ function Header() {
         </nav>
       </div>
 
-      {/* MENÚ PRO MOBILY */}
+      {/* MENU PRO MOBILY */}
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-20 left-0 w-full bg-slate-950/95 backdrop-blur-xl border-b border-slate-800 px-4 py-6 flex flex-col space-y-3 shadow-2xl z-50 animate-fade-in h-[calc(100vh-80px)] overflow-y-auto">
           <Link to="/" onClick={closeMenu} className={`flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium transition ${currentPath === '/' ? 'bg-amber-400/10 text-amber-400' : 'text-slate-300'}`}>
             <BookOpen size={18} /> <span>Knihovna</span>
           </Link>
-           <Link to="/" onClick={closeMenu} className={`flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium transition ${currentPath === '/' ? 'bg-amber-400/10 text-amber-400' : 'text-slate-300'}`}>
-            <Cart size={18} /> <span>Eshop</span>
+          
+          {/* OPRAVENO: Správná ikona ShoppingBag a odkaz na /eshop v mobilním menu */}
+          <Link to="/eshop" onClick={closeMenu} className={`flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium transition ${currentPath === '/eshop' ? 'bg-amber-400/10 text-amber-400' : 'text-slate-300'}`}>
+            <ShoppingBag size={18} /> <span>Eshop</span>
           </Link>
+
           <Link to="/hadanky" onClick={closeMenu} className={`flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium transition ${currentPath === '/hadanky' ? 'bg-amber-400/10 text-amber-400' : 'text-slate-300'}`}>
             <HelpCircle size={18} /> <span>Hádanky</span>
           </Link>
@@ -146,7 +151,7 @@ function Header() {
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-3">Hry Zdarma</p>
             <Link to="/hra" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-slate-300"><Lightbulb size={16} /> <span>Světlušky</span></Link>
             <Link to="/ovecky" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-slate-300"><span>🐑</span> <span>Počítání oveček</span></Link>
-            <Link to="/scrabble" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-slate-300"><span>🐑</span> <span>Vyplnění písmenek</span></Link>
+            <Link to="/scrabble" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-slate-300"><Type size={16} /> <span>Vyplnění písmenek</span></Link>
             
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pt-3 mb-2 pl-3">Premium Hry 🔒</p>
             <Link to="/souhvezdi" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-amber-400"><Star size={16} /> <span>Souhvězdí</span></Link>
@@ -172,14 +177,16 @@ export default function App() {
         <main className="flex-grow max-w-6xl mx-auto w-full px-4 py-10">
           <Routes>
             <Route path="/" element={<Knihovna />} />
+            {/* OPRAVENO: Registrace cesty pro E-shop */}
+            <Route path="/eshop" element={<Eshop />} />
             <Route path="/hadanky" element={<Hadanky />} />
             <Route path="/omalovanky" element={<Omalovanky />} />
             <Route path="/hra" element={<Hra />} />
-            <Route path="/ovecky" element={<Ovecky />} /> {/* Registrace cesty */}
+            <Route path="/ovecky" element={<Ovecky />} />
             <Route path="/souhvezdi" element={<Souhvezdi />} />
             <Route path="/scrabble" element={<Scrabble />} />
             <Route path="/pexeso" element={<Pexeso />} />
-            <Route path="/labyrint" element={<Labyrint />} /> {/* Registrace cesty */}
+            <Route path="/labyrint" element={<Labyrint />} />
             <Route path="/obchodni-podminky" element={<VOP />} />
             <Route path="/gdpr" element={<GDPR />} />
             <Route path="/:slug" element={<PohadkaDetail />} />
