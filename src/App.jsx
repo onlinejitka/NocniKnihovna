@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import Knihovna from './pages/Knihovna';
 import Eshop from './pages/Eshop';
+import ProduktDetail from './pages/ProduktDetail';
 import Kosik from './pages/Kosik';
 import PohadkaDetail from './pages/PohadkaDetail';
 import Hadanky from './pages/Hadanky';
@@ -221,6 +222,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Knihovna />} />
               <Route path="/eshop" element={<Eshop />} />
+              <Route path="/eshop/:slug" element={<ProduktDetail />} />
               <Route path="/kosik" element={<Kosik />} />
               <Route path="/hadanky" element={<Hadanky />} />
               <Route path="/omalovanky" element={<Omalovanky />} />
