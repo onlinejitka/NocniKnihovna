@@ -14,12 +14,18 @@ export default async function handler(req, res) {
         'Notion-Version': '2022-06-28',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({}) // Dočasně bez filtru pro snadný test
+      body: JSON.stringify({
+        filter: {
+          or: [
+            { property: 'Status', select: { equals: 'Publikováno' } },
+            { property: 'Status', status: { equals: 'Publikováno' } }
+          ]
+        }
+      })
     });
 
     const data = await response.json();
 
-    // Pokud Notion vrátil chybové hlášení (např. chybějící oprávnění Connections)
     if (data.object === 'error') {
       return res.status(400).json({ error: `Chyba Notionu: ${data.message}` });
     }
@@ -30,7 +36,6 @@ export default async function handler(req, res) {
 
     const products = data.results.map(page => {
       const props = page.properties;
-      
       const getRichText = (prop) => prop?.rich_text?.[0]?.plain_text || '';
       
       return {
