@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Download, Lock, Plus, Check } from 'lucide-react';
+import { ShoppingBag, Download, Lock, Plus, Check, Crown } from 'lucide-react';
 import { useCart } from '../CartContext';
 
 export default function Eshop() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [buyingId, setBuyingId] = useState(null);
-  const { cartItems, addToCart } = useCart();
+
+  // Načteme z paměti košíku i stav VIP a e-mail
+  const { cartItems, addToCart, isVip, vipEmail } = useCart();
 
   useEffect(() => {
     fetch('/api/get-products')
@@ -29,7 +31,10 @@ export default function Eshop() {
       const res = await fetch('/api/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId: product.id })
+        body: JSON.stringify({ 
+          productId: product.id,
+          vipEmail: vipEmail // Posíláme VIP e-mail i při přímém nákupu!
+        })
       });
       const data = await res.json();
       if (data.url) {
@@ -54,6 +59,14 @@ export default function Eshop() {
         <p className="text-slate-300 text-sm md:text-base">
           Stáhněte si tvořivé balíčky pracovních listů nebo si aktivujte Premium přístup k celému audio obsahu.
         </p>
+
+        {/* Upozornění pro rozpoznaného VIP člena */}
+        {isVip && (
+          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-4 py-2 rounded-full text-xs font-bold mt-2 animate-fade-in shadow-lg">
+            <Crown size={14} />
+            <span>Máte aktivní VIP členství – na všechny produkty platí 10% sleva!</span>
+          </div>
+        )}
       </div>
 
       {loading ? (
@@ -62,13 +75,15 @@ export default function Eshop() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map(product => {
             const inCart = cartItems.some(i => i.id === product.id);
+            const originalPrice = Number(product.price) || 0;
+            const discountedPrice = Math.round(originalPrice * 0.9);
 
             return (
               <div key={product.id} className="bg-slate-900/50 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-amber-500/40 transition shadow-xl">
                 
-                {/* ODKAZ NA DETAIL PRODUKTU (Obrázek + Název) */}
+                {/* ODKAZ NA DETAIL PRODUKTU */}
                 <Link to={`/eshop/${product.slug}`} className="space-y-4 group cursor-pointer block">
-                  <div className="aspect-square w-full bg-slate-950 rounded-xl overflow-hidden relative border border-slate-800/80">
+                  <div className="aspect-video w-full bg-slate-950 rounded-xl overflow-hidden relative border border-slate-800/80">
                     {product.image ? (
                       <img src={product.image} alt={product.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
                     ) : (
@@ -90,8 +105,19 @@ export default function Eshop() {
 
                 <div className="mt-6 pt-4 border-t border-slate-800/60 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-black text-amber-300">{product.price} Kč</span>
                     
+                    {/* CENA (S PŘEŠKRTNUTÍM PRO VIP) */}
+                    <div>
+                      {isVip ? (
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-2xl font-black text-emerald-400">{discountedPrice} Kč</span>
+                          <span className="text-xs text-slate-500 line-through font-bold">{originalPrice} Kč</span>
+                        </div>
+                      ) : (
+                        <span className="text-2xl font-black text-amber-300">{originalPrice} Kč</span>
+                      )}
+                    </div>
+
                     {/* Tlačítko Přidat do košíku */}
                     <button
                       onClick={() => addToCart(product)}
