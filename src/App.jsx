@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import Knihovna from './pages/Knihovna';
 import Eshop from './pages/Eshop';
+import Kosik from './pages/Kosik';
 import PohadkaDetail from './pages/PohadkaDetail';
 import Hadanky from './pages/Hadanky';
 import Omalovanky from './pages/Omalovanky';
@@ -14,8 +15,8 @@ import Labyrint from './pages/Labyrint';
 import VOP from './pages/VOP';
 import GDPR from './pages/GDPR';
 import Dekuji from './pages/Dekuji';
-// OPRAVENO: Přidána ikona ShoppingBag z lucide-react
-import { BookOpen, HelpCircle, Sparkles, Palette, Lightbulb, Star, LayoutGrid, Menu, X, ChevronDown, Gamepad2, Info, Type, ShoppingBag } from 'lucide-react';
+import { CartProvider, useCart } from './CartContext';
+import { BookOpen, HelpCircle, Sparkles, Palette, Lightbulb, Star, LayoutGrid, Menu, X, ChevronDown, Gamepad2, Info, Type, ShoppingBag, ShoppingCart } from 'lucide-react';
 
 function CookieBar() {
   const [visible, setVisible] = useState(false);
@@ -53,6 +54,42 @@ function CookieBar() {
   );
 }
 
+// Chytré tlačítko košíku do hlavičky (Počítač)
+function CartButton() {
+  const { totalCount } = useCart();
+  const location = useLocation();
+  const isActive = location.pathname === '/kosik';
+  
+  if (totalCount === 0) return null;
+
+  return (
+    <Link to="/kosik" className={`px-3 py-1.5 rounded-full text-sm font-bold transition flex items-center space-x-1.5 ${isActive ? 'bg-amber-400 text-slate-950' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30'}`}>
+      <ShoppingCart size={14} />
+      <span>Košík</span>
+      <span className="bg-amber-400 text-slate-950 text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-black ml-1">
+        {totalCount}
+      </span>
+    </Link>
+  );
+}
+
+// Chytré tlačítko košíku do hlavičky (Mobil)
+function CartButtonMobile({ closeMenu }) {
+  const { totalCount } = useCart();
+  if (totalCount === 0) return null;
+
+  return (
+    <Link to="/kosik" onClick={closeMenu} className="flex items-center justify-between px-4 py-3.5 rounded-xl text-base font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">
+      <div className="flex items-center space-x-3">
+        <ShoppingCart size={18} /> <span>Váš košík</span>
+      </div>
+      <span className="bg-amber-400 text-slate-950 text-xs px-2.5 py-0.5 rounded-full font-black">
+        {totalCount} polože{totalCount === 1 ? 'k' : (totalCount < 5 ? 'ky' : 'k')}
+      </span>
+    </Link>
+  );
+}
+
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -82,10 +119,12 @@ function Header() {
             <BookOpen size={14} /> <span>Knihovna</span>
           </Link>
           
-          {/* OPRAVENO: Správná ikona ShoppingBag a odkaz na /eshop */}
           <Link to="/eshop" className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/eshop' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
             <ShoppingBag size={14} /> <span>Eshop</span>
           </Link>
+          
+          {/* Tlačítko s počítadlem košíku */}
+          <CartButton />
 
           <Link to="/hadanky" className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/hadanky' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
             <HelpCircle size={14} /> <span>Hádanky</span>
@@ -136,10 +175,12 @@ function Header() {
             <BookOpen size={18} /> <span>Knihovna</span>
           </Link>
           
-          {/* OPRAVENO: Správná ikona ShoppingBag a odkaz na /eshop v mobilním menu */}
           <Link to="/eshop" onClick={closeMenu} className={`flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium transition ${currentPath === '/eshop' ? 'bg-amber-400/10 text-amber-400' : 'text-slate-300'}`}>
             <ShoppingBag size={18} /> <span>Eshop</span>
           </Link>
+
+          {/* Mobilní košík */}
+          <CartButtonMobile closeMenu={closeMenu} />
 
           <Link to="/hadanky" onClick={closeMenu} className={`flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium transition ${currentPath === '/hadanky' ? 'bg-amber-400/10 text-amber-400' : 'text-slate-300'}`}>
             <HelpCircle size={18} /> <span>Hádanky</span>
@@ -171,59 +212,61 @@ function Header() {
 
 export default function App() {
   return (
-    <Router>
-      <div className="min-h-screen text-slate-200 selection:bg-amber-500/30 selection:text-amber-200 flex flex-col">
-        <Header />
-        
-        <main className="flex-grow max-w-6xl mx-auto w-full px-4 py-10">
-          <Routes>
-            <Route path="/" element={<Knihovna />} />
-            {/* OPRAVENO: Registrace cesty pro E-shop */}
-            <Route path="/eshop" element={<Eshop />} />
-            <Route path="/hadanky" element={<Hadanky />} />
-            <Route path="/omalovanky" element={<Omalovanky />} />
-            <Route path="/hra" element={<Hra />} />
-            <Route path="/ovecky" element={<Ovecky />} />
-            <Route path="/souhvezdi" element={<Souhvezdi />} />
-            <Route path="/scrabble" element={<Scrabble />} />
-            <Route path="/pexeso" element={<Pexeso />} />
-            <Route path="/labyrint" element={<Labyrint />} />
-            <Route path="/obchodni-podminky" element={<VOP />} />
-            <Route path="/gdpr" element={<GDPR />} />
-            <Route path="/:slug" element={<PohadkaDetail />} />
-            <Route path="/dekuji" element={<Dekuji />} />
-          </Routes>
-        </main>
-        
-        <footer className="border-t border-slate-900 bg-slate-950/60 text-slate-500 py-10 text-center text-xs mt-auto px-4 space-y-6">
-          <div className="space-y-1.5">
-            <p>© {new Date().getFullYear()} Noční Knihovna. Všechna práva vyhrazená.</p>
-            <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed">
-              Veškeré nahrávky pro Vás zaznamenávám svým vlastním hlasem. Ilustrace jsou spoluvytvářené s pomocí AI a mnou ručně graficky upravené.
-            </p>
-          </div>
-
-          <div className="pt-4 border-t border-slate-900/60 max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-600">
-            <div className="text-center sm:text-left space-y-0.5">
-              <p className="font-semibold text-slate-400">Provozovatel: Jitka Pekárková</p>
-              <p>Sídlo: Primátorská 38, Praha 8 • IČO: 87458021</p>
-              <p>Fyzická osoba zapsaná v živnostenském rejstříku.</p>
+    <CartProvider>
+      <Router>
+        <div className="min-h-screen text-slate-200 selection:bg-amber-500/30 selection:text-amber-200 flex flex-col">
+          <Header />
+          
+          <main className="flex-grow max-w-6xl mx-auto w-full px-4 py-10">
+            <Routes>
+              <Route path="/" element={<Knihovna />} />
+              <Route path="/eshop" element={<Eshop />} />
+              <Route path="/kosik" element={<Kosik />} />
+              <Route path="/hadanky" element={<Hadanky />} />
+              <Route path="/omalovanky" element={<Omalovanky />} />
+              <Route path="/hra" element={<Hra />} />
+              <Route path="/ovecky" element={<Ovecky />} />
+              <Route path="/souhvezdi" element={<Souhvezdi />} />
+              <Route path="/scrabble" element={<Scrabble />} />
+              <Route path="/pexeso" element={<Pexeso />} />
+              <Route path="/labyrint" element={<Labyrint />} />
+              <Route path="/obchodni-podminky" element={<VOP />} />
+              <Route path="/gdpr" element={<GDPR />} />
+              <Route path="/:slug" element={<PohadkaDetail />} />
+              <Route path="/dekuji" element={<Dekuji />} />
+            </Routes>
+          </main>
+          
+          <footer className="border-t border-slate-900 bg-slate-950/60 text-slate-500 py-10 text-center text-xs mt-auto px-4 space-y-6">
+            <div className="space-y-1.5">
+              <p>© {new Date().getFullYear()} Noční Knihovna. Všechna práva vyhrazená.</p>
+              <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed">
+                Veškeré nahrávky pro Vás zaznamenávám svým vlastním hlasem. Ilustrace jsou spoluvytvářené s pomocí AI a mnou ručně graficky upravené.
+              </p>
             </div>
 
-            <div className="flex flex-wrap justify-center sm:justify-end gap-x-3 gap-y-2 font-medium">
-              <a href="https://jitkap.cz" target="_blank" rel="noopener noreferrer" className="text-amber-500/80 hover:text-amber-400 transition underline decoration-amber-500/20">O autorce</a>
-              <span className="text-slate-800">•</span>
-              <a href="https://navigator40k.cz" target="_blank" rel="noopener noreferrer" className="text-indigo-400/80 hover:text-indigo-400 transition underline decoration-indigo-500/20">Navigátor 40k</a>
-              <span className="text-slate-800 hidden sm:inline">•</span>
-              <Link to="/obchodni-podminky" className="hover:text-slate-400 transition">Obchodní podmínky</Link>
-              <span className="text-slate-800">•</span>
-              <Link to="/gdpr" className="hover:text-slate-400 transition">GDPR</Link>
-            </div>
-          </div>
-        </footer>
+            <div className="pt-4 border-t border-slate-900/60 max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-600">
+              <div className="text-center sm:text-left space-y-0.5">
+                <p className="font-semibold text-slate-400">Provozovatel: Jitka Pekárková</p>
+                <p>Sídlo: Primátorská 38, Praha 8 • IČO: 87458021</p>
+                <p>Fyzická osoba zapsaná v živnostenském rejstříku.</p>
+              </div>
 
-        <CookieBar />
-      </div>
-    </Router>
+              <div className="flex flex-wrap justify-center sm:justify-end gap-x-3 gap-y-2 font-medium">
+                <a href="https://jitkap.cz" target="_blank" rel="noopener noreferrer" className="text-amber-500/80 hover:text-amber-400 transition underline decoration-amber-500/20">O autorce</a>
+                <span className="text-slate-800">•</span>
+                <a href="https://navigator40k.cz" target="_blank" rel="noopener noreferrer" className="text-indigo-400/80 hover:text-indigo-400 transition underline decoration-indigo-500/20">Navigátor 40k</a>
+                <span className="text-slate-800 hidden sm:inline">•</span>
+                <Link to="/obchodni-podminky" className="hover:text-slate-400 transition">Obchodní podmínky</Link>
+                <span className="text-slate-800">•</span>
+                <Link to="/gdpr" className="hover:text-slate-400 transition">GDPR</Link>
+              </div>
+            </div>
+          </footer>
+
+          <CookieBar />
+        </div>
+      </Router>
+    </CartProvider>
   );
 }
