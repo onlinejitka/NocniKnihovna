@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Sparkles, Download, Lock, CheckCircle2 } from 'lucide-react';
+import { ShoppingBag, Download, Lock, Plus, Check } from 'lucide-react';
+import { useCart } from '../CartContext';
 
 export default function Eshop() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [buyingId, setBuyingId] = useState(null);
+  const { cartItems, addToCart } = useCart();
 
   useEffect(() => {
     fetch('/api/get-products')
@@ -19,17 +21,18 @@ export default function Eshop() {
       });
   }, []);
 
-  const handleBuy = async (product) => {
+  // Koupit hned (přímá platba za tento 1 kus)
+  const handleBuyNow = async (product) => {
     setBuyingId(product.id);
     try {
       const res = await fetch('/api/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId: product.id, slug: product.slug })
+        body: JSON.stringify({ productId: product.id })
       });
       const data = await res.json();
       if (data.url) {
-        window.location.href = data.url; // Přesměrování na bezpečnou bránu Stripe
+        window.location.href = data.url;
       } else {
         alert('Chyba při vytváření platby.');
         setBuyingId(null);
@@ -56,43 +59,73 @@ export default function Eshop() {
         <div className="text-center py-16 text-slate-400">Načítám nabídku obchůdku...</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map(product => (
-            <div key={product.id} className="bg-slate-900/50 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-amber-500/40 transition shadow-xl">
-              <div className="space-y-4">
-                <div className="aspect-video w-full bg-slate-950 rounded-xl overflow-hidden relative border border-slate-800/80">
-                  {product.image ? (
-                    <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-amber-400/30">
-                      <ShoppingBag size={40} />
-                    </div>
-                  )}
-                  <span className="absolute top-2 left-2 bg-slate-950/80 text-amber-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-slate-800 flex items-center gap-1">
-                    {product.type === 'VIP' ? <Lock size={10} /> : <Download size={10} />}
-                    {product.type === 'VIP' ? 'VIP Přístup' : 'PDF ke stažení'}
-                  </span>
+          {products.map(product => {
+            const inCart = cartItems.some(i => i.id === product.id);
+
+            return (
+              <div key={product.id} className="bg-slate-900/50 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-amber-500/40 transition shadow-xl">
+                <div className="space-y-4">
+                  <div className="aspect-video w-full bg-slate-950 rounded-xl overflow-hidden relative border border-slate-800/80">
+                    {product.image ? (
+                      <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-amber-400/30">
+                        <ShoppingBag size={40} />
+                      </div>
+                    )}
+                    <span className="absolute top-2 left-2 bg-slate-950/80 text-amber-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-slate-800 flex items-center gap-1">
+                      {product.type === 'VIP' ? <Lock size={10} /> : <Download size={10} />}
+                      {product.type === 'VIP' ? 'VIP Přístup' : 'PDF ke stažení'}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-100">{product.title}</h3>
+                    <p className="text-xs text-slate-400 mt-2 leading-relaxed">{product.description}</p>
+                  </div>
                 </div>
 
-                <div>
-                  <h3 className="text-lg font-bold text-slate-100">{product.title}</h3>
-                  <p className="text-xs text-slate-400 mt-2 leading-relaxed">{product.description}</p>
-                </div>
-              </div>
+                <div className="mt-6 pt-4 border-t border-slate-800/60 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-black text-amber-300">{product.price} Kč</span>
+                    
+                    {/* Tlačítko Přidat do košíku */}
+                    <button
+                      onClick={() => addToCart(product)}
+                      disabled={inCart}
+                      className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                        inCart 
+                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+                          : 'bg-slate-800 hover:bg-slate-700 text-slate-200'
+                      }`}
+                      title="Přidat do košíku"
+                    >
+                      {inCart ? (
+                        <>
+                          <Check size={14} />
+                          <span>V košíku</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus size={14} />
+                          <span>Do košíku</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
 
-              <div className="mt-6 pt-4 border-t border-slate-800/60 flex items-center justify-between">
-                <div>
-                  <span className="text-2xl font-black text-amber-300">{product.price} Kč</span>
+                  {/* Tlačítko Koupit hned */}
+                  <button
+                    onClick={() => handleBuyNow(product)}
+                    disabled={buyingId === product.id}
+                    className="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs py-2.5 rounded-xl transition shadow-md cursor-pointer disabled:opacity-50"
+                  >
+                    {buyingId === product.id ? 'Příprava platby...' : 'Koupit hned'}
+                  </button>
                 </div>
-                <button
-                  onClick={() => handleBuy(product)}
-                  disabled={buyingId === product.id}
-                  className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs px-5 py-2.5 rounded-xl transition shadow-md cursor-pointer disabled:opacity-50"
-                >
-                  {buyingId === product.id ? 'Příprava...' : 'Koupit nynější'}
-                </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
