@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import Knihovna from './pages/Knihovna';
+import Eshop from './pages/Eshop';
 import PohadkaDetail from './pages/PohadkaDetail';
 import Hadanky from './pages/Hadanky';
 import Omalovanky from './pages/Omalovanky';
@@ -78,6 +79,9 @@ function Header() {
           <Link to="/" className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
             <BookOpen size={14} /> <span>Knihovna</span>
           </Link>
+           <Link to="/" className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
+            <Cart size={14} /> <span>Eshop</span>
+          </Link>
           <Link to="/hadanky" className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/hadanky' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
             <HelpCircle size={14} /> <span>Hádanky</span>
           </Link>
@@ -127,6 +131,9 @@ function Header() {
         <div className="md:hidden absolute top-20 left-0 w-full bg-slate-950/95 backdrop-blur-xl border-b border-slate-800 px-4 py-6 flex flex-col space-y-3 shadow-2xl z-50 animate-fade-in h-[calc(100vh-80px)] overflow-y-auto">
           <Link to="/" onClick={closeMenu} className={`flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium transition ${currentPath === '/' ? 'bg-amber-400/10 text-amber-400' : 'text-slate-300'}`}>
             <BookOpen size={18} /> <span>Knihovna</span>
+          </Link>
+           <Link to="/" onClick={closeMenu} className={`flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium transition ${currentPath === '/' ? 'bg-amber-400/10 text-amber-400' : 'text-slate-300'}`}>
+            <Cart size={18} /> <span>Eshop</span>
           </Link>
           <Link to="/hadanky" onClick={closeMenu} className={`flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium transition ${currentPath === '/hadanky' ? 'bg-amber-400/10 text-amber-400' : 'text-slate-300'}`}>
             <HelpCircle size={18} /> <span>Hádanky</span>
