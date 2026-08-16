@@ -53,7 +53,7 @@ export default function Home() {
             </span>
             <h3 className="text-white font-semibold text-lg">Noční vlak & Hnědý šum</h3>
             <p className="text-xs text-slate-400">Pusťte si mluvené slovo pro potlačení myšlenkového šumu a klidný spánek.</p>
-                        <p className="text-xs text-slate-400">(odkaz na YouTube na mé mluvené slovo + brouwn noise + zvuk jedou cího vlaku)</p>
+                        <p className="text-xs text-slate-400">(odkaz na YouTube na mé mluvené slovo + brown noise + zvuk jedoucího vlaku)</p>
 
             
 
