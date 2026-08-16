@@ -28,7 +28,7 @@ export default function Home() {
           className="inline-flex items-center justify-center gap-3 bg-[#c3a06a] hover:bg-[#b28f59] text-[#0a0e14] font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-[#c3a06a]/20 uppercase tracking-wider text-sm"
         >
           <Download className="w-5 h-5" />
-          Stáhnout zdarma: ADHD Průvodce & Ledovec (PDF)
+          Stáhnout zdarma: ADHD Ledovec (PDF)
         </Link>
       </section>
 
@@ -38,17 +38,17 @@ export default function Home() {
           <button
             onClick={() => setIsPlaying(!isPlaying)}
             className="w-16 h-16 rounded-full bg-[#c3a06a] text-[#0a0e14] flex items-center justify-center shrink-0 hover:scale-105 transition-transform"
-            aria-label="Přehrát ukázku"
+            aria-label="Přehrát mluvené slovo"
           >
             {isPlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-1" />}
           </button>
 
           <div className="space-y-1 text-center sm:text-left flex-grow">
             <span className="text-[11px] uppercase tracking-wider text-[#c3a06a] font-bold flex items-center justify-center sm:justify-start gap-1">
-              <Volume2 className="w-3.5 h-3.5" /> Okamžité zklidnění (Ukázka)
+              <Volume2 className="w-3.5 h-3.5" /> Okamžité zklidnění
             </span>
             <h3 className="text-white font-semibold text-lg">Noční vlak & Hnědý šum</h3>
-            <p className="text-xs text-slate-400">Pusťte si zvuky pro potlačení myšlenkového šumu a fokus.</p>
+            <p className="text-xs text-slate-400">Pusťte si mluvené slovo pro potlačení myšlenkového šumu a klidný spánek.</p>
             
             {/* Skutečný audio prvek (doplňte vaši mp3 cestu) */}
             <audio
