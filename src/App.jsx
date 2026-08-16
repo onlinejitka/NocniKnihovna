@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+
+// Importy vašich stávajících stránek
 import Knihovna from './pages/Knihovna';
 import Eshop from './pages/Eshop';
 import ProduktDetail from './pages/ProduktDetail';
@@ -16,9 +18,13 @@ import Labyrint from './pages/Labyrint';
 import VOP from './pages/VOP';
 import GDPR from './pages/GDPR';
 import Dekuji from './pages/Dekuji';
-import { CartProvider, useCart } from './CartContext';
-import { BookOpen, HelpCircle, Sparkles, Palette, Lightbulb, Star, LayoutGrid, Menu, X, ChevronDown, Gamepad2, Info, Type, ShoppingBag, ShoppingCart } from 'lucide-react';
 
+// Import nové úvodní stránky a správy košíku
+import Home from './pages/Home';
+import { CartProvider, useCart } from './CartContext';
+import { Volume2, Baby, FileText, ShoppingBag, ShoppingCart, Menu, X, Info } from 'lucide-react';
+
+// STÁVAJÍCÍ BANNER COOKIES
 function CookieBar() {
   const [visible, setVisible] = useState(false);
 
@@ -55,7 +61,7 @@ function CookieBar() {
   );
 }
 
-// Chytré tlačítko košíku do hlavičky (Počítač)
+// CHYTRÉ TLAČÍTKO KOŠÍKU (DESKTOP)
 function CartButton() {
   const { totalCount } = useCart();
   const location = useLocation();
@@ -64,163 +70,140 @@ function CartButton() {
   if (totalCount === 0) return null;
 
   return (
-    <Link to="/kosik" className={`px-3 py-1.5 rounded-full text-sm font-bold transition flex items-center space-x-1.5 ${isActive ? 'bg-amber-400 text-slate-950' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30'}`}>
+    <Link to="/kosik" className={`px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center space-x-1.5 ${isActive ? 'bg-amber-400 text-slate-950' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30'}`}>
       <ShoppingCart size={14} />
       <span>Košík</span>
-      <span className="bg-amber-400 text-slate-950 text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-black ml-1">
+      <span className="bg-amber-400 text-slate-950 text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-black ml-0.5">
         {totalCount}
       </span>
     </Link>
   );
 }
 
-// Chytré tlačítko košíku do hlavičky (Mobil)
+// CHYTRÉ TLAČÍTKO KOŠÍKU (MOBIL)
 function CartButtonMobile({ closeMenu }) {
   const { totalCount } = useCart();
   if (totalCount === 0) return null;
 
   return (
-    <Link to="/kosik" onClick={closeMenu} className="flex items-center justify-between px-4 py-3.5 rounded-xl text-base font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">
+    <Link to="/kosik" onClick={closeMenu} className="flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">
       <div className="flex items-center space-x-3">
         <ShoppingCart size={18} /> <span>Váš košík</span>
       </div>
       <span className="bg-amber-400 text-slate-950 text-xs px-2.5 py-0.5 rounded-full font-black">
-        {totalCount} polože{totalCount === 1 ? 'k' : (totalCount < 5 ? 'ky' : 'k')}
+        {totalCount}
       </span>
     </Link>
   );
 }
 
+// ZJEDNODUŠENÁ HLAVIČKA (4 PILÍŘE)
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const currentPath = location.pathname;
 
   const closeMenu = () => setIsMobileMenuOpen(false);
-  const isGamesActive = ['/hra', '/souhvezdi', '/pexeso', '/ovecky', '/labyrint', '/scrabble'].includes(currentPath);
+
+  // 4 Hlavní pilíře navigace
+  const navItems = [
+    { name: 'Audio & Příběhy', path: '/audio', icon: Volume2 },
+    { name: 'Pro děti', path: '/pro-deti', icon: Baby },
+    { name: 'ADHD Průvodce (Zdarma)', path: '/adhd-pruvodce', icon: FileText, highlight: true },
+    { name: 'E-shop', path: '/eshop', icon: ShoppingBag },
+  ];
 
   return (
-    <header className="border-b border-slate-800/60 bg-slate-950/40 backdrop-blur sticky top-0 z-50">
+    <header className="border-b border-slate-800/60 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
         
+        {/* LOGO */}
         <Link to="/" onClick={closeMenu} className="flex items-center space-x-3 cursor-pointer">
           <span className="text-3xl">🌙</span>
           <div>
-            <h1 className="text-xl font-bold tracking-wide text-amber-400">Noční Knihovna</h1>
-            <p className="text-xs text-slate-400">Klidné usínání plné příběhů</p>
+            <h1 className="text-lg font-bold tracking-wide text-amber-400 font-serif uppercase">Noční Knihovna</h1>
+            <p className="text-[11px] text-slate-400">Tichý přístav pro zklidnění mysli</p>
           </div>
         </Link>
 
+        {/* MOBILNÍ TLAČÍTKO */}
         <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2 text-amber-400 hover:bg-slate-900 rounded-xl transition" aria-label="Menu">
-          {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          {isMobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
         </button>
 
-        <nav className="hidden md:flex items-center space-x-2 bg-slate-900/60 p-1.5 rounded-full border border-slate-800">
-          <Link to="/" className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
-            <BookOpen size={14} /> <span>Knihovna</span>
-          </Link>
-          
-          <Link to="/eshop" className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/eshop' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
-            <ShoppingBag size={14} /> <span>Eshop</span>
-          </Link>
-          
-          {/* Tlačítko s počítadlem košíku */}
+        {/* DESKTOP MENU (4 PILÍŘE + KOŠÍK) */}
+        <nav className="hidden md:flex items-center space-x-2 bg-slate-900/60 p-1.5 rounded-full border border-slate-800 text-xs uppercase tracking-wider font-semibold">
+          {navItems.map((item) => {
+            const isActive = currentPath === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`px-4 py-2 rounded-full transition flex items-center space-x-1.5 ${
+                  item.highlight
+                    ? 'text-amber-400 font-bold hover:text-amber-300'
+                    : isActive
+                    ? 'bg-amber-400 text-slate-950 font-bold'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <item.icon size={14} />
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
+
           <CartButton />
-
-          <Link to="/hadanky" className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/hadanky' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
-            <HelpCircle size={14} /> <span>Hádanky</span>
-          </Link>
-          <Link to="/omalovanky" className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${currentPath === '/omalovanky' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
-            <Palette size={14} /> <span>Omalovánky</span>
-          </Link>
-
-          {/* MENU HRY PRO POČÍTAČE */}
-          <div className="relative group">
-            <button className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 ${isGamesActive ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}>
-              <Gamepad2 size={14} /> <span>Hry</span> <ChevronDown size={14} className="opacity-70 transition-transform group-hover:rotate-180" />
-            </button>
-            
-            <div className="absolute top-full right-0 mt-2 w-52 bg-slate-900 border border-slate-800 rounded-2xl p-2 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              <Link to="/hra" className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800">
-                <Lightbulb size={12} /> <span>Světlušky (Zdarma)</span>
-              </Link>
-              <Link to="/ovecky" className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800 mt-1">
-                <span>🐑</span> <span>Ovečky (Zdarma)</span>
-              </Link>
-              <Link to="/scrabble" className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800 mt-1">
-                <Type size={12} /> <span>Písmenka (Zdarma)</span>
-              </Link>
-              <div className="border-t border-slate-800/60 my-1 mx-2" />
-              <Link to="/souhvezdi" className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800">
-                <Star size={12} className="text-amber-400" /> <span>Souhvězdí (Premium)</span>
-              </Link>
-              <Link to="/pexeso" className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800 mt-1">
-                <LayoutGrid size={12} className="text-amber-400" /> <span>Pexeso (Premium)</span>
-              </Link>
-              <Link to="/labyrint" className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800 mt-1">
-                <Star size={12} className="text-amber-400" /> <span>Labyrint (Premium)</span>
-              </Link>
-            </div>
-          </div>
-
-          <a href="https://generator.nocniknihovna.cz" target="_blank" rel="noopener noreferrer" className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center space-x-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-900/40 group">
-            <Sparkles size={14} className="text-indigo-400 group-hover:animate-pulse" /> <span>Generátor</span>
-          </a>
         </nav>
       </div>
 
-      {/* MENU PRO MOBILY */}
+      {/* MOBILNÍ ROZBALOVACÍ MENU */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-20 left-0 w-full bg-slate-950/95 backdrop-blur-xl border-b border-slate-800 px-4 py-6 flex flex-col space-y-3 shadow-2xl z-50 animate-fade-in h-[calc(100vh-80px)] overflow-y-auto">
-          <Link to="/" onClick={closeMenu} className={`flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium transition ${currentPath === '/' ? 'bg-amber-400/10 text-amber-400' : 'text-slate-300'}`}>
-            <BookOpen size={18} /> <span>Knihovna</span>
-          </Link>
-          
-          <Link to="/eshop" onClick={closeMenu} className={`flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium transition ${currentPath === '/eshop' ? 'bg-amber-400/10 text-amber-400' : 'text-slate-300'}`}>
-            <ShoppingBag size={18} /> <span>Eshop</span>
-          </Link>
-
-          {/* Mobilní košík */}
+        <div className="md:hidden absolute top-20 left-0 w-full bg-slate-950/95 backdrop-blur-xl border-b border-slate-800 px-4 py-6 flex flex-col space-y-3 shadow-2xl z-50 animate-fade-in">
           <CartButtonMobile closeMenu={closeMenu} />
 
-          <Link to="/hadanky" onClick={closeMenu} className={`flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium transition ${currentPath === '/hadanky' ? 'bg-amber-400/10 text-amber-400' : 'text-slate-300'}`}>
-            <HelpCircle size={18} /> <span>Hádanky</span>
-          </Link>
-          <Link to="/omalovanky" onClick={closeMenu} className={`flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium transition ${currentPath === '/omalovanky' ? 'bg-amber-400/10 text-amber-400' : 'text-slate-300'}`}>
-            <Palette size={18} /> <span>Omalovánky</span>
-          </Link>
-
-          <div className="bg-slate-900/50 rounded-2xl p-3 border border-slate-800 mt-2 shadow-inner space-y-1">
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-3">Hry Zdarma</p>
-            <Link to="/hra" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-slate-300"><Lightbulb size={16} /> <span>Světlušky</span></Link>
-            <Link to="/ovecky" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-slate-300"><span>🐑</span> <span>Počítání oveček</span></Link>
-            <Link to="/scrabble" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-slate-300"><Type size={16} /> <span>Vyplnění písmenek</span></Link>
-            
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pt-3 mb-2 pl-3">Premium Hry 🔒</p>
-            <Link to="/souhvezdi" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-amber-400"><Star size={16} /> <span>Souhvězdí</span></Link>
-            <Link to="/pexeso" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-amber-400"><LayoutGrid size={16} /> <span>Stínové pexeso</span></Link>
-            <Link to="/labyrint" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm text-amber-400"><Star size={16} /> <span>Snový labyrint</span></Link>
-          </div>
-
-          <a href="https://generator.nocniknihovna.cz" target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="flex items-center space-x-3 px-4 py-3.5 rounded-xl text-base font-medium text-slate-300 hover:text-white mt-4 border border-slate-800 bg-slate-900/30">
-            <Sparkles size={18} className="text-indigo-400" /> <span>Generátor pohádek na míru</span>
-          </a>
+          {navItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              onClick={closeMenu}
+              className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition ${
+                item.highlight
+                  ? 'bg-amber-400/10 text-amber-400 font-bold border border-amber-400/30'
+                  : currentPath === item.path
+                  ? 'bg-amber-400/20 text-amber-300 font-bold'
+                  : 'text-slate-300 hover:bg-slate-900'
+              }`}
+            >
+              <item.icon size={18} />
+              <span>{item.name}</span>
+            </Link>
+          ))}
         </div>
       )}
     </header>
   );
 }
 
+// HLAVNÍ APLIKACE A ROUTING
 export default function App() {
   return (
     <CartProvider>
       <Router>
-        <div className="min-h-screen text-slate-200 selection:bg-amber-500/30 selection:text-amber-200 flex flex-col">
+        <div className="min-h-screen text-slate-200 selection:bg-amber-500/30 selection:text-amber-200 flex flex-col bg-[#0a0e14]">
           <Header />
           
-          <main className="flex-grow max-w-6xl mx-auto w-full px-4 py-10">
+          <main className="flex-grow max-w-6xl mx-auto w-full px-4 py-8">
             <Routes>
-              <Route path="/" element={<Knihovna />} />
+              {/* Nová úvodní stránka */}
+              <Route path="/" element={<Home />} />
+
+              {/* Nové 4 hlavních pilíře */}
+              <Route path="/audio" element={<Knihovna />} />
+              <Route path="/pro-deti" element={<Knihovna />} /> {/* Lze nahradit dedikovanou podstránkou s dětským koutkem */}
+              <Route path="/adhd-pruvodce" element={<div className="p-12 text-center text-slate-400">Ke stažení zdarma: ADHD Ledovec (PDF)</div>} />
+
+              {/* Všechny stávající funkční podstránky */}
               <Route path="/eshop" element={<Eshop />} />
               <Route path="/eshop/:slug" element={<ProduktDetail />} />
               <Route path="/kosik" element={<Kosik />} />
@@ -234,11 +217,12 @@ export default function App() {
               <Route path="/labyrint" element={<Labyrint />} />
               <Route path="/obchodni-podminky" element={<VOP />} />
               <Route path="/gdpr" element={<GDPR />} />
-              <Route path="/:slug" element={<PohadkaDetail />} />
               <Route path="/dekuji" element={<Dekuji />} />
+              <Route path="/:slug" element={<PohadkaDetail />} />
             </Routes>
           </main>
           
+          {/* STÁVAJÍCÍ PATIČKA S PRÁVNÍMI ÚDAJI */}
           <footer className="border-t border-slate-900 bg-slate-950/60 text-slate-500 py-10 text-center text-xs mt-auto px-4 space-y-6">
             <div className="space-y-1.5">
               <p>© {new Date().getFullYear()} Noční Knihovna. Všechna práva vyhrazená.</p>
