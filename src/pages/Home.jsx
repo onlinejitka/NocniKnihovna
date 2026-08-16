@@ -50,13 +50,16 @@ export default function Home() {
             <h3 className="text-white font-semibold text-lg">Noční vlak & Hnědý šum</h3>
             <p className="text-xs text-slate-400">Pusťte si mluvené slovo pro potlačení myšlenkového šumu a klidný spánek.</p>
             
-            {/* Skutečný audio prvek (doplňte vaši mp3 cestu) */}
-            <audio
-              id="hero-audio"
-              src="/audio/nocni-vlak-demo.mp3"
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-            />
+            {/* TLAČÍTKO PROKLIKU NA YOUTUBE */}
+<a
+  href="https://www.youtube.com/watch?v=LjvoFP6hFj0"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="w-16 h-16 rounded-full bg-[#c3a06a] text-[#0a0e14] flex items-center justify-center shrink-0 hover:scale-105 transition-transform"
+  aria-label="Přehrát na YouTube"
+>
+  <Play className="w-7 h-7 ml-1" />
+</a>
           </div>
         </div>
       </section>
