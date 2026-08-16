@@ -4,7 +4,7 @@ import { AlertTriangle, Info, Music, BookOpen, Sparkles, ShoppingBag, Search, He
 
 const TAB_LABELS = {
   'vse': 'Vše z knihovny',
-  'pro ADHD': 'pro ADHD'
+  'pro ADHD': 'pro ADHD',
   'Pohádka': 'Pohádky',
   'Říkadlo': 'Říkadla',
   'Písnička': 'Písničky'
