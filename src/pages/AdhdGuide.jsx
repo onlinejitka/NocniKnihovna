@@ -2,7 +2,7 @@ import React from 'react';
 import { Download, Brain, Sparkles, AlertCircle, Clock, BatteryCharging, CheckCircle2, Heart } from 'lucide-react';
 
 export default function AdhdGuide() {
-  const pdfUrl = 'https://www.nocniknihovna.cz/eshop/ADHD-ledovec; // Vložte přesnou cestu k vašemu PDF souboru
+  const pdfUrl = 'https://www.nocniknihovna.cz/eshop/ADHD-ledovec'; // Vložte přesnou cestu k vašemu PDF souboru
 
   return (
     <div className="max-w-4xl mx-auto space-y-12 py-6 px-4">
