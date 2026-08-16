@@ -20,7 +20,7 @@ export default function AdhdGuide() {
         </h1>
 
         <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-          Ucelený vizuální průvodce podstatou ADHD mozku[cite: 1]. Zjistěte, co se skrývá pod hladinou viditelných projevů a jak pracovat s vlastní neurologií bez pocitů viny[cite: 1].
+          Stručný průvodce podstatou ADHD mozku. Zjistěte, co se skrývá pod hladinou viditelných projevů a jak pracovat s vlastní neurologií bez pocitů viny.
         </p>
 
         <div className="pt-2">
