@@ -35,13 +35,7 @@ export default function Home() {
       {/* 2. ZABUDOVANÝ AUDIO PREHRÁVAČ PRO INSTANTNÍ ZÁŽITEK */}
       <section className="max-w-2xl mx-auto px-4">
         <div className="bg-[#0d1117] border border-[#c3a06a]/30 rounded-2xl p-6 shadow-2xl flex flex-col sm:flex-row items-center gap-6">
-          <button
-            onClick={() => setIsPlaying(!isPlaying)}
-            className="w-16 h-16 rounded-full bg-[#c3a06a] text-[#0a0e14] flex items-center justify-center shrink-0 hover:scale-105 transition-transform"
-            aria-label="Přehrát mluvené slovo"
-          >
-            {isPlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-1" />}
-          </button>
+         
 
           <div className="space-y-1 text-center sm:text-left flex-grow">
             <span className="text-[11px] uppercase tracking-wider text-[#c3a06a] font-bold flex items-center justify-center sm:justify-start gap-1">
