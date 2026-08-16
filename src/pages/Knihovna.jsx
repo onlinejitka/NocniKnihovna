@@ -4,14 +4,14 @@ import { AlertTriangle, Info, Music, BookOpen, Sparkles, ShoppingBag, Search, He
 
 const TAB_LABELS = {
   'vse': 'Vše z knihovny',
-  'pro ADHD': 'pro ADHD',
+  'pro_ADHD': 'pro ADHD',
   'Pohádka': 'Pohádky',
   'Říkadlo': 'Říkadla',
   'Písnička': 'Písničky'
 };
 
 const BUTTON_LABELS = {
-  'pro ADHD': 'Přejít na příběh pro ADHD →',
+  'pro_ADHD': 'Přejít na příběh pro ADHD →',
   'Pohádka': 'Přejít na pohádku →',
   'Říkadlo': 'Přejít na říkadlo →',
   'Písnička': 'Přejít na písničku →'
@@ -139,7 +139,7 @@ export default function Knihovna() {
           </button>
         </div>
         <div className="flex justify-center flex-wrap gap-2">
-          {['Pohádka', 'Říkadlo', 'Písnička'].map(tab => (
+          {['pro_ADHD', 'Pohádka', 'Říkadlo', 'Písnička'].map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)} className={`px-5 py-1.5 rounded-full text-xs md:text-sm font-medium transition ${activeTab === tab ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-semibold' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'}`}>
               {TAB_LABELS[tab]}
             </button>
