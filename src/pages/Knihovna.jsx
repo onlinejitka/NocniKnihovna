@@ -4,12 +4,14 @@ import { AlertTriangle, Info, Music, BookOpen, Sparkles, ShoppingBag, Search, He
 
 const TAB_LABELS = {
   'vse': 'Vše z knihovny',
+  'pro ADHD': 'pro ADHD'
   'Pohádka': 'Pohádky',
   'Říkadlo': 'Říkadla',
   'Písnička': 'Písničky'
 };
 
 const BUTTON_LABELS = {
+  'pro ADHD': 'Přejít na příběh pro ADHD →',
   'Pohádka': 'Přejít na pohádku →',
   'Říkadlo': 'Přejít na říkadlo →',
   'Písnička': 'Přejít na písničku →'
@@ -187,6 +189,12 @@ export default function Knihovna() {
                     <h4 className="font-serif text-xl md:text-2xl text-amber-100/90 font-medium italic px-2 line-clamp-2 leading-snug">„{item.title}“</h4>
                   </div>
                 ) : item.type === 'Písnička' ? (
+                  <div className="w-full h-full bg-black flex flex-col items-center justify-center p-6 text-center select-none border-b border-slate-900/50 group-hover:bg-slate-950 transition-colors duration-300">
+                    <div className="text-amber-100/90 mb-1.5 transform group-hover:scale-110 transition-transform duration-300"><Music size={22} /></div>
+                    <span className="text-[10px] tracking-widest uppercase text-amber-500/50 font-mono mb-2">písnička</span>
+                    <h4 className="font-serif text-xl md:text-2xl text-amber-100/90 font-medium italic px-2 line-clamp-2 leading-snug">„{item.title}“</h4>
+                  </div>
+               ) : item.type === 'pro ADHD' ? (
                   <div className="w-full h-full bg-black flex flex-col items-center justify-center p-6 text-center select-none border-b border-slate-900/50 group-hover:bg-slate-950 transition-colors duration-300">
                     <div className="text-amber-100/90 mb-1.5 transform group-hover:scale-110 transition-transform duration-300"><Music size={22} /></div>
                     <span className="text-[10px] tracking-widest uppercase text-amber-500/50 font-mono mb-2">písnička</span>
