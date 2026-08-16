@@ -96,7 +96,7 @@ export default function Knihovna() {
           Místo pro klidné usínání
         </h2>
         <p className="text-slate-300 text-base md:text-lg leading-relaxed px-2">
-          Veškeré hlasové nahrávky – pohádky, lidová říkadla i tradiční písničky – pro Vás nahrávám svým vlastním hlasem. Chci, aby z nich děti cítily klid a bezpečí domova.
+          Veškeré hlasové nahrávky – zklidňující příběhy, pohádky, lidová říkadla i tradiční písničky – pro Vás nahrávám svým vlastním hlasem.
         </p>
         <p className="text-slate-400 text-sm max-w-2xl mx-auto leading-relaxed px-4">
           Podkladové černobílé omalovánky sice navrhuji s pomocí AI, ale každý list poté sama ručně graficky pročišťuji a doupravuji. V doprovodných zrychlených videích pak tyto sady vybarvuji já nebo mé děti. Většinu základních omalovánek si zde můžete zcela zdarma stáhnout v PDF.
@@ -194,7 +194,7 @@ export default function Knihovna() {
                     <span className="text-[10px] tracking-widest uppercase text-amber-500/50 font-mono mb-2">písnička</span>
                     <h4 className="font-serif text-xl md:text-2xl text-amber-100/90 font-medium italic px-2 line-clamp-2 leading-snug">„{item.title}“</h4>
                   </div>
-               ) : item.type === 'pro ADHD' ? (
+               ) : item.type === 'pro_ADHD' ? (
                   <div className="w-full h-full bg-black flex flex-col items-center justify-center p-6 text-center select-none border-b border-slate-900/50 group-hover:bg-slate-950 transition-colors duration-300">
                     <div className="text-amber-100/90 mb-1.5 transform group-hover:scale-110 transition-transform duration-300"><Music size={22} /></div>
                     <span className="text-[10px] tracking-widest uppercase text-amber-500/50 font-mono mb-2">písnička</span>
