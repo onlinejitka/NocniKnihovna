@@ -13,7 +13,8 @@ export default function Home() {
         </div>
 
         <h1 className="text-3xl sm:text-5xl font-heading font-bold text-cream tracking-wide leading-tight mb-6">
-          Prostor pro zklidnění mysli a spánek
+          Prostor pro zklidnění mysli,
+          <p>spánek a pochopení.</p>
         </h1>
 
         <p className="text-cream/80 text-base sm:text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
