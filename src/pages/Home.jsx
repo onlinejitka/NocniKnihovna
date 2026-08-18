@@ -33,7 +33,7 @@ export default function Home() {
 
       {/* 2. ZABUDOVANÝ AUDIO PREHRÁVAČ PRO INSTANTNÍ ZÁŽITEK */}
       <section className="max-w-2xl mx-auto px-4">
-        <div className="border border-[#c3a06a]/30 rounded-2xl p-6 shadow-2xl flex flex-col sm:flex-row items-center gap-6">
+        <div className="bg-ink border border-amber-accent/30 rounded-2xl p-8 sm:p-10 text-center space-y-6 shadow-2xl relative overflow-hidden">
                  
           {/* TLAČÍTKO PROKLIKU NA YOUTUBE */}
 <a
