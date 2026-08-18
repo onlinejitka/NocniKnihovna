@@ -69,7 +69,7 @@ export default function Home() {
         <div className="grid md:grid-cols-2 gap-6">
           
           {/* KARTA A: PRO DOSPĚLÉ & ADHD */}
-          <div className="border border-slate-800 hover:border-[#c3a06a]/50 rounded-2xl p-8 flex flex-col justify-between space-y-6 transition-all group">
+          <div className="bg-amber-accent hover:bg-amber-accent/90 rounded-2xl p-8 flex flex-col justify-between space-y-6 transition-all group">
             <div className="space-y-3">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center">
                 <Sparkles className="w-6 h-6" />
@@ -88,7 +88,7 @@ export default function Home() {
           </div>
 
           {/* KARTA B: PRO DĚTI & RODIČE */}
-          <div className="border border-slate-800 hover:border-[#c3a06a]/50 rounded-2xl p-8 flex flex-col justify-between space-y-6 transition-all group">
+          <div className="bg-amber-accent hover:bg-amber-accent/90 rounded-2xl p-8 flex flex-col justify-between space-y-6 transition-all group">
             <div className="space-y-3">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center">
                 <Baby className="w-6 h-6" />
@@ -111,7 +111,7 @@ export default function Home() {
 
       {/* 4. NABÍDKA E-SHOPU (DOLE NA STRÁNCE) */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6">
-        <div className="border border-[#c3a06a]/30 rounded-2xl p-8 sm:p-10 flex flex-col md:flex-row items-center gap-8">
+        <div className="bg-amber-accent hover:bg-amber-accent/90 rounded-2xl p-8 sm:p-10 flex flex-col md:flex-row items-center gap-8">
           <div className="space-y-4 text-center md:text-left">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#c3a06a]">E-shop & Materiály</span>
             <h3 className="text-2xl font-serif font-bold text-white">ADHD Mega Bundle & Pracovní listy</h3>
