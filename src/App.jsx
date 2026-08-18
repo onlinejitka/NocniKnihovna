@@ -130,13 +130,15 @@ function Header() {
       <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
         
         {/* LOGO */}
-        <Link to="/" onClick={closeMenu} className="flex items-center space-x-3 cursor-pointer">
-          <span className="text-3xl">🌙</span>
-          <div>
-            <h1 className="text-lg font-bold tracking-wide text-amber-400 font-serif uppercase">Noční Knihovna</h1>
-            <p className="text-[11px] text-slate-400">Tichý přístav pro zklidnění mysli</p>
-          </div>
-        </Link>
+<Link to="/" onClick={closeMenu} className="flex items-center space-x-3 cursor-pointer">
+  <span className="text-3xl">🌙</span>
+  <div>
+    <h1 className="text-lg font-heading font-bold tracking-wide text-amber-accent uppercase">
+      Noční Knihovna
+    </h1>
+    <p className="text-[11px] text-cream/70">Tichý přístav pro zklidnění mysli</p>
+  </div>
+</Link>
 
         {/* MOBILNÍ TLAČÍTKO */}
         <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2 text-amber-400 hover:bg-slate-900 rounded-xl transition" aria-label="Menu">
@@ -293,33 +295,32 @@ export default function App() {
             </Routes>
           </main>
           
-          {/* STÁVAJÍCÍ PATIČKA */}
-          <footer className="border-t border-slate-900 bg-slate-950/60 text-slate-500 py-10 text-center text-xs mt-auto px-4 space-y-6">
-            <div className="space-y-1.5">
-              <p>© {new Date().getFullYear()} Noční Knihovna. Všechna práva vyhrazená.</p>
-              <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed">
-                Veškeré nahrávky pro Vás zaznamenávám svým vlastním hlasem. Ilustrace jsou spoluvytvářené s pomocí AI a mnou ručně graficky upravené.
-              </p>
-            </div>
+<footer className="border-t border-cream/10 bg-ink text-cream/70 py-10 text-center text-xs mt-auto px-4 space-y-6 font-body">
+  <div className="space-y-1.5">
+    <p className="text-cream/90 font-medium">© {new Date().getFullYear()} Noční Knihovna. Všechna práva vyhrazená.</p>
+    <p className="text-cream/60 max-w-2xl mx-auto leading-relaxed">
+      Veškeré nahrávky pro Vás zaznamenávám svým vlastním hlasem. Ilustrace jsou spoluvytvářené s pomocí AI a mnou ručně graficky upravené.
+    </p>
+  </div>
 
-            <div className="pt-4 border-t border-slate-900/60 max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-600">
-              <div className="text-center sm:text-left space-y-0.5">
-                <p className="font-semibold text-slate-400">Provozovatel: Jitka Pekárková</p>
-                <p>Sídlo: Primátorská 38, Praha 8 • IČO: 87458021</p>
-                <p>Fyzická osoba zapsaná v živnostenském rejstříku.</p>
-              </div>
+  <div className="pt-4 border-t border-cream/10 max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-cream/70">
+    <div className="text-center sm:text-left space-y-0.5">
+      <p className="font-semibold text-cream">Provozovatel: Jitka Pekárková</p>
+      <p>Sídlo: Primátorská 38, Praha 8 • IČO: 87458021</p>
+      <p>Fyzická osoba zapsaná v živnostenském rejstříku.</p>
+    </div>
 
-              <div className="flex flex-wrap justify-center sm:justify-end gap-x-3 gap-y-2 font-medium">
-                <a href="https://jitkap.cz" target="_blank" rel="noopener noreferrer" className="text-amber-500/80 hover:text-amber-400 transition underline decoration-amber-500/20">O autorce</a>
-                <span className="text-slate-800">•</span>
-                <a href="https://navigator40k.cz" target="_blank" rel="noopener noreferrer" className="text-indigo-400/80 hover:text-indigo-400 transition underline decoration-indigo-500/20">Navigátor 40k</a>
-                <span className="text-slate-800 hidden sm:inline">•</span>
-                <Link to="/obchodni-podminky" className="hover:text-slate-400 transition">Obchodní podmínky</Link>
-                <span className="text-slate-800">•</span>
-                <Link to="/gdpr" className="hover:text-slate-400 transition">GDPR</Link>
-              </div>
-            </div>
-          </footer>
+    <div className="flex flex-wrap justify-center sm:justify-end gap-x-3 gap-y-2 font-medium">
+      <a href="https://jitkap.cz" target="_blank" rel="noopener noreferrer" className="text-amber-accent hover:underline">O autorce</a>
+      <span className="text-cream/30">•</span>
+      <a href="https://navigator40k.cz" target="_blank" rel="noopener noreferrer" className="text-teal-sage hover:underline">Navigátor 40k</a>
+      <span className="text-cream/30 hidden sm:inline">•</span>
+      <Link to="/obchodni-podminky" className="hover:text-cream transition">Obchodní podmínky</Link>
+      <span className="text-cream/30">•</span>
+      <Link to="/gdpr" className="hover:text-cream transition">GDPR</Link>
+    </div>
+  </div>
+</footer>
 
           <CookieBar />
         </div>
