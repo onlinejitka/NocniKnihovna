@@ -20,7 +20,7 @@ export default function Home() {
         <p className="text-cream/80 text-base sm:text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
           Sensory audio, hnědý šum a večerní příběhy vytvořené s porozuměním
           <p>pro přetížený a ADHD mozek dospělých i dětí.</p>
-          <p>Informace o neurotypickém mozku.</p>
+          <p>Informace o neurodivergentním mozku.</p>
         </p>
 
         {/* HLAVNÍ CTA TLAČÍTKO */}
