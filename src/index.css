@@ -2,7 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 70%);
+@layer base {
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #1A1D2F; /* Půlnoční inkoust */
+    color: #F8F6F0;           /* Jemný krém */
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+  }
 }
