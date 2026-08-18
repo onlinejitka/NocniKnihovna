@@ -121,8 +121,8 @@ export default function Home() {
             <div className="pt-2">
               <Link
                 to="/eshop"
-                className="inline-flex items-center gap-2 border border-[#c3a06a]/50 text-slate-200 hover:text-white font-bold py-3 px-6 rounded-xl transition-all text-xs uppercase tracking-wider"
-              >
+                className="inline-flex items-center gap-3 bg-amber-accent hover:bg-amber-accent/90 text-ink font-heading font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-amber-accent/20 uppercase tracking-wider text-sm"
+          >
                 Prohlédnout produkty v E-shopu <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
