@@ -129,9 +129,13 @@ function Header() {
     <header className="border-b border-[#F8F6F0]/10 bg-[#0a0e17]/90 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
         
-        {/* LOGO */}
+        {/* LOGO Noční ADHD Knihovna logo.png*/} 
         <Link to="/" onClick={closeMenu} className="flex items-center space-x-3 cursor-pointer">
-          <span className="text-3xl">🌙</span>
+  <img 
+    src="/Noční ADHD Knihovna logo.png" 
+    alt="Noční Knihovna" 
+    className="h-10 w-auto object-contain" 
+  />
           <div>
             <h1 className="text-lg font-bold tracking-wide text-[#FFB703] uppercase">
               Noční Knihovna
