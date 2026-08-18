@@ -69,7 +69,7 @@ export default function Home() {
         <div className="grid md:grid-cols-2 gap-6">
           
           {/* KARTA A: PRO DOSPĚLÉ & ADHD */}
-           <div className="bg-ink border border-cream/10 rounded-xl p-6 space-y-4">
+           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-accent/10 border border-amber-accent/30 text-amber-accent text-xs font-semibold mb-6">
             <div className="space-y-3">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center">
                 <Sparkles className="w-6 h-6" />
