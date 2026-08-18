@@ -88,7 +88,7 @@ export default function Home() {
           </div>
 
           {/* KARTA B: PRO DĚTI & RODIČE */}
-          <div className="bg-ink hover:bg-amber-accent/90 rounded-2xl p-8 flex flex-col justify-between space-y-6 transition-all group">
+          <div className="bg-ink border border-amber-accent/30 rounded-2xl p-8 flex flex-col justify-between space-y-6 transition-all group">
             <div className="space-y-3">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center">
                 <Baby className="w-6 h-6" />
