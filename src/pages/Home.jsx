@@ -69,7 +69,7 @@ export default function Home() {
         <div className="grid md:grid-cols-2 gap-6">
           
           {/* KARTA A: PRO DOSPĚLÉ & ADHD */}
-          <div className="bg-amber-accent hover:bg-amber-accent/90 rounded-2xl p-8 flex flex-col justify-between space-y-6 transition-all group">
+           <div className="bg-ink border border-cream/10 rounded-xl p-6 space-y-4">
             <div className="space-y-3">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center">
                 <Sparkles className="w-6 h-6" />
