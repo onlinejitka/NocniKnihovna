@@ -1,25 +1,23 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Download, Play, Pause, Volume2, Sparkles, Baby, Moon, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Download, Play, Volume2, Sparkles, Baby, Moon, ArrowRight } from 'lucide-react';
 
 export default function Home() {
-  const [isPlaying, setIsPlaying] = useState(false);
-
   return (
-    <div className="space-y-16 pb-16">
+    <div className="space-y-16 pb-16 font-body text-cream">
       
-      {/* 1. HERO SEKCE (PRVNÍCH 3-5 VTEŘIN) */}
+      {/* HERO SEKCE */}
       <section className="relative pt-12 pb-8 px-4 sm:px-6 max-w-4xl mx-auto text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#c3a06a]/10 border border-[#c3a06a]/30 text-[#c3a06a] text-xs font-semibold mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-accent/10 border border-amber-accent/30 text-amber-accent text-xs font-semibold mb-6">
           <Moon className="w-3.5 h-3.5" /> Oáza klidu pro přetíženou mysl
         </div>
 
-        <h1 className="text-3xl sm:text-5xl font-serif font-bold text-white tracking-wide leading-tight mb-4">
+        <h1 className="text-3xl sm:text-5xl font-heading font-bold text-cream tracking-wide leading-tight mb-6">
           Noční Knihovna – Tichý přístav pro zklidnění mysli a spánek
         </h1>
 
-        <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
-          Sensory audio, hnědý šum a večerní příběhy vytvořené s porozuměním pro přetížený a ADHD mozek.
+        <p className="text-cream/80 text-base sm:text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
+          Sensory audio, hnědý šum a večerní příběhy vytvořené s porozuměním pro přetížený a ADHD mozek dospělých i dětí.
         </p>
 
         {/* HLAVNÍ CTA TLAČÍTKO */}
