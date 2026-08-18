@@ -136,7 +136,7 @@ function Header() {
             <h1 className="text-lg font-bold tracking-wide text-[#FFB703] uppercase">
               Noční Knihovna
             </h1>
-            <p className="text-[11px] text-[#F8F6F0]/70">Tichý přístav pro zklidnění mysli</p>
+            <p className="text-[11px] text-[#F8F6F0]/70">Klid i dopamin pro přetíženou mysl</p>
           </div>
         </Link>
 
