@@ -69,7 +69,7 @@ export default function Home() {
         <div className="grid md:grid-cols-2 gap-6">
           
           {/* KARTA A: PRO DOSPĚLÉ & ADHD */}
-           <div className="bg-ink border border-amber-accent/30 rounded-2xl p-6 shadow-2xl flex flex-col sm:flex-row items-center gap-6">
+           <div className="bg-ink border border-amber-accent/30 rounded-2xl p-8 flex flex-col justify-between space-y-6 transition-all group">
             <div className="space-y-3">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center">
                 <Sparkles className="w-6 h-6" />
@@ -81,7 +81,7 @@ export default function Home() {
             </div>
             <Link
               to="/audio"
-              className="inline-flex items-center gap-2 text-xs font-bold text-[#c3a06a] uppercase tracking-wider group-hover:translate-x-1 transition-transform"
+              className="inline-flex items-center gap-2 text-xs font-bold text-amber-accent uppercase tracking-wider group-hover:translate-x-1 transition-transform"
             >
               Vstoupit do audio sekce <ArrowRight className="w-4 h-4" />
             </Link>
@@ -100,7 +100,7 @@ export default function Home() {
             </div>
             <Link
               to="/pro-deti"
-              className="inline-flex items-center gap-2 text-xs font-bold text-[#c3a06a] uppercase tracking-wider group-hover:translate-x-1 transition-transform"
+              className="inline-flex items-center gap-2 text-xs font-bold text-amber-accent uppercase tracking-wider group-hover:translate-x-1 transition-transform"
             >
               Prozkoumat dětský svět <ArrowRight className="w-4 h-4" />
             </Link>
@@ -111,7 +111,7 @@ export default function Home() {
 
       {/* 4. NABÍDKA E-SHOPU (DOLE NA STRÁNCE) */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6">
-        <div className="bg-amber-accent hover:bg-amber-accent/90 rounded-2xl p-8 sm:p-10 flex flex-col md:flex-row items-center gap-8">
+        <div className="bg-ink border border-amber-accent/30 rounded-2xl p-8 flex flex-col justify-between space-y-6 transition-all group">
           <div className="space-y-4 text-center md:text-left">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#c3a06a]">E-shop & Materiály</span>
             <h3 className="text-2xl font-serif font-bold text-white">ADHD Mega Bundle & Pracovní listy</h3>
