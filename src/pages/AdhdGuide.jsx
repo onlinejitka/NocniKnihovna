@@ -1,32 +1,29 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Brain, Sparkles, AlertCircle, Clock, BatteryCharging, CheckCircle2, Heart } from 'lucide-react';
+import { ShoppingBag, Brain, Sparkles, AlertCircle, BatteryCharging } from 'lucide-react';
 
 export default function AdhdGuide() {
-  // Cesta k detailu produktu v e-shopu
-  const productUrl = '/eshop/ADHD-ledovec';
-
   return (
-    <div className="max-w-4xl mx-auto space-y-12 py-6 px-4">
+    <div className="max-w-4xl mx-auto space-y-12 py-6 px-4 font-body text-cream">
       
-      {/* HERO SEKCE S TLAČÍTKEM DO E-SHOPU */}
-      <div className="bg-[#0d1117] border border-[#c3a06a]/30 rounded-2xl p-8 sm:p-10 text-center space-y-6 shadow-2xl relative overflow-hidden">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#c3a06a]/10 border border-[#c3a06a]/30 text-[#c3a06a] text-xs font-semibold">
+      {/* HERO SEKCE */}
+      <div className="bg-ink border border-amber-accent/30 rounded-2xl p-8 sm:p-10 text-center space-y-6 shadow-2xl relative overflow-hidden">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-accent/10 border border-amber-accent/30 text-amber-accent text-xs font-semibold">
           <Brain className="w-4 h-4" /> Neurodivergentní průvodce zdarma
         </div>
 
-        <h1 className="text-3xl sm:text-4xl font-serif font-bold text-white tracking-wide uppercase">
-          ADHD <span className="text-[#c3a06a]">Ledovec</span>
+        <h1 className="text-3xl sm:text-4xl font-heading font-bold text-cream tracking-wide uppercase">
+          ADHD <span className="text-amber-accent">Ledovec</span>
         </h1>
 
-        <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-          Stručný průvodce podstatou ADHD mozku. Zjistěte, co se skrývá pod hladinou viditelných projevů a jak pracovat s vlastní neurologií bez pocitů viny.
+        <p className="text-cream/80 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+          Ucelený vizuální průvodce podstatou ADHD mozku. Zjistěte, co se skrývá pod hladinou viditelných projevů a jak pracovat s vlastní neurologií bez pocitů viny.
         </p>
 
         <div className="pt-2">
           <Link
-            to={productUrl}
-            className="inline-flex items-center gap-3 bg-[#c3a06a] hover:bg-[#b28f59] text-[#0a0e14] font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-[#c3a06a]/20 uppercase tracking-wider text-sm"
+            to="/eshop/ADHD-ledovec"
+            className="inline-flex items-center gap-3 bg-amber-accent hover:bg-amber-accent/90 text-ink font-heading font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-amber-accent/20 uppercase tracking-wider text-sm"
           >
             <ShoppingBag className="w-5 h-5" />
             Získat zdarma v e-shopu: ADHD Ledovec
