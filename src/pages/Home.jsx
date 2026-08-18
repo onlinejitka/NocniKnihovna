@@ -24,8 +24,8 @@ export default function Home() {
         {/* HLAVNÍ CTA TLAČÍTKO */}
         <Link
           to="/adhd-pruvodce"
-          className="inline-flex items-center justify-center gap-3 text-[#0a0e14] font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-[#c3a06a]/20 uppercase tracking-wider text-sm"
-        >
+          className="inline-flex items-center gap-3 bg-amber-accent hover:bg-amber-accent/90 text-ink font-heading font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-amber-accent/20 uppercase tracking-wider text-sm"
+          >
           <Download className="w-5 h-5" />
           Stáhnout zdarma: ADHD Ledovec (PDF)
         </Link>
