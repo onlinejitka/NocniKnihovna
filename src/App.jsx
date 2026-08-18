@@ -59,7 +59,7 @@ function CookieBar() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-[#1A1D2F] border border-[#F8F6F0]/10 p-5 rounded-2xl shadow-2xl z-50 animate-fade-in backdrop-blur-md flex flex-col space-y-4">
+    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-[#131722] border border-[#F8F6F0]/10 p-5 rounded-2xl shadow-2xl z-50 animate-fade-in backdrop-blur-md flex flex-col space-y-4">
       <div className="flex items-start space-x-3">
         <Info size={20} className="text-[#FFB703] shrink-0 mt-0.5" />
         <div className="space-y-1">
@@ -71,7 +71,7 @@ function CookieBar() {
       </div>
       <div className="flex justify-end space-x-3 items-center text-[10px]">
         <Link to="/gdpr" className="text-[#F8F6F0]/50 hover:text-[#F8F6F0] transition underline">Více informací</Link>
-        <button onClick={handleAccept} className="bg-[#FFB703] hover:opacity-90 text-[#1A1D2F] font-extrabold text-xs px-5 py-2 rounded-xl transition cursor-pointer shadow-lg">
+        <button onClick={handleAccept} className="bg-[#FFB703] hover:opacity-90 text-[#0a0e17] font-extrabold text-xs px-5 py-2 rounded-xl transition cursor-pointer shadow-lg">
           Přijmout vše
         </button>
       </div>
@@ -88,10 +88,10 @@ function CartButton() {
   if (totalCount === 0) return null;
 
   return (
-    <Link to="/kosik" className={`px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center space-x-1.5 ${isActive ? 'bg-[#FFB703] text-[#1A1D2F]' : 'bg-[#FFB703]/20 text-[#FFB703] border border-[#FFB703]/30 hover:bg-[#FFB703]/30'}`}>
+    <Link to="/kosik" className={`px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center space-x-1.5 ${isActive ? 'bg-[#FFB703] text-[#0a0e17]' : 'bg-[#FFB703]/20 text-[#FFB703] border border-[#FFB703]/30 hover:bg-[#FFB703]/30'}`}>
       <ShoppingCart size={14} />
       <span>Košík</span>
-      <span className="bg-[#FFB703] text-[#1A1D2F] text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-black ml-0.5">
+      <span className="bg-[#FFB703] text-[#0a0e17] text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-black ml-0.5">
         {totalCount}
       </span>
     </Link>
@@ -108,7 +108,7 @@ function CartButtonMobile({ closeMenu }) {
       <div className="flex items-center space-x-3">
         <ShoppingCart size={18} /> <span>Váš košík</span>
       </div>
-      <span className="bg-[#FFB703] text-[#1A1D2F] text-xs px-2.5 py-0.5 rounded-full font-black">
+      <span className="bg-[#FFB703] text-[#0a0e17] text-xs px-2.5 py-0.5 rounded-full font-black">
         {totalCount}
       </span>
     </Link>
@@ -126,7 +126,7 @@ function Header() {
   const isKidsActive = ['/pro-deti', '/hadanky', '/omalovanky', '/hra', '/ovecky', '/souhvezdi', '/pexeso', '/labyrint', '/scrabble'].includes(currentPath);
 
   return (
-    <header className="border-b border-[#F8F6F0]/10 bg-[#1A1D2F] sticky top-0 z-50">
+    <header className="border-b border-[#F8F6F0]/10 bg-[#0a0e17]/90 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
         
         {/* LOGO */}
@@ -146,21 +146,21 @@ function Header() {
         </button>
 
         {/* DESKTOP MENU (4 PILÍŘE) */}
-        <nav className="hidden md:flex items-center space-x-2 bg-[#1A1D2F] p-1.5 rounded-full border border-[#F8F6F0]/10 text-xs uppercase tracking-wider font-semibold">
+        <nav className="hidden md:flex items-center space-x-2 bg-[#131722]/80 p-1.5 rounded-full border border-[#F8F6F0]/10 text-xs uppercase tracking-wider font-semibold">
           
           {/* 1. AUDIO & PŘÍBĚHY */}
-          <Link to="/audio" className={`px-4 py-2 rounded-full transition flex items-center space-x-1.5 ${currentPath === '/audio' ? 'bg-[#FFB703] text-[#1A1D2F] font-bold' : 'text-[#F8F6F0]/80 hover:text-[#F8F6F0]'}`}>
+          <Link to="/audio" className={`px-4 py-2 rounded-full transition flex items-center space-x-1.5 ${currentPath === '/audio' ? 'bg-[#FFB703] text-[#0a0e17] font-bold' : 'text-[#F8F6F0]/80 hover:text-[#F8F6F0]'}`}>
             <Volume2 size={14} /> <span>Audio & Příběhy</span>
           </Link>
 
           {/* 2. PRO DĚTI (DROPDOWN) */}
           <div className="relative group">
-            <button className={`px-4 py-2 rounded-full transition flex items-center space-x-1.5 ${isKidsActive ? 'bg-[#FFB703] text-[#1A1D2F] font-bold' : 'text-[#F8F6F0]/80 hover:text-[#F8F6F0]'}`}>
+            <button className={`px-4 py-2 rounded-full transition flex items-center space-x-1.5 ${isKidsActive ? 'bg-[#FFB703] text-[#0a0e17] font-bold' : 'text-[#F8F6F0]/80 hover:text-[#F8F6F0]'}`}>
               <Baby size={14} /> <span>Pro děti</span> <ChevronDown size={14} className="opacity-70 transition-transform group-hover:rotate-180" />
             </button>
 
             {/* Submenu pro děti */}
-            <div className="absolute top-full left-0 mt-2 w-56 bg-[#1A1D2F] border border-[#F8F6F0]/10 rounded-2xl p-2 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-left normal-case tracking-normal">
+            <div className="absolute top-full left-0 mt-2 w-56 bg-[#131722] border border-[#F8F6F0]/10 rounded-2xl p-2 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-left normal-case tracking-normal">
               <Link to="/pro-deti" className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs text-[#FFB703] font-bold hover:bg-[#F8F6F0]/5">
                 <Baby size={14} /> <span>Přehled sekce Pro děti</span>
               </Link>
@@ -202,12 +202,12 @@ function Header() {
           </div>
 
           {/* 3. ADHD PRŮVODCE */}
-          <Link to="/adhd-pruvodce" className={`px-4 py-2 rounded-full transition flex items-center space-x-1.5 ${currentPath === '/adhd-pruvodce' ? 'bg-[#FFB703] text-[#1A1D2F] font-bold' : 'text-[#FFB703] font-bold hover:opacity-80'}`}>
+          <Link to="/adhd-pruvodce" className={`px-4 py-2 rounded-full transition flex items-center space-x-1.5 ${currentPath === '/adhd-pruvodce' ? 'bg-[#FFB703] text-[#0a0e17] font-bold' : 'text-[#FFB703] font-bold hover:opacity-80'}`}>
             <FileText size={14} /> <span>ADHD Průvodce (Zdarma)</span>
           </Link>
 
           {/* 4. E-SHOP */}
-          <Link to="/eshop" className={`px-4 py-2 rounded-full transition flex items-center space-x-1.5 ${currentPath === '/eshop' ? 'bg-[#FFB703] text-[#1A1D2F] font-bold' : 'text-[#F8F6F0]/80 hover:text-[#F8F6F0]'}`}>
+          <Link to="/eshop" className={`px-4 py-2 rounded-full transition flex items-center space-x-1.5 ${currentPath === '/eshop' ? 'bg-[#FFB703] text-[#0a0e17] font-bold' : 'text-[#F8F6F0]/80 hover:text-[#F8F6F0]'}`}>
             <ShoppingBag size={14} /> <span>E-shop</span>
           </Link>
 
@@ -217,14 +217,14 @@ function Header() {
 
       {/* MOBILNÍ ROZBALOVACÍ MENU */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-20 left-0 w-full bg-[#1A1D2F] border-b border-[#F8F6F0]/10 px-4 py-6 flex flex-col space-y-3 shadow-2xl z-50 animate-fade-in max-h-[calc(100vh-80px)] overflow-y-auto">
+        <div className="md:hidden absolute top-20 left-0 w-full bg-[#0a0e17] border-b border-[#F8F6F0]/10 px-4 py-6 flex flex-col space-y-3 shadow-2xl z-50 animate-fade-in max-h-[calc(100vh-80px)] overflow-y-auto">
           <CartButtonMobile closeMenu={closeMenu} />
 
           <Link to="/audio" onClick={closeMenu} className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition ${currentPath === '/audio' ? 'bg-[#FFB703]/20 text-[#FFB703] font-bold' : 'text-[#F8F6F0]/80'}`}>
             <Volume2 size={18} /> <span>Audio & Příběhy</span>
           </Link>
 
-          <div className="bg-[#1A1D2F] rounded-2xl p-3 border border-[#F8F6F0]/10 space-y-1">
+          <div className="bg-[#131722] rounded-2xl p-3 border border-[#F8F6F0]/10 space-y-1">
             <Link to="/pro-deti" onClick={closeMenu} className="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm font-bold text-[#FFB703]">
               <Baby size={18} /> <span>Pro děti (Přehled)</span>
             </Link>
@@ -248,7 +248,7 @@ function Header() {
             <ShoppingBag size={18} /> <span>E-shop</span>
           </Link>
 
-          <a href="https://generator.nocniknihovna.cz" target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-[#2EC4B6] border border-[#F8F6F0]/10 bg-[#1A1D2F]">
+          <a href="https://generator.nocniknihovna.cz" target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-[#2EC4B6] border border-[#F8F6F0]/10 bg-[#131722]">
             <Sparkles size={18} /> <span>Generátor pohádek na míru</span>
           </a>
         </div>
@@ -262,7 +262,7 @@ export default function App() {
   return (
     <CartProvider>
       <Router>
-        <div className="min-h-screen text-[#F8F6F0] selection:bg-[#FFB703]/30 selection:text-[#FFB703] flex flex-col bg-[#1A1D2F]">
+        <div className="min-h-screen text-[#F8F6F0] selection:bg-[#FFB703]/30 selection:text-[#FFB703] flex flex-col bg-[#0a0e17]">
           <Header />
           
           <main className="flex-grow max-w-6xl mx-auto w-full px-4 py-8">
@@ -295,7 +295,7 @@ export default function App() {
           </main>
           
           {/* ZÁPATÍ S PŘESNÝMI BARVAMI */}
-          <footer className="border-t border-[#F8F6F0]/10 bg-[#1A1D2F] text-[#F8F6F0]/70 py-10 text-center text-xs mt-auto px-4 space-y-6">
+          <footer className="border-t border-[#F8F6F0]/10 bg-[#0a0e17] text-[#F8F6F0]/70 py-10 text-center text-xs mt-auto px-4 space-y-6">
             <div className="space-y-1.5">
               <p className="text-[#F8F6F0]/90 font-medium">© {new Date().getFullYear()} Noční Knihovna. Všechna práva vyhrazená.</p>
               <p className="text-[#F8F6F0]/60 max-w-2xl mx-auto leading-relaxed">
