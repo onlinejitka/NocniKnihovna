@@ -2,11 +2,13 @@
 import Layout from '../layouts/Layout.astro';
 import EpisodeCard from '../components/EpisodeCard.astro';
 import { getLatestEpisode, getEpisodes, getArticles } from '../lib/notion';
-import { Play, Sparkles, ArrowRight, BookOpen, ExternalLink, Headphones } from 'lucide-astro';
+import { Play, ArrowRight, BookOpen, ExternalLink, Headphones } from 'lucide-astro';
 
 // Volání Notion API v reálném čase během requestu
 const latestEpisode = await getLatestEpisode();
-const recentEpisodes = (await getEpisodes(4)).slice(1); // Další 3 po té nejnovější
+const allEpisodes = await getEpisodes(4);
+// Pokud máme více než 1 díl, vezmeme další do mřížky; pokud je zatím 1, zobrazíme ho i v přehledu
+const recentEpisodes = allEpisodes.length > 1 ? allEpisodes.slice(1) : allEpisodes;
 const recentArticles = await getArticles(3);
 ---
 
@@ -15,8 +17,8 @@ const recentArticles = await getArticles(3);
   <section class="relative pt-12 pb-20 md:py-28 overflow-hidden border-b border-night-700/40">
     <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
       
-      <!-- Typografická a interaktivní část -->
-      
+      <!-- Typografická a interaktivní část (Levý sloupec) -->
+      <div class="lg:col-span-7 space-y-6">
 
         <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-parchment-200 leading-[1.15] font-semibold">
           Dějiny nejsou učebnice. <br />
@@ -27,7 +29,7 @@ const recentArticles = await getArticles(3);
           Otevírám pro vás zapomenuté kroniky, smolné knihy a staré prameny bez školní rigidity. Naslouchejte hlasům minulosti zprostředkovaným tak, že si je budete pamatovat.
         </p>
 
-<!-- Karta nejnovější epizody (Hero Mini-Player) -->
+        <!-- Karta nejnovější epizody (Hero Mini-Player) -->
         {latestEpisode && (
           <div class="bg-night-800/80 border border-amber-brass/40 rounded-xl p-5 shadow-2xl backdrop-blur relative overflow-hidden group">
             <div class="absolute top-0 right-0 w-32 h-32 bg-amber-candle/5 rounded-full blur-2xl pointer-events-none"></div>
@@ -48,14 +50,16 @@ const recentArticles = await getArticles(3);
               >
                 <Play class="w-3.5 h-3.5 fill-current" /> Přehrát záznam
               </a>
-              <a 
-                href={latestEpisode.spotifyUrl} 
-                target="_blank" 
-                rel="noopener" 
-                class="text-parchment-400 hover:text-parchment-200 text-xs flex items-center gap-1.5 font-medium transition"
-              >
-                Poslouchat na Spotify <ExternalLink class="w-3 h-3" />
-              </a>
+              {latestEpisode.spotifyUrl && latestEpisode.spotifyUrl !== '#' && (
+                <a 
+                  href={latestEpisode.spotifyUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  class="text-parchment-400 hover:text-parchment-200 text-xs flex items-center gap-1.5 font-medium transition"
+                >
+                  Poslouchat na Spotify <ExternalLink class="w-3 h-3" />
+                </a>
+              )}
             </div>
           </div>
         )}
@@ -70,7 +74,7 @@ const recentArticles = await getArticles(3);
         </div>
       </div>
 
-      <!-- Vizuální atmosférická část -->
+      <!-- Vizuální atmosférická část (Pravý sloupec) -->
       <div class="lg:col-span-5 relative">
         <div class="relative mx-auto max-w-md lg:max-w-none">
           <div class="absolute -inset-1.5 bg-gradient-to-r from-amber-brass/20 to-amber-candle/20 rounded-2xl blur-lg"></div>
@@ -137,11 +141,11 @@ const recentArticles = await getArticles(3);
               <span class="text-xs text-parchment-600 block mb-2">{art.date}</span>
               <h3 class="font-serif text-xl text-parchment-200 hover:text-amber-candle transition mb-3">
                 {art.seznamUrl ? (
-                  <a href={art.seznamUrl} target="_blank" rel="noopener" class="inline-flex items-baseline gap-1">
+                  <a href={art.seznamUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-baseline gap-1">
                     {art.title} <ExternalLink class="w-3 h-3 self-center text-parchment-600" />
                   </a>
                 ) : (
-                  <a href={`/clanky/${art.id}`}>{art.title}</a>
+                  <a href={`/clanky/${art.slug}`}>{art.title}</a>
                 )}
               </h3>
               <p class="text-parchment-400 text-sm font-light leading-relaxed line-clamp-3 mb-4">
@@ -149,11 +153,11 @@ const recentArticles = await getArticles(3);
               </p>
             </div>
             {art.seznamUrl ? (
-              <a href={art.seznamUrl} target="_blank" rel="noopener" class="text-xs text-amber-candle uppercase tracking-wider font-semibold inline-flex items-center gap-1">
+              <a href={art.seznamUrl} target="_blank" rel="noopener noreferrer" class="text-xs text-amber-candle uppercase tracking-wider font-semibold inline-flex items-center gap-1">
                 Číst na Seznam Médium <ArrowRight class="w-3 h-3" />
               </a>
             ) : (
-              <a href={`/clanky/${art.id}`} class="text-xs text-amber-candle uppercase tracking-wider font-semibold inline-flex items-center gap-1">
+              <a href={`/clanky/${art.slug}`} class="text-xs text-amber-candle uppercase tracking-wider font-semibold inline-flex items-center gap-1">
                 Číst celou esej <ArrowRight class="w-3 h-3" />
               </a>
             )}
