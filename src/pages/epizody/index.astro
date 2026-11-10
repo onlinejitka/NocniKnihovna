@@ -1,25 +1,236 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import EpisodeCard from '../../components/EpisodeCard.astro';
 import { getEpisodes } from '../../lib/notion';
+import { 
+  Compass, 
+  Search, 
+  Clock, 
+  Calendar, 
+  Play, 
+  Filter, 
+  BookX, 
+  Tag
+} from 'lucide-astro';
 
-const episodes = await getEpisodes();
+const episodes = await getEpisodes(100);
+
+// Unikátní kategorie a staletí získané přímo z dat
+const categories = ["Vše", "Magie", "Kriminalita", "Všední den", "Zvyky"];
+const centuries = ["Všechna staletí", "15. století", "16. století", "17. století", "18. století", "19. století", "Průřezové"];
 ---
 
-<Layout title="Archiv záznamů" description="Kompletní seznam nahrávek a archivních sond archivářky Jitky.">
-  <div class="max-w-6xl mx-auto px-6 py-16">
-    <header class="mb-12">
-      <span class="text-xs uppercase tracking-widest text-amber-candle font-medium block mb-2">Registratura</span>
-      <h1 class="font-serif text-4xl text-parchment-200 mb-4">Archiv badatelny</h1>
-      <p class="text-parchment-400 font-light max-w-2xl">
-        Procházejte nahrávky podle staletí a tématiky. Každý spis obsahuje původní prameny, časové značky a textový přepis.
+<Layout 
+  title="Archiv záznamů | Katalog epizod" 
+  description="Kompletní archiv nahrávek Noční Knihovny. Procházejte dochované spisy podle staletí, témat a kriminálních či folklorních fondů."
+>
+  <div class="max-w-6xl mx-auto px-6 py-12 md:py-20 space-y-12">
+    
+    <!-- ZÁHLAVÍ STRÁNKY -->
+    <header class="border-b border-night-700/60 pb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-candle/10 border border-amber-candle/30 text-amber-candle text-xs tracking-wider uppercase font-medium mb-4">
+        <Compass class="w-3.5 h-3.5" />
+        <span>Registratura fondů</span>
+      </div>
+      <h1 class="font-serif text-4xl sm:text-5xl text-parchment-200 mb-4 font-semibold">
+        Archiv badatelny
+      </h1>
+      <p class="text-parchment-400 font-light text-base sm:text-lg max-w-2xl leading-relaxed">
+        Vstupte do regálů s nahrávkami. Filtrujte podle epochy, povahy dochovaných listin nebo hledejte konkrétní události a postavy.
       </p>
     </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {episodes.map((ep) => (
-        <EpisodeCard episode={ep} />
+    <!-- OVLÁDACÍ PANEL: VYHLEDÁVÁNÍ A FILTRY -->
+    <section class="space-y-6 bg-night-800/40 border border-night-700/70 p-6 rounded-2xl backdrop-blur-sm">
+      
+      <!-- Hledání a výběr staletí -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+        <div class="md:col-span-8 relative">
+          <label for="searchInput" class="sr-only">Hledat v záznamech</label>
+          <Search class="w-4 h-4 text-parchment-600 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Hledat v názvech, osobách a anotacích..." 
+            class="w-full bg-night-900 border border-night-700 rounded-xl pl-11 pr-4 py-3 text-sm text-parchment-200 placeholder:text-parchment-600 focus:outline-none focus:border-amber-candle/60 transition"
+          />
+        </div>
+
+        <div class="md:col-span-4">
+          <label for="centurySelect" class="sr-only">Vyberte staletí</label>
+          <select 
+            id="centurySelect" 
+            class="w-full bg-night-900 border border-night-700 rounded-xl px-4 py-3 text-sm text-parchment-300 focus:outline-none focus:border-amber-candle/60 transition cursor-pointer"
+          >
+            {centuries.map((century) => (
+              <option value={century === "Všechna staletí" ? "" : century}>{century}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <!-- Tlačítka témat (Kategorie) -->
+      <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-night-700/50">
+        <span class="text-xs uppercase tracking-wider text-parchment-600 font-medium mr-2 flex items-center gap-1.5">
+          <Filter class="w-3.5 h-3.5 text-amber-candle" /> Fond:
+        </span>
+        {categories.map((cat, idx) => (
+          <button 
+            type="button"
+            data-category-filter={cat === "Vše" ? "" : cat}
+            class={`category-btn text-xs px-3.5 py-1.5 rounded-full border transition duration-200 ${
+              idx === 0 
+                ? "bg-amber-candle text-night-950 border-amber-candle font-medium active" 
+                : "border-night-700 text-parchment-400 hover:text-amber-candle hover:border-amber-candle/40"
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      <!-- Počítadlo výsledků -->
+      <div class="text-xs text-parchment-600 font-mono flex items-center justify-between pt-1">
+        <span>Zobrazeno záznamů: <span id="visibleCount" class="text-amber-candle font-semibold">{episodes.length}</span> z {episodes.length}</span>
+      </div>
+    </section>
+
+    <!-- MŘÍŽKA EPIZOD -->
+    <div id="episodesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {episodes.map((ep, idx) => (
+        <article 
+          class="episode-card group bg-night-800/50 border border-night-700/80 rounded-2xl p-6 transition duration-300 hover:border-amber-candle/40 hover:bg-night-800 flex flex-col justify-between"
+          data-title={ep.title.toLowerCase()}
+          data-annotation={ep.annotation.toLowerCase()}
+          data-category={ep.category}
+          data-century={ep.century}
+        >
+          <div>
+            <!-- Záhlaví karty: Číslo svazku, kategorie, stopáž -->
+            <div class="flex items-center justify-between text-xs text-parchment-600 mb-4 pb-3 border-b border-night-700/40">
+              <span class="font-mono text-amber-candle/70">
+                #{String(episodes.length - idx).padStart(3, '0')}
+              </span>
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-medium px-2 py-0.5 rounded bg-night-900 border border-night-700 text-parchment-300">
+                  {ep.century}
+                </span>
+                <span class="flex items-center gap-1 font-mono text-[11px]">
+                  <Clock class="w-3 h-3 text-amber-brass" />
+                  {ep.duration}
+                </span>
+              </div>
+            </div>
+
+            <!-- Titulek -->
+            <h2 class="font-serif text-xl text-parchment-200 mb-3 group-hover:text-amber-candle transition leading-snug">
+              <a href={`/epizody/${ep.id}`}>
+                {ep.title}
+              </a>
+            </h2>
+
+            <!-- Perex -->
+            <p class="text-parchment-400 text-xs sm:text-sm line-clamp-3 font-light leading-relaxed mb-6">
+              {ep.annotation}
+            </p>
+          </div>
+
+          <!-- Spodní lišta karty -->
+          <div class="pt-4 border-t border-night-700/50 flex items-center justify-between text-xs">
+            <span class="text-parchment-600 flex items-center gap-1.5 font-mono">
+              <Calendar class="w-3 h-3 text-amber-brass" />
+              {ep.date}
+            </span>
+            <a 
+              href={`/epizody/${ep.id}`} 
+              class="text-amber-candle font-medium inline-flex items-center gap-1.5 group-hover:translate-x-1 transition duration-200"
+            >
+              Otevřít spis <Play class="w-3 h-3 fill-current" />
+            </a>
+          </div>
+        </article>
       ))}
     </div>
+
+    <!-- STAV PŘI ŽÁDNÉM NÁLEZU -->
+    <div id="noResults" class="hidden text-center py-20 border border-dashed border-night-700 rounded-2xl bg-night-800/20">
+      <BookX class="w-12 h-12 text-parchment-600 mx-auto mb-4" />
+      <h3 class="font-serif text-xl text-parchment-200 mb-2">V tomto fondu nebyl nalezen žádný záznam</h3>
+      <p class="text-xs text-parchment-600 font-light max-w-sm mx-auto">
+        Zkuste upravit klíčové slovo ve vyhledávači nebo zvolte obecnější kombinaci staletí a tématu.
+      </p>
+    </div>
+
   </div>
 </Layout>
+
+<script>
+  // Klientská logika pro okamžité filtrování
+  const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+  const centurySelect = document.getElementById('centurySelect') as HTMLSelectElement;
+  const categoryButtons = document.querySelectorAll('.category-btn');
+  const cards = document.querySelectorAll('.episode-card');
+  const noResults = document.getElementById('noResults');
+  const visibleCount = document.getElementById('visibleCount');
+
+  let activeCategory = '';
+  let activeCentury = '';
+  let searchQuery = '';
+
+  function filterCards() {
+    let visible = 0;
+
+    cards.forEach((cardEl) => {
+      const card = cardEl as HTMLElement;
+      const title = card.getAttribute('data-title') || '';
+      const annotation = card.getAttribute('data-annotation') || '';
+      const category = card.getAttribute('data-category') || '';
+      const century = card.getAttribute('data-century') || '';
+
+      const matchesSearch = !searchQuery || title.includes(searchQuery) || annotation.includes(searchQuery);
+      const matchesCategory = !activeCategory || category.toLowerCase() === activeCategory.toLowerCase();
+      const matchesCentury = !activeCentury || century === activeCentury;
+
+      if (matchesSearch && matchesCategory && matchesCentury) {
+        card.style.display = 'flex';
+        visible++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    if (visibleCount) visibleCount.textContent = String(visible);
+    if (noResults) {
+      if (visible === 0) {
+        noResults.classList.remove('hidden');
+      } else {
+        noResults.classList.add('hidden');
+      }
+    }
+  }
+
+  // Posluchače událostí
+  searchInput?.addEventListener('input', (e) => {
+    searchQuery = (e.target as HTMLInputElement).value.toLowerCase().trim();
+    filterCards();
+  });
+
+  centurySelect?.addEventListener('change', (e) => {
+    activeCentury = (e.target as HTMLSelectElement).value;
+    filterCards();
+  });
+
+  categoryButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      categoryButtons.forEach((b) => {
+        b.classList.remove('bg-amber-candle', 'text-night-950', 'border-amber-candle', 'font-medium', 'active');
+        b.classList.add('border-night-700', 'text-parchment-400');
+      });
+
+      btn.classList.add('bg-amber-candle', 'text-night-950', 'border-amber-candle', 'font-medium', 'active');
+      btn.classList.remove('border-night-700', 'text-parchment-400');
+
+      activeCategory = btn.getAttribute('data-category-filter') || '';
+      filterCards();
+    });
+  });
+</script>
