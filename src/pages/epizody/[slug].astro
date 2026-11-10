@@ -15,10 +15,14 @@ import {
 const param = Astro.params.slug || Astro.params.id;
 const data = param ? await getEpisodeBySlug(param) : null;
 
+// Pokud návštěvník přišel přes původní ID z Notionu, automaticky jej přesměrujeme na čistý slug
+if (data?.episode && param !== data.episode.slug) {
+  return Astro.redirect(`/epizody/${data.episode.slug}`, 301);
+}
+
 const episode = data?.episode;
 const content = data?.content || "";
 
-// Sousední záznamy pro navigaci
 const allEpisodes = await getEpisodes();
 const currentIndex = episode ? allEpisodes.findIndex((e) => e.id === episode.id) : -1;
 const prevEpisode = currentIndex > 0 ? allEpisodes[currentIndex - 1] : null;
@@ -26,7 +30,7 @@ const nextEpisode = currentIndex >= 0 && currentIndex < allEpisodes.length - 1 ?
 ---
 
 <Layout 
-  title={episode ? `${episode.title} | Noční Knihovna` : "Záznam nenalezen | Noční Knihovna"}
+  title={episode ? episode.title : "Záznam nenalezen"}
   description={episode?.annotation || "Záznam nebyl v badatelně nalezen."}
 >
   <article class="max-w-4xl mx-auto px-6 py-12 md:py-20 space-y-12">
