@@ -1,9 +1,9 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
-import vercel from '@astrojs/vercel/serverless';
+import vercel from '@astrojs/vercel';
 
 export default defineConfig({
-  output: 'server', // Zajistí běh v reálném čase přes serverless funkce na Vercelu
+  output: 'server',
   adapter: vercel({
     webAnalytics: { enabled: true }
   }),
