@@ -8,12 +8,12 @@ const notion = new Client({
 
 const n2m = new NotionToMarkdown({ notionClient: notion });
 
-// Pomocná funkce pro převod českého názvu na čistý URL slug
+// Převod českého textu na čistý URL slug (odstraní diakritiku, mezery nahradí pomlčkami)
 export function slugify(text: string): string {
   return text
     .toString()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // Odstraní háčky a čárky
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9\s-]/g, "")
@@ -44,6 +44,7 @@ export interface Article {
   seznamUrl?: string;
 }
 
+// Pomocná funkce pro bezpečné vytažení textu z vlastností Notionu
 const getPlainText = (property: any): string => {
   if (!property) return "";
   if (property.type === "title" && property.title?.length > 0) {
@@ -55,12 +56,12 @@ const getPlainText = (property: any): string => {
   return "";
 };
 
-// Získání publikovaných epizod
+// Získání všech publikovaných epizod
 export async function getEpisodes(limit?: number): Promise<Episode[]> {
   try {
     const dbId = process.env.NOTION_EPISODES_DB_ID?.trim();
     if (!dbId) {
-      console.error("CHYBA: Není nastaveno NOTION_EPISODES_DB_ID v proměnných prostředí.");
+      console.error("CHYBA: Není nastaveno NOTION_EPISODES_DB_ID.");
       return [];
     }
 
@@ -106,7 +107,13 @@ export async function getEpisodes(limit?: number): Promise<Episode[]> {
   }
 }
 
-// Vyhledání epizody podle slugu a stažení jejího obsahu
+// Získání nejnovější publikované epizody (pro Hero sekci)
+export async function getLatestEpisode(): Promise<Episode | null> {
+  const episodes = await getEpisodes(1);
+  return episodes.length > 0 ? episodes[0] : null;
+}
+
+// Získání detailu konkrétní epizody podle slugu včetně těla textu
 export async function getEpisodeBySlug(slug: string) {
   try {
     const episodes = await getEpisodes();
@@ -129,7 +136,10 @@ export async function getEpisodeBySlug(slug: string) {
 export async function getArticles(limit?: number): Promise<Article[]> {
   try {
     const dbId = process.env.NOTION_ARTICLES_DB_ID?.trim();
-    if (!dbId) return [];
+    if (!dbId) {
+      console.warn("UPOZORNĚNÍ: Není nastaveno NOTION_ARTICLES_DB_ID.");
+      return [];
+    }
 
     const response = await notion.databases.query({
       database_id: dbId,
@@ -168,7 +178,7 @@ export async function getArticles(limit?: number): Promise<Article[]> {
   }
 }
 
-// Vyhledání článku podle slugu
+// Získání detailu konkrétního článku podle slugu
 export async function getArticleBySlug(slug: string) {
   try {
     const articles = await getArticles();
