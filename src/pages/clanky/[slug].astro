@@ -1,43 +1,61 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getArticleBySlug } from '../../lib/notion';
+import { Calendar, ArrowLeft, BookX } from 'lucide-astro';
 
-const { slug } = Astro.params;
+const param = Astro.params.slug || Astro.params.id;
+const data = param ? await getArticleBySlug(param) : null;
 
-if (!slug) {
-  return Astro.redirect('/clanky');
+// Pokud návštěvník přišel přes ID z Notionu, automaticky jej přesměrujeme na slug
+if (data?.article && param !== data.article.slug) {
+  return Astro.redirect(`/clanky/${data.article.slug}`, 301);
 }
 
-const data = await getArticleBySlug(slug);
-
-if (!data) {
-  return Astro.redirect('/404');
-}
-
-const { article, content } = data;
+const article = data?.article;
+const content = data?.content || "";
 ---
 
-<Layout title={article.title} description={article.perex}>
+<Layout 
+  title={article ? article.title : "Článek nenalezen"} 
+  description={article?.perex || "Článek nebyl v badatelně nalezen."}
+>
   <article class="max-w-3xl mx-auto px-6 py-12 md:py-20">
     <a href="/clanky" class="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-parchment-600 hover:text-amber-candle transition mb-8">
       <ArrowLeft class="w-3.5 h-3.5" /> Zpět na Listy z badatelny
     </a>
 
-    <header class="mb-12 border-b border-night-700/60 pb-8">
-      <span class="text-xs text-parchment-600 flex items-center gap-1.5 font-mono mb-3">
-        <Calendar class="w-3.5 h-3.5 text-amber-candle" />
-        {article.date}
-      </span>
-      <h1 class="font-serif text-3xl sm:text-4xl md:text-5xl text-parchment-200 leading-tight mb-6">
-        {article.title}
-      </h1>
-      <p class="text-lg text-parchment-400 font-light italic leading-relaxed">
-        {article.perex}
-      </p>
-    </header>
+    {!article ? (
+      <div class="text-center py-20 border border-dashed border-night-700 rounded-2xl bg-night-800/20 space-y-4">
+        <BookX class="w-12 h-12 text-amber-candle/60 mx-auto" />
+        <h1 class="font-serif text-2xl text-parchment-200">Článek nebyl v badatelně nalezen</h1>
+        <p class="text-parchment-400 text-xs font-light">Záznam byl možná přesunut nebo archivován.</p>
+      </div>
+    ) : (
+      <>
+        <header class="mb-12 border-b border-night-700/60 pb-8">
+          <span class="text-xs text-parchment-600 flex items-center gap-1.5 font-mono mb-3">
+            <Calendar class="w-3.5 h-3.5 text-amber-candle" />
+            {article.date}
+          </span>
+          <h1 class="font-serif text-3xl sm:text-4xl md:text-5xl text-parchment-200 leading-tight mb-6">
+            {article.title}
+          </h1>
+          <p class="text-lg text-parchment-400 font-light italic leading-relaxed">
+            {article.perex}
+          </p>
+        </header>
 
-    <div class="prose prose-invert max-w-none prose-headings:font-serif prose-headings:text-parchment-200 prose-p:text-parchment-400 prose-p:font-light prose-p:leading-relaxed prose-a:text-amber-candle prose-li:text-parchment-400 prose-strong:text-parchment-200 prose-blockquote:border-amber-candle/40 prose-blockquote:text-parchment-300">
-      <Fragment set:html={content} />
-    </div>
+        <div class="prose prose-invert max-w-none 
+          prose-headings:font-serif prose-headings:text-parchment-200 
+          prose-p:text-parchment-400 prose-p:font-light prose-p:leading-relaxed 
+          prose-a:text-amber-candle hover:prose-a:text-amber-300 
+          prose-li:text-parchment-400 
+          prose-strong:text-parchment-200 
+          prose-blockquote:border-amber-candle/40 prose-blockquote:text-parchment-300
+        ">
+          <Fragment set:html={content} />
+        </div>
+      </>
+    )}
   </article>
 </Layout>
