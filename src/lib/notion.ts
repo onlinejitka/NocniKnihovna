@@ -8,6 +8,7 @@ const notion = new Client({
 
 const n2m = new NotionToMarkdown({ notionClient: notion });
 
+// Převod českého textu na čistý URL slug (odstraní háčky, čárky, tečky a mezery nahradí pomlčkou)
 export function slugify(text: string): string {
   return text
     .toString()
@@ -54,21 +55,17 @@ const getPlainText = (property: any): string => {
   return "";
 };
 
+// Získání publikovaných epizod
 export async function getEpisodes(limit?: number): Promise<Episode[]> {
   try {
     const dbId = process.env.NOTION_EPISODES_DB_ID?.trim();
-    if (!dbId) {
-      console.error("CHYBA: Není nastaveno NOTION_EPISODES_DB_ID.");
-      return [];
-    }
+    if (!dbId) return [];
 
     const response = await notion.databases.query({
       database_id: dbId,
       filter: {
         property: "Stav",
-        status: {
-          equals: "Publikováno",
-        },
+        status: { equals: "Publikováno" },
       },
       sorts: [
         {
@@ -109,7 +106,7 @@ export async function getLatestEpisode(): Promise<Episode | null> {
   return episodes.length > 0 ? episodes[0] : null;
 }
 
-// Najde epizodu podle slugu NEBO podle Notion ID
+// Vyhledání epizody (podporuje slug i ID)
 export async function getEpisodeBySlug(param: string) {
   try {
     if (!param) return null;
@@ -141,6 +138,7 @@ export async function getEpisodeBySlug(param: string) {
   }
 }
 
+// Získání publikovaných článků
 export async function getArticles(limit?: number): Promise<Article[]> {
   try {
     const dbId = process.env.NOTION_ARTICLES_DB_ID?.trim();
@@ -150,9 +148,7 @@ export async function getArticles(limit?: number): Promise<Article[]> {
       database_id: dbId,
       filter: {
         property: "Stav",
-        status: {
-          equals: "Publikováno",
-        },
+        status: { equals: "Publikováno" },
       },
       sorts: [
         {
@@ -183,6 +179,7 @@ export async function getArticles(limit?: number): Promise<Article[]> {
   }
 }
 
+// Vyhledání článku (podporuje slug i ID)
 export async function getArticleBySlug(param: string) {
   try {
     if (!param) return null;
