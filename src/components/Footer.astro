@@ -1,0 +1,45 @@
+---
+import { Youtube, Music, Mail, ExternalLink } from "lucide-astro";
+---
+
+<footer class="border-t border-night-700/60 bg-night-950 py-16 text-sm text-parchment-600">
+  <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10">
+    <div class="md:col-span-2">
+      <h4 class="font-serif text-parchment-200 text-lg mb-3">Noční Knihovna</h4>
+      <p class="text-parchment-400 font-light max-w-sm mb-6 leading-relaxed">
+        Prameny, zápisy ze smolných knih a osudy zapomenutých lidí vytažené z regálů archivů. Projekt archivářky Jitky.
+      </p>
+      <div class="flex items-center gap-4 text-parchment-400">
+        <a href="https://youtube.com" target="_blank" rel="noopener" class="hover:text-amber-candle transition" aria-label="YouTube">
+          <Youtube class="w-5 h-5" />
+        </a>
+        <a href="https://spotify.com" target="_blank" rel="noopener" class="hover:text-amber-candle transition" aria-label="Spotify">
+          <Music class="w-5 h-5" />
+        </a>
+      </div>
+    </div>
+
+    <div>
+      <h5 class="text-xs uppercase tracking-wider text-parchment-400 font-medium mb-4">Navigace v archivu</h5>
+      <ul class="space-y-2 font-light">
+        <li><a href="/epizody" class="hover:text-amber-candle transition">Všechny záznamy</a></li>
+        <li><a href="/clanky" class="hover:text-amber-candle transition">Listy z badatelny</a></li>
+        <li><a href="/o-projektu" class="hover:text-amber-candle transition">O Jitce a badatelně</a></li>
+        <li><a href="/podpora" class="hover:text-amber-candle transition">Podpora na Herohero</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h5 class="text-xs uppercase tracking-wider text-parchment-400 font-medium mb-4">Badatelský kontakt</h5>
+      <p class="font-light mb-3">Máte tip na nezpracovaný archivní pramen nebo starou kroniku?</p>
+      <a href="mailto:jitka@nocniknihovna.cz" class="inline-flex items-center gap-1.5 text-amber-candle hover:underline">
+        <Mail class="w-4 h-4" /> jitka@nocniknihovna.cz
+      </a>
+    </div>
+  </div>
+  
+  <div class="max-w-6xl mx-auto px-6 mt-12 pt-6 border-t border-night-700/40 text-xs flex flex-col md:flex-row justify-between items-center gap-4">
+    <p>&copy; {new Date().getFullYear()} Noční Knihovna. Všechna práva vyhrazena.</p>
+    <p class="font-light">Z pramenů zapsala a vypráví archivářka Jitka</p>
+  </div>
+</footer>
