@@ -1,13 +1,18 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getArticleById } from '../../lib/notion';
-import { Calendar, ArrowLeft } from 'lucide-astro';
+import { getArticleBySlug } from '../../lib/notion';
 
-const { id } = Astro.params;
-if (!id) return Astro.redirect('/clanky');
+const { slug } = Astro.params;
 
-const data = await getArticleById(id);
-if (!data) return Astro.redirect('/404');
+if (!slug) {
+  return Astro.redirect('/clanky');
+}
+
+const data = await getArticleBySlug(slug);
+
+if (!data) {
+  return Astro.redirect('/404');
+}
 
 const { article, content } = data;
 ---
