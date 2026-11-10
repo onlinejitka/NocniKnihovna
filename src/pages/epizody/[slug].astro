@@ -1,27 +1,14 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getEpisodeById, getEpisodes } from '../../lib/notion';
-import { 
-  ArrowLeft, 
-  Clock, 
-  Calendar, 
-  Bookmark, 
-  ExternalLink, 
-  FileText, 
-  Share2, 
-  Volume2, 
-  Check, 
-  Sparkles,
-  ChevronRight
-} from 'lucide-astro';
+import { getEpisodeBySlug, getEpisodes } from '../../lib/notion';
 
-const { id } = Astro.params;
+const { slug } = Astro.params;
 
-if (!id) {
+if (!slug) {
   return Astro.redirect('/epizody');
 }
 
-const data = await getEpisodeById(id);
+const data = await getEpisodeBySlug(slug);
 
 if (!data) {
   return Astro.redirect('/404');
