@@ -29,6 +29,29 @@ export interface Article {
   seznamUrl?: string;
 }
 
+export async function getArticleById(id: string) {
+  try {
+    const page: any = await notion.pages.retrieve({ page_id: id });
+    const mdBlocks = await n2m.pageToMarkdown(id);
+    const mdString = n2m.toMarkdownString(mdBlocks);
+    const htmlContent = marked.parse(mdString.parent);
+    const props = page.properties;
+
+    const article: Article = {
+      id: page.id,
+      title: getPlainText(props["Název článku"]),
+      perex: getPlainText(props["Perex"]),
+      date: props["Datum"]?.date?.start || "",
+      seznamUrl: props["Seznam Médium URL"]?.url || "",
+    };
+
+    return { article, content: htmlContent };
+  } catch (error) {
+    console.error(`Chyba při stahování článku ${id}:`, error);
+    return null;
+  }
+}
+
 // Pomocná funkce pro bezpečné vytažení textu
 const getPlainText = (property: any): string => {
   if (!property) return "";
