@@ -1,0 +1,25 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import EpisodeCard from '../../components/EpisodeCard.astro';
+import { getEpisodes } from '../../lib/notion';
+
+const episodes = await getEpisodes();
+---
+
+<Layout title="Archiv záznamů" description="Kompletní seznam nahrávek a archivních sond archivářky Jitky.">
+  <div class="max-w-6xl mx-auto px-6 py-16">
+    <header class="mb-12">
+      <span class="text-xs uppercase tracking-widest text-amber-candle font-medium block mb-2">Registratura</span>
+      <h1 class="font-serif text-4xl text-parchment-200 mb-4">Archiv badatelny</h1>
+      <p class="text-parchment-400 font-light max-w-2xl">
+        Procházejte nahrávky podle staletí a tématiky. Každý spis obsahuje původní prameny, časové značky a textový přepis.
+      </p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {episodes.map((ep) => (
+        <EpisodeCard episode={ep} />
+      ))}
+    </div>
+  </div>
+</Layout>
