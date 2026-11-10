@@ -1,0 +1,241 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { 
+  Scroll, 
+  Volume2, 
+  Users, 
+  Sparkles, 
+  Scale, 
+  BookMarked, 
+  FlaskConical, 
+  Mail, 
+  Youtube, 
+  Music, 
+  Heart, 
+  Send
+} from 'lucide-astro';
+
+const pillars = [
+  {
+    icon: Scroll,
+    title: "Autentické prameny místo dojmů",
+    desc: "Neopisujeme internetové mýty. Každý příběh opíráme o konkrétní archivní nálezy — od synodálních řádů 14. století a smolných knih přes zápisy etnografa Čeňka Zíbrta až po zapomenuté dopisy venkovských učitelů."
+  },
+  {
+    icon: Volume2,
+    title: "Smyslový prožitek a řemeslný zvuk",
+    desc: "Historie není tichá. Má svou vůni duběnkového inkoustu, chlad staré vazby i zvukový doprovod praskajícího ohně, kroků ve zmrzlém sněhu a odbíjení věžních hodin. Zvukový design tvoříme tak, aby byl poslech soustředěným večerním rituálem."
+  },
+  {
+    icon: Users,
+    title: "Člověk v soukolí své doby",
+    desc: "Nezajímají nás statistiky, ale lidské prožívání. Strach ze zimy a neúrody, snaha naklonit si osud drobnou magií, sousedské škorpení i touha po spravedlnosti v těžkých časech."
+  }
+];
+
+const sources = [
+  {
+    num: "01",
+    icon: Sparkles,
+    title: "Etnografické a folklorní sbírky",
+    desc: "Záznamy lidových obyčejů, rituálů, pověr a zapomenutých postav z přelomu 19. a 20. století."
+  },
+  {
+    num: "02",
+    icon: Scale,
+    title: "Kriminální spisy a smolné knihy",
+    desc: "Autentické výslechy, výpovědi na mučidlech a soudní spory, které odhalují syrovou realitu středověkého a raně novověkého života."
+  },
+  {
+    num: "03",
+    icon: BookMarked,
+    title: "Městské a farní kroniky",
+    desc: "Zápisy o neobyčejných úkazech, epidemiích, sporech mezi sousedy i drobných radostech všedního dne."
+  },
+  {
+    num: "04",
+    icon: FlaskConical,
+    title: "Staré lékařské receptáře a bylináře",
+    desc: "Svět, kde se první vědecké pokusy mísily s ochrannou magií a vírou v moc bylin."
+  }
+];
+---
+
+<Layout 
+  title="O badatelně a Jitce" 
+  description="Příběh archivářky Jitky, vztah k historii, pramenům a zvukovému řemeslu Noční Knihovny."
+>
+  <div class="max-w-5xl mx-auto px-6 py-16 md:py-24 space-y-24">
+    
+    <!-- CITACE V ZÁHLAVÍ & ÚVOD -->
+    <section class="text-center max-w-3xl mx-auto">
+      <blockquote class="relative mb-10">
+        <span class="text-6xl text-amber-candle/20 font-serif absolute -top-8 left-1/2 -translate-x-1/2 select-none">“</span>
+        <p class="font-serif italic text-2xl sm:text-3xl md:text-4xl text-parchment-200 leading-snug">
+          „V archivech neodpočívá jen suchý úřední záznam, ale křik, láska a bázeň živých lidí.“
+        </p>
+        <footer class="mt-4 text-xs uppercase tracking-widest text-amber-candle font-medium">
+          — Jitka, archivářka
+        </footer>
+      </blockquote>
+
+      <div class="space-y-6 text-parchment-400 font-light text-base sm:text-lg leading-relaxed text-justify sm:text-center">
+        <p>
+          Dějiny se ve škole často smrsknou na letopočty bitev, jména vladařů a odstavce v učebnicích, které z paměti vyprchají dřív než inkoust na papíře. Skutečná historie se však odehrávala v chladných síních, u vymrzlých pecí, v šeru vesnických světnic a za zavřenými dveřmi městských radnic.
+        </p>
+        <p>
+          <strong class="text-parchment-200 font-medium">Noční Knihovna</strong> vznikla jako tichý prostor pro ty, kteří chtějí naslouchat minulosti z bezprostřední blízkosti — bez patosu, bez školního mentorství a s respektem k lidem, kteří žili před námi.
+        </p>
+      </div>
+    </section>
+
+    <!-- MEDAILONEK: KDO SEDÍ ZA DUBOVÝM STOLEM -->
+    <section class="bg-night-800/50 border border-night-700/80 rounded-2xl p-8 sm:p-12 relative overflow-hidden backdrop-blur-sm">
+      <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-amber-candle/5 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
+        <!-- Portrét archivářky Jitky -->
+        <div class="md:col-span-4 flex flex-col items-center">
+          <div class="relative group">
+            <div class="absolute -inset-1 bg-gradient-to-tr from-amber-brass/40 to-amber-candle/40 rounded-full blur-md opacity-75 group-hover:opacity-100 transition duration-500"></div>
+            <img 
+              src="/images/jitka-portret.jpg" 
+              alt="Archivářka Jitka při studiu pramenů" 
+              class="relative w-48 h-48 sm:w-56 sm:h-56 rounded-full object-cover border-2 border-amber-candle/30 shadow-2xl"
+            />
+          </div>
+          <span class="text-xs uppercase tracking-widest text-parchment-600 mt-4 font-mono">Archivářka & tvůrkyně</span>
+        </div>
+
+        <!-- Text o autorce -->
+        <div class="md:col-span-8 space-y-5">
+          <span class="text-xs uppercase tracking-widest text-amber-candle font-semibold block">Hlas a střih badatelny</span>
+          <h2 class="font-serif text-2xl sm:text-3xl text-parchment-200">Kdo sedí za dubovým stolem</h2>
+          
+          <p class="text-parchment-400 font-light leading-relaxed">
+            Jsem Jitka. Dlouhá léta pracuji jako střihačka a tvůrkyně audiovizuálního obsahu, kde mě řemeslo naučilo dvěma zásadním věcem: <strong class="text-parchment-300 font-normal">trpělivosti s detailem</strong> a <strong class="text-parchment-300 font-normal">úctě ke zvuku</strong>.
+          </p>
+          <p class="text-parchment-400 font-light leading-relaxed">
+            V Noční Knihovně propojuji svou vášeň pro archivní prameny, staré tisky a folklor s precizní prací se zvukem. Každá epizoda vzniká od stolu v noční badatelně — jako rituál, kdy utichne denní shon, rozsvítí se lampa a zažloutlé stránky kronik znovu promluví hlasem těch, na které se mělo zapomenout.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TŘI PILÍŘE: NA ČEM BADATELNA STOJÍ -->
+    <section class="space-y-10">
+      <div class="text-center max-w-xl mx-auto">
+        <span class="text-xs uppercase tracking-widest text-amber-candle font-semibold block mb-2">Hodnoty a metodika</span>
+        <h2 class="font-serif text-3xl text-parchment-200">Na čem badatelna stojí</h2>
+        <p class="text-parchment-400 text-sm font-light mt-3">
+          Každé vyprávění, které v badatelně otevřeme, stojí na třech pevných pilířích:
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {pillars.map((pillar) => (
+          <div class="bg-night-800/40 border border-night-700/70 hover:border-amber-candle/30 rounded-xl p-8 flex flex-col justify-between transition duration-300">
+            <div>
+              <div class="w-12 h-12 rounded-lg bg-amber-candle/10 border border-amber-candle/20 text-amber-candle flex items-center justify-center mb-6">
+                <pillar.icon class="w-6 h-6" />
+              </div>
+              <h3 class="font-serif text-xl text-parchment-200 mb-4">{pillar.title}</h3>
+              <p class="text-parchment-400 text-sm font-light leading-relaxed">{pillar.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ODKUD ČERPÁME (FONTY & KATEGORIE) -->
+    <section class="space-y-10 border-t border-night-700/60 pt-16">
+      <div class="text-center max-w-xl mx-auto">
+        <span class="text-xs uppercase tracking-widest text-amber-candle font-semibold block mb-2">Archivní fondy</span>
+        <h2 class="font-serif text-3xl text-parchment-200">Odkud čerpáme</h2>
+        <p class="text-parchment-400 text-sm font-light mt-3">
+          Fondy Noční Knihovny jsou otevřené všem epochám, kde zanechalo lidské pero svou stopu:
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {sources.map((src) => (
+          <div class="border border-night-700/60 bg-night-950/40 p-6 rounded-xl flex items-start gap-4">
+            <span class="font-mono text-xs text-amber-candle/60 px-2 py-1 rounded bg-night-800 border border-night-700">
+              {src.num}
+            </span>
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <src.icon class="w-4 h-4 text-amber-candle" />
+                <h3 class="font-serif text-lg text-parchment-200">{src.title}</h3>
+              </div>
+              <p class="text-parchment-400 text-xs sm:text-sm font-light leading-relaxed">
+                {src.desc}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- MÁTE TIP NA ZAPOMENUTÝ PRAMEN? + ODKAZY -->
+    <section class="bg-gradient-to-b from-night-800/80 to-night-950 border border-amber-brass/30 rounded-2xl p-8 sm:p-12 text-center max-w-3xl mx-auto shadow-2xl relative">
+      <div class="w-12 h-12 rounded-full border border-amber-candle/30 bg-night-900 text-amber-candle flex items-center justify-center mx-auto mb-6 shadow-inner">
+        <Send class="w-5 h-5" />
+      </div>
+
+      <h2 class="font-serif text-2xl sm:text-3xl text-parchment-200 mb-4">
+        Máte tip na zapomenutý pramen?
+      </h2>
+
+      <div class="space-y-4 text-parchment-400 font-light text-sm sm:text-base leading-relaxed mb-8 max-w-2xl mx-auto">
+        <p>
+          Badatelna nežije jen z velkých archivů. Ty nejzajímavější lidské osudy často odpočívají na zaprášených půdách, ve starých rodinných dopisech, v ručně psaných kuchařkách po prababičkách nebo v lokálních pověstech vašeho kraje.
+        </p>
+        <p class="text-parchment-300">
+          Pokud máte v rukou starý dokument, neobvyklý zápis z kroniky nebo rodinnou vzpomínku, která by si zasloužila zaznít v Noční Knihovně, napište mi.
+        </p>
+      </div>
+
+      <!-- Kontaktní schránka -->
+      <div class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-night-900 border border-night-700 text-amber-candle text-sm font-mono mb-10 hover:border-amber-candle transition">
+        <Mail class="w-4 h-4" />
+        <a href="mailto:badatelna@nocniknihovna.cz" class="hover:underline">badatelna@nocniknihovna.cz</a>
+      </div>
+
+      <!-- Kanály & Podpora -->
+      <div class="pt-8 border-t border-night-700/60 flex flex-wrap justify-center items-center gap-6 sm:gap-8 text-xs tracking-wider uppercase">
+        <a 
+          href="https://youtube.com" 
+          target="_blank" 
+          rel="noopener" 
+          class="text-parchment-400 hover:text-amber-candle flex items-center gap-1.5 transition"
+        >
+          <Youtube class="w-4 h-4 text-red-400" /> YouTube
+        </a>
+        <a 
+          href="https://spotify.com" 
+          target="_blank" 
+          rel="noopener" 
+          class="text-parchment-400 hover:text-amber-candle flex items-center gap-1.5 transition"
+        >
+          <Music class="w-4 h-4 text-green-400" /> Spotify
+        </a>
+        <a 
+          href="https://podcasts.apple.com" 
+          target="_blank" 
+          rel="noopener" 
+          class="text-parchment-400 hover:text-amber-candle flex items-center gap-1.5 transition"
+        >
+          <Music class="w-4 h-4 text-purple-400" /> Apple Podcasts
+        </a>
+        <a 
+          href="/podpora" 
+          class="text-amber-candle font-medium hover:text-amber-300 flex items-center gap-1.5 transition"
+        >
+          <Heart class="w-4 h-4 fill-current text-amber-candle" /> Čtenářský kruh
+        </a>
+      </div>
+    </section>
+
+  </div>
+</Layout>
