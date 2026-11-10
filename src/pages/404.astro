@@ -1,0 +1,24 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { BookX, ArrowLeft } from 'lucide-astro';
+---
+
+<Layout title="Svazek nenalezen | 404">
+  <div class="max-w-2xl mx-auto px-6 py-28 text-center space-y-6">
+    <div class="w-16 h-16 rounded-full border border-amber-candle/30 bg-night-800 text-amber-candle flex items-center justify-center mx-auto mb-4">
+      <BookX class="w-8 h-8" />
+    </div>
+    <h1 class="font-serif text-4xl text-parchment-200 font-semibold">Tato stránka chybí v rejstříku</h1>
+    <p class="text-parchment-400 font-light text-base leading-relaxed">
+      Hledaná stránka buď nikdy neexistovala, nebo byla archivována pod jiným signaturou.
+    </p>
+    <div class="pt-4">
+      <a 
+        href="/" 
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-amber-candle text-night-950 font-semibold text-xs uppercase tracking-wider hover:bg-amber-300 transition"
+      >
+        <ArrowLeft class="w-4 h-4" /> Návrat do badatelny
+      </a>
+    </div>
+  </div>
+</Layout>
