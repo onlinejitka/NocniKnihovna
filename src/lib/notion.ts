@@ -8,8 +8,22 @@ const notion = new Client({
 
 const n2m = new NotionToMarkdown({ notionClient: notion });
 
+// Pomocná funkce pro převod českého názvu na čistý URL slug
+export function slugify(text: string): string {
+  return text
+    .toString()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Odstraní háčky a čárky
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/[\s_]+/g, "-")
+    .replace(/-+/g, "-");
+}
+
 export interface Episode {
   id: string;
+  slug: string;
   title: string;
   annotation: string;
   status: string;
@@ -23,36 +37,13 @@ export interface Episode {
 
 export interface Article {
   id: string;
+  slug: string;
   title: string;
   perex: string;
   date: string;
   seznamUrl?: string;
 }
 
-export async function getArticleById(id: string) {
-  try {
-    const page: any = await notion.pages.retrieve({ page_id: id });
-    const mdBlocks = await n2m.pageToMarkdown(id);
-    const mdString = n2m.toMarkdownString(mdBlocks);
-    const htmlContent = marked.parse(mdString.parent);
-    const props = page.properties;
-
-    const article: Article = {
-      id: page.id,
-      title: getPlainText(props["Název článku"]),
-      perex: getPlainText(props["Perex"]),
-      date: props["Datum"]?.date?.start || "",
-      seznamUrl: props["Seznam Médium URL"]?.url || "",
-    };
-
-    return { article, content: htmlContent };
-  } catch (error) {
-    console.error(`Chyba při stahování článku ${id}:`, error);
-    return null;
-  }
-}
-
-// Pomocná funkce pro bezpečné vytažení textu
 const getPlainText = (property: any): string => {
   if (!property) return "";
   if (property.type === "title" && property.title?.length > 0) {
@@ -67,8 +58,14 @@ const getPlainText = (property: any): string => {
 // Získání publikovaných epizod
 export async function getEpisodes(limit?: number): Promise<Episode[]> {
   try {
+    const dbId = process.env.NOTION_EPISODES_DB_ID?.trim();
+    if (!dbId) {
+      console.error("CHYBA: Není nastaveno NOTION_EPISODES_DB_ID v proměnných prostředí.");
+      return [];
+    }
+
     const response = await notion.databases.query({
-      database_id: process.env.NOTION_EPISODES_DB_ID as string,
+      database_id: dbId,
       filter: {
         property: "Stav",
         status: {
@@ -81,14 +78,18 @@ export async function getEpisodes(limit?: number): Promise<Episode[]> {
           direction: "descending",
         },
       ],
-      page_size: limit || 50,
+      page_size: limit || 100,
     });
 
     return response.results.map((page: any) => {
       const props = page.properties;
+      const title = getPlainText(props["Název epizody"]) || "Bez názvu";
+      const manualSlug = getPlainText(props["Slug"]);
+
       return {
         id: page.id,
-        title: getPlainText(props["Název epizody"]),
+        slug: manualSlug ? slugify(manualSlug) : slugify(title),
+        title,
         annotation: getPlainText(props["Anotace"]),
         status: props["Stav"]?.status?.name || "",
         category: props["Kategorie"]?.multi_select?.[0]?.name || "Kronika",
@@ -96,55 +97,42 @@ export async function getEpisodes(limit?: number): Promise<Episode[]> {
         date: props["Datum publikace"]?.date?.start || "",
         youtubeId: getPlainText(props["YouTube ID"]),
         spotifyUrl: props["Spotify URL"]?.url || "#",
-        duration: getPlainText(props["Stopáž"]) || "45:00",
+        duration: getPlainText(props["Stopáž"]) || "00:00",
       };
     });
-  } catch (error) {
-    console.error("Chyba při stahování epizod z Notionu:", error);
+  } catch (error: any) {
+    console.error("CHYBA NOTION API (getEpisodes):", error?.message || error);
     return [];
   }
 }
 
-// Získání nejnovější epizody pro Hero sekci
-export async function getLatestEpisode(): Promise<Episode | null> {
-  const episodes = await getEpisodes(1);
-  return episodes.length > 0 ? episodes[0] : null;
-}
-
-// Získání obsahu a metadat jedné konkrétní epizody
-export async function getEpisodeById(id: string) {
+// Vyhledání epizody podle slugu a stažení jejího obsahu
+export async function getEpisodeBySlug(slug: string) {
   try {
-    const page: any = await notion.pages.retrieve({ page_id: id });
-    const mdBlocks = await n2m.pageToMarkdown(id);
+    const episodes = await getEpisodes();
+    const episode = episodes.find((ep) => ep.slug === slug);
+
+    if (!episode) return null;
+
+    const mdBlocks = await n2m.pageToMarkdown(episode.id);
     const mdString = n2m.toMarkdownString(mdBlocks);
     const htmlContent = marked.parse(mdString.parent);
 
-    const props = page.properties;
-    const episode: Episode = {
-      id: page.id,
-      title: getPlainText(props["Název epizody"]),
-      annotation: getPlainText(props["Anotace"]),
-      status: props["Stav"]?.status?.name || "",
-      category: props["Kategorie"]?.multi_select?.[0]?.name || "Archiv",
-      century: props["Staletí"]?.select?.name || "Neznámé",
-      date: props["Datum publikace"]?.date?.start || "",
-      youtubeId: getPlainText(props["YouTube ID"]),
-      spotifyUrl: props["Spotify URL"]?.url || "#",
-      duration: getPlainText(props["Stopáž"]) || "00:00",
-    };
-
     return { episode, content: htmlContent };
-  } catch (error) {
-    console.error(`Chyba při stahování epizody ${id}:`, error);
+  } catch (error: any) {
+    console.error(`CHYBA při stahování detailu epizody (${slug}):`, error?.message || error);
     return null;
   }
 }
 
-// Získání článků pro blog a homepage
+// Získání publikovaných článků
 export async function getArticles(limit?: number): Promise<Article[]> {
   try {
+    const dbId = process.env.NOTION_ARTICLES_DB_ID?.trim();
+    if (!dbId) return [];
+
     const response = await notion.databases.query({
-      database_id: process.env.NOTION_ARTICLES_DB_ID as string,
+      database_id: dbId,
       filter: {
         property: "Stav",
         status: {
@@ -157,21 +145,44 @@ export async function getArticles(limit?: number): Promise<Article[]> {
           direction: "descending",
         },
       ],
-      page_size: limit || 10,
+      page_size: limit || 50,
     });
 
     return response.results.map((page: any) => {
       const props = page.properties;
+      const title = getPlainText(props["Název článku"]) || "Bez názvu";
+      const manualSlug = getPlainText(props["Slug"]);
+
       return {
         id: page.id,
-        title: getPlainText(props["Název článku"]),
+        slug: manualSlug ? slugify(manualSlug) : slugify(title),
+        title,
         perex: getPlainText(props["Perex"]),
         date: props["Datum"]?.date?.start || "",
         seznamUrl: props["Seznam Médium URL"]?.url || "",
       };
     });
-  } catch (error) {
-    console.error("Chyba při načítání článků:", error);
+  } catch (error: any) {
+    console.error("CHYBA NOTION API (getArticles):", error?.message || error);
     return [];
+  }
+}
+
+// Vyhledání článku podle slugu
+export async function getArticleBySlug(slug: string) {
+  try {
+    const articles = await getArticles();
+    const article = articles.find((art) => art.slug === slug);
+
+    if (!article) return null;
+
+    const mdBlocks = await n2m.pageToMarkdown(article.id);
+    const mdString = n2m.toMarkdownString(mdBlocks);
+    const htmlContent = marked.parse(mdString.parent);
+
+    return { article, content: htmlContent };
+  } catch (error: any) {
+    console.error(`CHYBA při stahování článku (${slug}):`, error?.message || error);
+    return null;
   }
 }
