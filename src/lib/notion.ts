@@ -8,7 +8,6 @@ const notion = new Client({
 
 const n2m = new NotionToMarkdown({ notionClient: notion });
 
-// Převod českého textu na čistý URL slug (odstraní diakritiku, tečky a mezery)
 export function slugify(text: string): string {
   return text
     .toString()
@@ -55,7 +54,6 @@ const getPlainText = (property: any): string => {
   return "";
 };
 
-// Získání publikovaných epizod
 export async function getEpisodes(limit?: number): Promise<Episode[]> {
   try {
     const dbId = process.env.NOTION_EPISODES_DB_ID?.trim();
@@ -106,60 +104,43 @@ export async function getEpisodes(limit?: number): Promise<Episode[]> {
   }
 }
 
-// Získání nejnovější epizody
 export async function getLatestEpisode(): Promise<Episode | null> {
   const episodes = await getEpisodes(1);
   return episodes.length > 0 ? episodes[0] : null;
 }
 
-// Vyhledání epizody podle slugu NEBO podle ID (univerzální)
-export async function getEpisodeBySlug(identifier: string) {
+// Najde epizodu podle slugu NEBO podle Notion ID
+export async function getEpisodeBySlug(param: string) {
   try {
-    if (!identifier) return null;
-
+    if (!param) return null;
     const episodes = await getEpisodes();
-    const cleanParam = slugify(decodeURIComponent(identifier));
-    const rawParam = identifier.trim().toLowerCase();
+    const cleanParam = param.trim().toLowerCase();
+    const normalizedParam = cleanParam.replace(/-/g, "");
 
-    // Hledá shodu podle slugu, vyčištěného slugu i původního Notion ID
     const episode = episodes.find((ep) => {
       const epSlug = ep.slug.toLowerCase();
-      const epIdRaw = ep.id.toLowerCase();
-      const epIdClean = ep.id.replace(/-/g, "").toLowerCase();
-      const matchParamRaw = rawParam.replace(/-/g, "");
-
-      return (
-        epSlug === rawParam ||
-        epSlug === cleanParam ||
-        epIdRaw === rawParam ||
-        epIdClean === matchParamRaw
-      );
+      const epIdNormalized = ep.id.replace(/-/g, "").toLowerCase();
+      return epSlug === cleanParam || epIdNormalized === normalizedParam;
     });
 
-    if (!episode) {
-      console.warn(`Epizoda pro identifikátor "${identifier}" nebyla v Notionu nalezena.`);
-      return null;
-    }
+    if (!episode) return null;
 
-    // Bezpečné načtení obsahu těla (pokud je v Notionu prázdno, nespadne)
     let htmlContent = "";
     try {
       const mdBlocks = await n2m.pageToMarkdown(episode.id);
       const mdString = n2m.toMarkdownString(mdBlocks);
       htmlContent = (await marked.parse(mdString?.parent || "")) as string;
-    } catch (contentError: any) {
-      console.warn(`Poznámka k tělu epizody ${episode.title}:`, contentError?.message || contentError);
-      htmlContent = "<p class='italic text-parchment-600'>K tomuto spisu zatím nebyl připojen textový přepis.</p>";
+    } catch {
+      htmlContent = "<p class='italic text-parchment-600'>K tomuto záznamu zatím nebyl přiložen textový přepis.</p>";
     }
 
     return { episode, content: htmlContent };
   } catch (error: any) {
-    console.error(`CHYBA při vyhledávání epizody (${identifier}):`, error?.message || error);
+    console.error(`CHYBA při stahování epizody (${param}):`, error?.message || error);
     return null;
   }
 }
 
-// Získání publikovaných článků
 export async function getArticles(limit?: number): Promise<Article[]> {
   try {
     const dbId = process.env.NOTION_ARTICLES_DB_ID?.trim();
@@ -202,24 +183,17 @@ export async function getArticles(limit?: number): Promise<Article[]> {
   }
 }
 
-// Vyhledání článku podle slugu nebo ID
-export async function getArticleBySlug(identifier: string) {
+export async function getArticleBySlug(param: string) {
   try {
-    if (!identifier) return null;
-
+    if (!param) return null;
     const articles = await getArticles();
-    const cleanParam = slugify(decodeURIComponent(identifier));
-    const rawParam = identifier.trim().toLowerCase();
+    const cleanParam = param.trim().toLowerCase();
+    const normalizedParam = cleanParam.replace(/-/g, "");
 
     const article = articles.find((art) => {
       const artSlug = art.slug.toLowerCase();
-      const artIdRaw = art.id.toLowerCase();
-      return (
-        artSlug === rawParam ||
-        artSlug === cleanParam ||
-        artIdRaw === rawParam ||
-        art.id.replace(/-/g, "").toLowerCase() === rawParam.replace(/-/g, "")
-      );
+      const artIdNormalized = art.id.replace(/-/g, "").toLowerCase();
+      return artSlug === cleanParam || artIdNormalized === normalizedParam;
     });
 
     if (!article) return null;
@@ -235,7 +209,7 @@ export async function getArticleBySlug(identifier: string) {
 
     return { article, content: htmlContent };
   } catch (error: any) {
-    console.error(`CHYBA při stahování článku (${identifier}):`, error?.message || error);
+    console.error(`CHYBA při stahování článku (${param}):`, error?.message || error);
     return null;
   }
 }
