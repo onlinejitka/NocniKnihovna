@@ -8,7 +8,7 @@ const notion = new Client({
 
 const n2m = new NotionToMarkdown({ notionClient: notion });
 
-// Převod českého textu na čistý URL slug (odstraní diakritiku, mezery nahradí pomlčkami)
+// Převod českého textu na čistý URL slug (odstraní diakritiku, tečky a mezery)
 export function slugify(text: string): string {
   return text
     .toString()
@@ -44,7 +44,6 @@ export interface Article {
   seznamUrl?: string;
 }
 
-// Pomocná funkce pro bezpečné vytažení textu z vlastností Notionu
 const getPlainText = (property: any): string => {
   if (!property) return "";
   if (property.type === "title" && property.title?.length > 0) {
@@ -56,7 +55,7 @@ const getPlainText = (property: any): string => {
   return "";
 };
 
-// Získání všech publikovaných epizod
+// Získání publikovaných epizod
 export async function getEpisodes(limit?: number): Promise<Episode[]> {
   try {
     const dbId = process.env.NOTION_EPISODES_DB_ID?.trim();
@@ -107,27 +106,55 @@ export async function getEpisodes(limit?: number): Promise<Episode[]> {
   }
 }
 
-// Získání nejnovější publikované epizody (pro Hero sekci)
+// Získání nejnovější epizody
 export async function getLatestEpisode(): Promise<Episode | null> {
   const episodes = await getEpisodes(1);
   return episodes.length > 0 ? episodes[0] : null;
 }
 
-// Získání detailu konkrétní epizody podle slugu včetně těla textu
-export async function getEpisodeBySlug(slug: string) {
+// Vyhledání epizody podle slugu NEBO podle ID (univerzální)
+export async function getEpisodeBySlug(identifier: string) {
   try {
+    if (!identifier) return null;
+
     const episodes = await getEpisodes();
-    const episode = episodes.find((ep) => ep.slug === slug);
+    const cleanParam = slugify(decodeURIComponent(identifier));
+    const rawParam = identifier.trim().toLowerCase();
 
-    if (!episode) return null;
+    // Hledá shodu podle slugu, vyčištěného slugu i původního Notion ID
+    const episode = episodes.find((ep) => {
+      const epSlug = ep.slug.toLowerCase();
+      const epIdRaw = ep.id.toLowerCase();
+      const epIdClean = ep.id.replace(/-/g, "").toLowerCase();
+      const matchParamRaw = rawParam.replace(/-/g, "");
 
-    const mdBlocks = await n2m.pageToMarkdown(episode.id);
-    const mdString = n2m.toMarkdownString(mdBlocks);
-    const htmlContent = marked.parse(mdString.parent);
+      return (
+        epSlug === rawParam ||
+        epSlug === cleanParam ||
+        epIdRaw === rawParam ||
+        epIdClean === matchParamRaw
+      );
+    });
+
+    if (!episode) {
+      console.warn(`Epizoda pro identifikátor "${identifier}" nebyla v Notionu nalezena.`);
+      return null;
+    }
+
+    // Bezpečné načtení obsahu těla (pokud je v Notionu prázdno, nespadne)
+    let htmlContent = "";
+    try {
+      const mdBlocks = await n2m.pageToMarkdown(episode.id);
+      const mdString = n2m.toMarkdownString(mdBlocks);
+      htmlContent = (await marked.parse(mdString?.parent || "")) as string;
+    } catch (contentError: any) {
+      console.warn(`Poznámka k tělu epizody ${episode.title}:`, contentError?.message || contentError);
+      htmlContent = "<p class='italic text-parchment-600'>K tomuto spisu zatím nebyl připojen textový přepis.</p>";
+    }
 
     return { episode, content: htmlContent };
   } catch (error: any) {
-    console.error(`CHYBA při stahování detailu epizody (${slug}):`, error?.message || error);
+    console.error(`CHYBA při vyhledávání epizody (${identifier}):`, error?.message || error);
     return null;
   }
 }
@@ -136,10 +163,7 @@ export async function getEpisodeBySlug(slug: string) {
 export async function getArticles(limit?: number): Promise<Article[]> {
   try {
     const dbId = process.env.NOTION_ARTICLES_DB_ID?.trim();
-    if (!dbId) {
-      console.warn("UPOZORNĚNÍ: Není nastaveno NOTION_ARTICLES_DB_ID.");
-      return [];
-    }
+    if (!dbId) return [];
 
     const response = await notion.databases.query({
       database_id: dbId,
@@ -178,21 +202,40 @@ export async function getArticles(limit?: number): Promise<Article[]> {
   }
 }
 
-// Získání detailu konkrétního článku podle slugu
-export async function getArticleBySlug(slug: string) {
+// Vyhledání článku podle slugu nebo ID
+export async function getArticleBySlug(identifier: string) {
   try {
+    if (!identifier) return null;
+
     const articles = await getArticles();
-    const article = articles.find((art) => art.slug === slug);
+    const cleanParam = slugify(decodeURIComponent(identifier));
+    const rawParam = identifier.trim().toLowerCase();
+
+    const article = articles.find((art) => {
+      const artSlug = art.slug.toLowerCase();
+      const artIdRaw = art.id.toLowerCase();
+      return (
+        artSlug === rawParam ||
+        artSlug === cleanParam ||
+        artIdRaw === rawParam ||
+        art.id.replace(/-/g, "").toLowerCase() === rawParam.replace(/-/g, "")
+      );
+    });
 
     if (!article) return null;
 
-    const mdBlocks = await n2m.pageToMarkdown(article.id);
-    const mdString = n2m.toMarkdownString(mdBlocks);
-    const htmlContent = marked.parse(mdString.parent);
+    let htmlContent = "";
+    try {
+      const mdBlocks = await n2m.pageToMarkdown(article.id);
+      const mdString = n2m.toMarkdownString(mdBlocks);
+      htmlContent = (await marked.parse(mdString?.parent || "")) as string;
+    } catch {
+      htmlContent = "<p class='italic text-parchment-600'>Text článku se připravuje.</p>";
+    }
 
     return { article, content: htmlContent };
   } catch (error: any) {
-    console.error(`CHYBA při stahování článku (${slug}):`, error?.message || error);
+    console.error(`CHYBA při stahování článku (${identifier}):`, error?.message || error);
     return null;
   }
 }
