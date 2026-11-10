@@ -1,0 +1,120 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getArticles } from '../../lib/notion';
+import { Feather, Calendar, ExternalLink, ArrowRight, BookOpen } from 'lucide-astro';
+
+// Načtení všech publikovaných článků z Notionu v reálném čase
+const articles = await getArticles(50);
+---
+
+<Layout 
+  title="Listy z badatelny | Články a textové eseje" 
+  description="Textové eseje, rozbory historických pramenů a rozšířené články ze Seznam Médium od archivářky Jitky."
+>
+  <div class="max-w-5xl mx-auto px-6 py-16 md:py-24 space-y-16">
+    
+    <!-- ZÁHLAVÍ STRÁNKY -->
+    <header class="border-b border-night-700/60 pb-12">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-candle/10 border border-amber-candle/30 text-amber-candle text-xs tracking-wider uppercase font-medium mb-4">
+        <Feather class="w-3.5 h-3.5" />
+        <span>Písemná pozůstalost</span>
+      </div>
+      <h1 class="font-serif text-4xl sm:text-5xl text-parchment-200 mb-4 font-semibold">
+        Listy z badatelny
+      </h1>
+      <p class="text-parchment-400 font-light text-base sm:text-lg max-w-2xl leading-relaxed">
+        Eseje, rozšířené kontexty k audio epizodám a texty publikované na platformě Seznam Médium. Pohled do archivních spisů pro ty, kteří dávají přednost klidnému nočnímu čtení.
+      </p>
+    </header>
+
+    <!-- VÝPIS ČLÁNKŮ -->
+    {articles.length === 0 ? (
+      <div class="text-center py-20 border border-dashed border-night-700 rounded-2xl bg-night-800/30">
+        <BookOpen class="w-10 h-10 text-parchment-600 mx-auto mb-3" />
+        <p class="font-serif text-lg text-parchment-300">Žádné listy zatím nebyly vyloženy na stůl.</p>
+        <p class="text-xs text-parchment-600 mt-1 font-light">Zkontrolujte, zda máte v Notionu u článků nastaven stav na „Publikováno“.</p>
+      </div>
+    ) : (
+      <div class="space-y-8">
+        {articles.map((article, index) => {
+          const isExternal = Boolean(article.seznamUrl);
+          const linkHref = isExternal ? article.seznamUrl : `/clanky/${article.id}`;
+          const linkTarget = isExternal ? "_blank" : "_self";
+
+          return (
+            <article class="group bg-night-800/40 hover:bg-night-800/80 border border-night-700/70 hover:border-amber-candle/40 rounded-2xl p-6 sm:p-8 transition duration-300 backdrop-blur-sm relative flex flex-col justify-between">
+              <div>
+                <!-- Metadata: datum a zdroj -->
+                <div class="flex flex-wrap items-center justify-between gap-3 text-xs mb-3">
+                  <span class="text-parchment-600 flex items-center gap-1.5 font-mono">
+                    <Calendar class="w-3.5 h-3.5 text-amber-brass" />
+                    {article.date || 'Nedatováno'}
+                  </span>
+
+                  {isExternal ? (
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-950/40 text-red-300/90 border border-red-800/40 font-medium text-[11px] uppercase tracking-wider">
+                      Seznam Médium
+                    </span>
+                  ) : (
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-candle/10 text-amber-candle border border-amber-candle/30 font-medium text-[11px] uppercase tracking-wider">
+                      Rukopis badatelny
+                    </span>
+                  )}
+                </div>
+
+                <!-- Nadpis -->
+                <h2 class="font-serif text-2xl sm:text-3xl text-parchment-200 group-hover:text-amber-candle transition mb-4 leading-snug">
+                  <a href={linkHref} target={linkTarget} rel={isExternal ? "noopener noreferrer" : undefined}>
+                    {article.title}
+                  </a>
+                </h2>
+
+                <!-- Perex -->
+                <p class="text-parchment-400 font-light leading-relaxed mb-6 text-sm sm:text-base">
+                  {article.perex}
+                </p>
+              </div>
+
+              <!-- CTA odkaz -->
+              <div class="pt-4 border-t border-night-700/50 flex items-center justify-between">
+                <span class="text-xs text-parchment-600 font-mono">
+                  Svazek #{String(articles.length - index).padStart(2, '0')}
+                </span>
+
+                <a 
+                  href={linkHref} 
+                  target={linkTarget} 
+                  rel={isExternal ? "noopener noreferrer" : undefined}
+                  class="text-xs uppercase tracking-widest font-semibold text-amber-candle group-hover:text-amber-300 inline-flex items-center gap-2 group-hover:translate-x-1 transition duration-200"
+                >
+                  {isExternal ? (
+                    <>Číst na Seznam Médium <ExternalLink class="w-3.5 h-3.5" /></>
+                  ) : (
+                    <>Otevřít celý text <ArrowRight class="w-3.5 h-3.5" /></>
+                  )}
+                </a>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    )}
+
+    <!-- DOPLŇKOVÝ BLOK: AUTORSKÁ POZNÁMKA -->
+    <aside class="bg-gradient-to-r from-night-950 via-night-800 to-night-950 border border-night-700/60 rounded-2xl p-8 sm:p-10 text-center">
+      <h3 class="font-serif text-xl sm:text-2xl text-parchment-200 mb-2">
+        Hledáte zvukový doprovod k textům?
+      </h3>
+      <p class="text-sm text-parchment-400 font-light max-w-xl mx-auto mb-6">
+        Každý velký textový rozbor v Noční Knihovně dříve či později získá svou zvukovou adaptaci s autentickými ruchy a atmosférou.
+      </p>
+      <a 
+        href="/epizody" 
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-amber-candle text-night-950 font-semibold text-xs uppercase tracking-wider hover:bg-amber-300 transition"
+      >
+        Přejít do audio archivu <ArrowRight class="w-3.5 h-3.5" />
+      </a>
+    </aside>
+
+  </div>
+</Layout>
