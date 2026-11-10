@@ -1,0 +1,47 @@
+---
+import { Play, Clock, Calendar } from 'lucide-astro';
+import type { Episode } from '../lib/notion';
+
+interface Props {
+  episode: Episode;
+}
+
+const { episode } = Astro.props;
+---
+
+<article class="group bg-night-800/60 border border-night-700/70 rounded-xl p-6 transition duration-300 hover:border-amber-candle/40 hover:bg-night-800 flex flex-col justify-between">
+  <div>
+    <div class="flex items-center justify-between text-xs text-parchment-600 mb-3">
+      <span class="text-amber-candle/90 font-medium px-2 py-0.5 rounded bg-amber-candle/10 border border-amber-candle/20">
+        {episode.century}
+      </span>
+      <span class="flex items-center gap-1.5">
+        <Clock class="w-3.5 h-3.5" />
+        {episode.duration}
+      </span>
+    </div>
+
+    <h3 class="font-serif text-xl text-parchment-200 mb-2 group-hover:text-amber-candle transition line-clamp-2">
+      <a href={`/epizody/${episode.id}`}>
+        {episode.title}
+      </a>
+    </h3>
+
+    <p class="text-parchment-400 text-sm line-clamp-3 leading-relaxed mb-6 font-light">
+      {episode.annotation}
+    </p>
+  </div>
+
+  <div class="pt-4 border-t border-night-700/50 flex items-center justify-between text-xs">
+    <span class="text-parchment-600 flex items-center gap-1">
+      <Calendar class="w-3.5 h-3.5" />
+      {episode.date}
+    </span>
+    <a 
+      href={`/epizody/${episode.id}`} 
+      class="text-amber-candle flex items-center gap-1.5 font-medium group-hover:translate-x-1 transition duration-200"
+    >
+      Otevřít spis <Play class="w-3 h-3 fill-current" />
+    </a>
+  </div>
+</article>
