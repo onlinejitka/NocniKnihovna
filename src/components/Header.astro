@@ -1,0 +1,44 @@
+---
+import { BookOpen, Compass, Heart, Feather } from "lucide-astro";
+
+const navItems = [
+  { href: '/epizody', label: 'Archiv záznamů', icon: Compass },
+  { href: '/clanky', label: 'Listy z badatelny', icon: Feather },
+  { href: '/o-projektu', label: 'O badatelně', icon: BookOpen },
+  { href: '/podpora', label: 'Podpořit', icon: Heart },
+];
+---
+
+<header class="sticky top-0 z-50 backdrop-blur-md bg-night-900/80 border-b border-night-700/60">
+  <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+    <a href="/" class="group flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full border border-amber-candle/30 flex items-center justify-center bg-night-800 text-amber-candle transition duration-300 group-hover:border-amber-candle group-hover:shadow-[0_0_15px_rgba(212,154,69,0.3)]">
+        <span class="font-serif font-bold text-lg">NK</span>
+      </div>
+      <div>
+        <span class="font-serif text-lg tracking-wider text-parchment-200 block group-hover:text-amber-candle transition">Noční Knihovna</span>
+        <span class="text-[10px] tracking-widest text-parchment-600 uppercase block font-sans">Badatelna archivářky Jitky</span>
+      </div>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-8 text-sm">
+      {navItems.map((item) => (
+        <a 
+          href={item.href} 
+          class="text-parchment-400 hover:text-amber-candle transition flex items-center gap-2 py-1"
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <a 
+        href="/podpora" 
+        class="text-xs uppercase tracking-widest px-4 py-2 rounded-full border border-amber-candle/40 text-amber-candle hover:bg-amber-candle hover:text-night-950 transition duration-300"
+      >
+        Vstoupit do čtenářského kruhu
+      </a>
+    </div>
+  </div>
+</header>
