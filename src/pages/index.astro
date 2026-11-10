@@ -10,17 +10,13 @@ const recentEpisodes = (await getEpisodes(4)).slice(1); // Další 3 po té nejn
 const recentArticles = await getArticles(3);
 ---
 
-<Layout title="Noční badatelna archivářky Jitky">
+<Layout title="Noční badatelna archivářky">
   <!-- HERO SEKCE -->
   <section class="relative pt-12 pb-20 md:py-28 overflow-hidden border-b border-night-700/40">
     <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
       
       <!-- Typografická a interaktivní část -->
-      <div class="lg:col-span-7 space-y-6">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-candle/10 border border-amber-candle/30 text-amber-candle text-xs tracking-wider uppercase font-medium">
-          <Sparkles class="w-3.5 h-3.5" />
-          <span>Nyní otevřeno: Nový svazek v archivu</span>
-        </div>
+      
 
         <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-parchment-200 leading-[1.15] font-semibold">
           Dějiny nejsou učebnice. <br />
