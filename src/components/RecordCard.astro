@@ -1,0 +1,61 @@
+---
+import { Play, Clock, Calendar, FileText, Headphones, Video } from 'lucide-astro';
+import type { ArchiveRecord } from '../lib/notion';
+
+interface Props {
+  record: ArchiveRecord;
+}
+
+const { record } = Astro.props;
+---
+
+<article class="group bg-night-800/60 border border-night-700/70 rounded-xl p-6 transition duration-300 hover:border-amber-candle/40 hover:bg-night-800 flex flex-col justify-between">
+  <div>
+    <!-- Horní lišta štítků -->
+    <div class="flex items-center justify-between text-xs text-parchment-600 mb-3">
+      <div class="flex items-center gap-2">
+        <span class="text-amber-candle/90 font-medium px-2 py-0.5 rounded bg-amber-candle/10 border border-amber-candle/20">
+          {record.century}
+        </span>
+        <span class="px-2 py-0.5 rounded bg-night-900 border border-night-700 text-parchment-400">
+          {record.category}
+        </span>
+      </div>
+
+      <!-- Ikonky obsahu -->
+      <div class="flex items-center gap-1.5 text-parchment-400">
+        {record.youtubeId && <Video class="w-3.5 h-3.5 text-amber-candle" title="Obsahuje video" />}
+        {record.spotifyUrl && <Headphones class="w-3.5 h-3.5 text-green-400" title="Obsahuje audio poslech" />}
+        <FileText class="w-3.5 h-3.5 text-parchment-400" title="Obsahuje textový doprovod" />
+      </div>
+    </div>
+
+    <!-- Nadpis -->
+    <h3 class="font-serif text-xl text-parchment-200 mb-2 group-hover:text-amber-candle transition line-clamp-2 leading-snug">
+      <a href={`/archiv/${record.slug}`}>
+        {record.title}
+      </a>
+    </h3>
+
+    <!-- Anotace / Perex -->
+    <p class="text-parchment-400 text-sm line-clamp-3 leading-relaxed mb-6 font-light">
+      {record.annotation}
+    </p>
+  </div>
+
+  <!-- Spodní lišta -->
+  <div class="pt-4 border-t border-night-700/50 flex items-center justify-between text-xs">
+    <span class="text-parchment-600 flex items-center gap-1 font-mono">
+      <Calendar class="w-3.5 h-3.5 text-amber-brass" />
+      {record.date}
+    </span>
+    
+    <a 
+      href={`/archiv/${record.slug}`} 
+      class="text-amber-candle flex items-center gap-1.5 font-medium group-hover:translate-x-1 transition duration-200"
+    >
+      {record.hasMedia ? 'Otevřít a pustit' : 'Číst spis'} 
+      <Play class="w-3 h-3 fill-current" />
+    </a>
+  </div>
+</article>
