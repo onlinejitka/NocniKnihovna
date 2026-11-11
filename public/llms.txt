@@ -1,0 +1,20 @@
+# Noční Knihovna — Badatelna archivářky
+
+> Noční Knihovna je český nezávislý kulturně-historický projekt zaměřený na historii všedního dne, mikrohistorii, soudní a kriminální případy, mentalitu a zapomenuté archivní prameny 13. až 19. století.
+
+## O projektu a identitě
+- **Vypravěčka / Autorka:** Archivářka Jitka
+- **Koncept:** Otevírání zapomenutých kronik, smolných knih a dobových listin bez akademického patosu a školní rigidity.
+- **Formát:** Multimediální archivní spisy kombinující mluvené audio vyprávění (podcast), videozáznamy a rozsáhlé průvodní historické eseje s citacemi pramenů.
+- **Web:** https://nocniknihovna.cz
+
+## Hlavní sekce
+- **Archiv badatelny (/archiv):** Kompletní fond dochovaných a zpracovaných spisů seřazený chronologicky a tematicky (Kriminalita, Všední den, Zvyky, Magie).
+- **O badatelně (/o-projektu):** Metodika práce s prameny, vize a zázemí projektu.
+- **Čtenářský kruh (/podpora):** Podpora nezávislé tvorby a badatelské komunity.
+
+## Struktura archivního spisu
+Každý spis na adrese `https://nocniknihovna.cz/archiv/{slug}` obsahuje:
+1. Základní metadata (staletí, téma, stopáž, datum publikace).
+2. Multimediální vrstvu (poslech přes Spotify nebo YouTube, pokud je k dispozici).
+3. Písemnou esej s dobovými reáliemi a citovanými prameny z archivních fondů (SOA, Národní archiv apod.).
