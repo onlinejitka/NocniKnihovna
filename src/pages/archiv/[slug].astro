@@ -92,7 +92,11 @@ const structuredData = record ? {
 <Layout 
   title={record ? record.title : "Spis nenalezen"}
   description={record?.annotation || "Záznam nebyl v badatelně nalezen."}
+  image={record?.imageUrl || "/images/badatelna-hero.jpg"}
+  type="article"
+  publishedTime={record?.date}
 >
+
   {structuredData && (
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   )}
