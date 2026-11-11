@@ -35,21 +35,57 @@ const currentIndex = record ? allRecords.findIndex((r) => r.id === record.id) : 
 const prevRecord = currentIndex > 0 ? allRecords[currentIndex - 1] : null;
 const nextRecord = currentIndex >= 0 && currentIndex < allRecords.length - 1 ? allRecords[currentIndex + 1] : null;
 
-// Strukturovaná data pro SEO a AI vyhledávače
+// Bohatá strukturovaná data pro Google i AI modely
 const structuredData = record ? {
   "@context": "https://schema.org",
-  "@type": "Article",
-  "headline": record.title,
-  "description": record.annotation,
-  "datePublished": record.date,
-  "author": {
-    "@type": "Person",
-    "name": "Archivářka Jitka"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "Noční Knihovna"
-  }
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Archiv",
+          "item": "https://nocniknihovna.cz/archiv"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": record.title,
+          "item": `https://nocniknihovna.cz/archiv/${record.slug}`
+        }
+      ]
+    },
+    {
+      "@type": "Article",
+      "@id": `https://nocniknihovna.cz/archiv/${record.slug}#article`,
+      "headline": record.title,
+      "description": record.annotation,
+      "datePublished": record.date,
+      "image": record.imageUrl ? [record.imageUrl] : ["https://nocniknihovna.cz/images/badatelna-hero.jpg"],
+      "inLanguage": "cs-CZ",
+      "author": {
+        "@type": "Person",
+        "name": "Archivářka Jitka",
+        "jobTitle": "Archivářka a vypravěčka",
+        "url": "https://nocniknihovna.cz/o-projektu"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Noční Knihovna",
+        "url": "https://nocniknihovna.cz"
+      }
+    },
+    ...(record.youtubeId ? [{
+      "@type": "VideoObject",
+      "name": record.title,
+      "description": record.annotation,
+      "thumbnailUrl": [record.imageUrl || `https://img.youtube.com/vi/${record.youtubeId}/hqdefault.jpg`],
+      "uploadDate": record.date,
+      "contentUrl": `https://www.youtube.com/watch?v=${record.youtubeId}`,
+      "embedUrl": `https://www.youtube-nocookie.com/embed/${record.youtubeId}`
+    }] : [])
+  ]
 } : null;
 ---
 
