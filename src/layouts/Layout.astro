@@ -1,47 +1,71 @@
 ---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
 interface Props {
   title: string;
   description?: string;
-  ogImage?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  publishedTime?: string;
 }
 
-const { 
-  title, 
-  description = "Noční badatelna archivářky Jitky. Zapomenuté kroniky, smolné knihy a staré prameny bez školního patosu.",
-  ogImage = "/images/og-preview.jpg"
+const {
+  title,
+  description = "Noční badatelna archivářky Jitky. Zvukové vyprávění a dobové texty otevírající skutečné lidské osudy bez školní rigidity.",
+  image = "/images/badatelna-hero.jpg",
+  type = "website",
+  publishedTime
 } = Astro.props;
 
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
+const canonicalURL = new URL(Astro.url.pathname, "https://nocniknihovna.cz");
+const socialImageURL = new URL(image, "https://nocniknihovna.cz");
+const siteTitle = title.includes("Noční Knihovna") ? title : `${title} | Noční Knihovna`;
 ---
 
 <!doctype html>
-<html lang="cs" class="scroll-smooth">
+<html lang="cs" class="scroll-smooth bg-night-950 text-parchment-200 antialiased">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{title} | Noční Knihovna</title>
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Primární SEO tagy -->
+    <title>{siteTitle}</title>
+    <meta name="title" content={siteTitle} />
     <meta name="description" content={description} />
-    
-    <!-- OpenGraph & Seznam tagy -->
+    <meta name="author" content="Archivářka Jitka" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonicalURL} />
     <meta property="og:site_name" content="Noční Knihovna" />
-    <meta property="og:title" content={title} />
+    <meta property="og:title" content={siteTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={ogImage} />
-    <meta property="og:type" content="website" />
+    <meta property="og:image" content={socialImageURL} />
+    <meta property="og:locale" content="cs_CZ" />
+    {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+
+    <!-- Twitter Cards -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={siteTitle} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={socialImageURL} />
     
-    <!-- Google Fonts: Playfair Display + Inter -->
+<!-- Vzhled pro mobilní prohlížeče -->
+    <meta name="theme-color" content="#0f1115" />
+
+    <!-- Google Fonts: Playfair Display -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-night-900 text-parchment-300 font-sans antialiased selection:bg-amber-candle selection:text-night-950 flex flex-col min-h-screen">
-    <!-- Podkladová textura s jemným nočním kuželem světla lampy -->
-    <div class="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(212,154,69,0.08),rgba(15,17,21,0))] z-0"></div>
-    
+  <body class="min-h-screen flex flex-col bg-night-950 text-parchment-300 font-sans selection:bg-amber-candle/30 selection:text-parchment-100">
     <Header />
-    <main class="relative z-10 flex-grow">
+    <main class="flex-grow">
       <slot />
     </main>
     <Footer />
