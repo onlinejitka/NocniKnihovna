@@ -10,13 +10,15 @@ import {
   Volume2, 
   ChevronRight, 
   BookX, 
-  FileText 
+  FileText,
+  BookOpen,
+  Moon
 } from 'lucide-astro';
 
 const param = Astro.params.slug || Astro.params.id;
 const data = param ? await getRecordBySlug(param) : null;
 
-// Automatické 301 přesměrování z ID na čistý slug
+// Automatický 301 redirect z ošklivého ID na čistý slug
 if (data?.record && param !== data.record.slug) {
   return Astro.redirect(`/archiv/${data.record.slug}`, 301);
 }
@@ -27,13 +29,13 @@ const content = data?.content || "";
 // Zda existují externí audio či čtenářské platformy
 const hasAudioPlatforms = Boolean(record?.spotifyUrl || record?.seznamUrl);
 
-// Sousední záznamy pro navigaci
+// Sousední záznamy pro spodní navigaci
 const allRecords = await getArchiveRecords();
 const currentIndex = record ? allRecords.findIndex((r) => r.id === record.id) : -1;
 const prevRecord = currentIndex > 0 ? allRecords[currentIndex - 1] : null;
 const nextRecord = currentIndex >= 0 && currentIndex < allRecords.length - 1 ? allRecords[currentIndex + 1] : null;
 
-// Strukturovaná data pro vyhledávače a AI
+// Strukturovaná data pro SEO a AI vyhledávače
 const structuredData = record ? {
   "@context": "https://schema.org",
   "@type": "Article",
@@ -89,7 +91,7 @@ const structuredData = record ? {
       </div>
     ) : (
       <>
-        <!-- HLAVIČKA SPISU S METADATY A SDÍLECÍM CENTREM -->
+        <!-- HLAVIČKA SPISU S METADATY A SDÍLENÍM -->
         <header class="space-y-6 border-b border-night-700/60 pb-10">
           <div class="flex flex-wrap items-center justify-between gap-4 text-xs">
             <div class="flex flex-wrap items-center gap-3">
@@ -109,7 +111,7 @@ const structuredData = record ? {
               </span>
             </div>
 
-            <!-- Tlačítko sdílení s rozbalovacím panelem -->
+            <!-- Tlačítko sdílení -->
             <div class="relative inline-block text-left" id="shareContainer">
               <button 
                 type="button" 
@@ -164,7 +166,7 @@ const structuredData = record ? {
           </p>
         </header>
 
-        <!-- VIDEO PŘEHRÁVAČ (Zobrazí se pouze při vyplněném YouTube ID) -->
+        <!-- VIDEO PŘEHRÁVAČ (POUZE POKUD EXISTUJE YOUTUBE ID) -->
         {record.youtubeId && (
           <div class="rounded-2xl overflow-hidden border border-night-700 bg-night-950 aspect-video shadow-2xl relative">
             <iframe 
@@ -178,7 +180,7 @@ const structuredData = record ? {
           </div>
         )}
 
-        <!-- LIŠTA PRO POSLECH (Zobrazí se pouze pokud existuje Spotify nebo Seznam URL) -->
+        <!-- LIŠTA PRO POSLECH (POUZE POKUD EXISTUJE SPOTIFY NEBO SEZNAM URL) -->
         {hasAudioPlatforms && (
           <div class="bg-night-800/70 border border-night-700/80 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
             <div class="flex items-center gap-3">
@@ -216,15 +218,38 @@ const structuredData = record ? {
           </div>
         )}
 
-        <!-- TEXT SPISU / ESEJ / PRAMENY -->
-        <section class="pt-6 border-t border-night-700/60">
-          <div class="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-amber-candle font-medium mb-8">
-            <FileText class="w-4 h-4" />
-            <span>Čtení a dochované záznamy</span>
+        <!-- SEKCE ČTENÍ S PŘEPÍNAČEM REŽIMŮ (PERGAMEN / NOČNÍ STŮL) -->
+        <section class="pt-6 border-t border-night-700/60 space-y-6">
+          <div class="flex items-center justify-between flex-wrap gap-4">
+            <div class="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-amber-candle font-medium">
+              <FileText class="w-4 h-4" />
+              <span>Čtení a dochované záznamy</span>
+            </div>
+
+            <!-- Přepínač režimu čtení -->
+            <div class="inline-flex items-center p-1 rounded-lg bg-night-900 border border-night-700/80 text-xs shadow-inner">
+              <button 
+                type="button" 
+                id="modeParchmentBtn" 
+                class="px-3 py-1.5 rounded-md transition flex items-center gap-1.5 text-night-950 bg-amber-candle font-medium shadow-sm"
+              >
+                <BookOpen class="w-3.5 h-3.5" /> Pergamen
+              </button>
+              <button 
+                type="button" 
+                id="modeNightBtn" 
+                class="px-3 py-1.5 rounded-md transition flex items-center gap-1.5 text-parchment-400 hover:text-parchment-200"
+              >
+                <Moon class="w-3.5 h-3.5" /> Noční stůl
+              </button>
+            </div>
           </div>
 
-          <div class="badatelna-content">
-            <Fragment set:html={content} />
+          <!-- Karta s listem spisu -->
+          <div id="readingPaper" class="reader-mode-parchment rounded-2xl transition-all duration-300">
+            <div class="badatelna-content max-w-2xl mx-auto">
+              <Fragment set:html={content} />
+            </div>
           </div>
         </section>
 
@@ -261,6 +286,7 @@ const structuredData = record ? {
 </Layout>
 
 <script>
+  // 1. Logika sdílení (Desktop i Mobile)
   const shareBtn = document.getElementById('mainShareBtn');
   const dropdown = document.getElementById('shareDropdown');
   const copyAction = document.getElementById('copyLinkAction');
@@ -271,37 +297,24 @@ const structuredData = record ? {
   const pageUrl = window.location.href;
   const pageTitle = document.title;
 
-  // Nastavení odkazů pro WhatsApp a Facebook
-  if (waLink) {
-    waLink.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(pageTitle + ' — ' + pageUrl)}`;
-  }
-  if (fbLink) {
-    fbLink.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`;
-  }
+  if (waLink) waLink.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(pageTitle + ' — ' + pageUrl)}`;
+  if (fbLink) fbLink.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`;
 
-  // Kliknutí na hlavní tlačítko
   shareBtn?.addEventListener('click', async (e) => {
     e.stopPropagation();
-
-    // Na mobilních telefonech otevře nativní systémové sdílení
     if (navigator.share && window.innerWidth < 768) {
       try {
         await navigator.share({
           title: pageTitle,
-          text: 'Záznam z noční badatelny Noční Knihovny:',
+          text: 'Záznam z badatelny Noční Knihovny:',
           url: pageUrl,
         });
         return;
-      } catch (err) {
-        // Uživatel sdílení zrušil, není třeba nic hlásit
-      }
+      } catch (err) {}
     }
-
-    // Na počítači zobrazí/skryje menu
     dropdown?.classList.toggle('hidden');
   });
 
-  // Kopírování odkazu do schránky
   copyAction?.addEventListener('click', async (e) => {
     e.stopPropagation();
     try {
@@ -314,54 +327,111 @@ const structuredData = record ? {
         }, 1500);
       }
     } catch (err) {
-      console.error('Nepodařilo se zkopírovat odkaz', err);
+      console.error('Chyba při kopírování', err);
     }
   });
 
-  // Zavření menu kliknutím mimo něj
   document.addEventListener('click', () => {
     dropdown?.classList.add('hidden');
   });
+
+  // 2. Logika přepínače režimu čtení (Pergamen vs. Noční stůl)
+  const readingPaper = document.getElementById('readingPaper');
+  const modeParchmentBtn = document.getElementById('modeParchmentBtn');
+  const modeNightBtn = document.getElementById('modeNightBtn');
+
+  function setReaderMode(mode: 'parchment' | 'night') {
+    if (mode === 'night') {
+      readingPaper?.classList.remove('reader-mode-parchment');
+      readingPaper?.classList.add('reader-mode-night');
+
+      modeNightBtn?.classList.add('text-night-950', 'bg-amber-candle', 'font-medium', 'shadow-sm');
+      modeNightBtn?.classList.remove('text-parchment-400');
+      modeParchmentBtn?.classList.remove('text-night-950', 'bg-amber-candle', 'font-medium', 'shadow-sm');
+      modeParchmentBtn?.classList.add('text-parchment-400');
+      localStorage.setItem('badatelna_reader_mode', 'night');
+    } else {
+      readingPaper?.classList.add('reader-mode-parchment');
+      readingPaper?.classList.remove('reader-mode-night');
+
+      modeParchmentBtn?.classList.add('text-night-950', 'bg-amber-candle', 'font-medium', 'shadow-sm');
+      modeParchmentBtn?.classList.remove('text-parchment-400');
+      modeNightBtn?.classList.remove('text-night-950', 'bg-amber-candle', 'font-medium', 'shadow-sm');
+      modeNightBtn?.classList.add('text-parchment-400');
+      localStorage.setItem('badatelna_reader_mode', 'parchment');
+    }
+  }
+
+  const savedMode = (localStorage.getItem('badatelna_reader_mode') as 'parchment' | 'night') || 'parchment';
+  setReaderMode(savedMode);
+
+  modeParchmentBtn?.addEventListener('click', () => setReaderMode('parchment'));
+  modeNightBtn?.addEventListener('click', () => setReaderMode('night'));
 </script>
 
 <style is:global>
-  /* Formátování textů stažených z Notionu */
+  /* =========================================
+     1. KONTENJERY REŽIMU ČTENÍ
+     ========================================= */
+  
+  /* PERGAMEN (Výchozí režim starého papíru) */
+  .reader-mode-parchment {
+    background-color: #f3eee3;
+    padding: 2.25rem 1.5rem;
+    border: 1px solid #dfd5c2;
+    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(212, 154, 69, 0.15);
+  }
+
+  @media (min-width: 640px) {
+    .reader-mode-parchment {
+      padding: 3.5rem 3rem;
+    }
+  }
+
+  /* NOČNÍ STŮL (Tmavý režim) */
+  .reader-mode-night {
+    background-color: rgba(22, 25, 34, 0.7);
+    padding: 2rem 1.25rem;
+    border: 1px solid rgba(43, 48, 64, 0.8);
+    box-shadow: none;
+  }
+
+  @media (min-width: 640px) {
+    .reader-mode-night {
+      padding: 3rem 2.5rem;
+    }
+  }
+
+  /* =========================================
+     2. SPOLEČNÁ KNIŽNÍ TYPOGRAFIE
+     ========================================= */
   .badatelna-content {
-    color: #d5cdbf;
     font-size: 1.0625rem;
     line-height: 1.85;
     font-weight: 300;
   }
 
-  /* Nadpisy H2 */
+  .badatelna-content p {
+    margin-bottom: 1.5rem;
+  }
+
   .badatelna-content h2 {
     font-family: 'Playfair Display', Georgia, serif;
     font-size: 1.75rem;
-    color: #e8e2d5;
     font-weight: 600;
     margin-top: 3rem;
     margin-bottom: 1.25rem;
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid rgba(212, 154, 69, 0.25);
   }
 
-  /* Menší podnadpisy H3 */
   .badatelna-content h3 {
     font-family: 'Playfair Display', Georgia, serif;
     font-size: 1.35rem;
-    color: #d49a45;
     font-weight: 500;
-    margin-top: 2rem;
+    margin-top: 2.25rem;
     margin-bottom: 0.75rem;
   }
 
-  /* Odstavce a mezery */
-  .badatelna-content p {
-    margin-bottom: 1.35rem;
-    color: #d5cdbf;
-  }
-
-  /* Odrážkové seznamy */
   .badatelna-content ul {
     list-style-type: disc !important;
     padding-left: 1.75rem !important;
@@ -369,7 +439,6 @@ const structuredData = record ? {
     margin-bottom: 1.75rem;
   }
 
-  /* Číslované seznamy */
   .badatelna-content ol {
     list-style-type: decimal !important;
     padding-left: 1.75rem !important;
@@ -377,55 +446,127 @@ const structuredData = record ? {
     margin-bottom: 1.75rem;
   }
 
-  /* Jednotlivé položky seznamu a jantarové odrážky */
   .badatelna-content li {
     margin-bottom: 0.6rem;
-    line-height: 1.7;
-    color: #e8e2d5;
+    line-height: 1.75;
   }
 
-  .badatelna-content li::marker {
+  .badatelna-content blockquote {
+    padding: 1.1rem 1.4rem;
+    margin: 2rem 0;
+    border-radius: 0 0.75rem 0.75rem 0;
+    font-style: italic;
+    line-height: 1.75;
+  }
+
+  .badatelna-content hr {
+    border: 0;
+    margin: 3rem 0;
+  }
+
+  /* =========================================
+     3. BAREVNÉ SCHÉMA: PERGAMEN
+     ========================================= */
+  .reader-mode-parchment .badatelna-content {
+    color: #26211b; /* Tmavý duběnkový inkoust */
+  }
+
+  .reader-mode-parchment .badatelna-content h2 {
+    color: #15110d;
+    border-bottom: 1px solid rgba(168, 120, 52, 0.35);
+  }
+
+  .reader-mode-parchment .badatelna-content h3 {
+    color: #5c3f15;
+  }
+
+  .reader-mode-parchment .badatelna-content li {
+    color: #2a241e;
+  }
+
+  .reader-mode-parchment .badatelna-content li::marker {
+    color: #a36d22;
+  }
+
+  .reader-mode-parchment .badatelna-content strong {
+    color: #120e0a;
+    font-weight: 600;
+  }
+
+  .reader-mode-parchment .badatelna-content em {
+    color: #3b332a;
+  }
+
+  .reader-mode-parchment .badatelna-content blockquote {
+    border-left: 3px solid #b37e2a;
+    background: #eae2d1;
+    color: #332b21;
+  }
+
+  .reader-mode-parchment .badatelna-content hr {
+    border-top: 1px solid #d8cbaf;
+  }
+
+  .reader-mode-parchment .badatelna-content a {
+    color: #8c5712;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .reader-mode-parchment .badatelna-content a:hover {
+    color: #543407;
+  }
+
+  /* =========================================
+     4. BAREVNÉ SCHÉMA: NOČNÍ STŮL
+     ========================================= */
+  .reader-mode-night .badatelna-content {
+    color: #d5cdbf;
+  }
+
+  .reader-mode-night .badatelna-content h2 {
+    color: #e8e2d5;
+    border-bottom: 1px solid rgba(212, 154, 69, 0.25);
+  }
+
+  .reader-mode-night .badatelna-content h3 {
     color: #d49a45;
   }
 
-  /* Tučný text a kurzíva */
-  .badatelna-content strong {
+  .reader-mode-night .badatelna-content li {
+    color: #e8e2d5;
+  }
+
+  .reader-mode-night .badatelna-content li::marker {
+    color: #d49a45;
+  }
+
+  .reader-mode-night .badatelna-content strong {
     color: #f5f0e6;
     font-weight: 600;
   }
 
-  .badatelna-content em {
+  .reader-mode-night .badatelna-content em {
     color: #e8e2d5;
-    font-style: italic;
   }
 
-  /* Citace v rámečku */
-  .badatelna-content blockquote {
+  .reader-mode-night .badatelna-content blockquote {
     border-left: 3px solid #d49a45;
-    background: rgba(22, 25, 34, 0.6);
-    padding: 1rem 1.25rem;
-    margin: 2rem 0;
-    border-radius: 0 0.75rem 0.75rem 0;
-    font-style: italic;
+    background: rgba(15, 17, 21, 0.7);
     color: #e8e2d5;
   }
 
-  /* Vodorovná oddělovací linka */
-  .badatelna-content hr {
-    border: 0;
+  .reader-mode-night .badatelna-content hr {
     border-top: 1px solid #232836;
-    margin: 3rem 0;
   }
 
-  /* Odkazy v textu */
-  .badatelna-content a {
+  .reader-mode-night .badatelna-content a {
     color: #d49a45;
     text-decoration: underline;
     text-underline-offset: 4px;
-    transition: color 0.2s;
   }
 
-  .badatelna-content a:hover {
+  .reader-mode-night .badatelna-content a:hover {
     color: #f5c06b;
   }
 </style>
