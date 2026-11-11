@@ -166,8 +166,8 @@ const structuredData = record ? {
           </p>
         </header>
 
-        <!-- VIDEO PŘEHRÁVAČ (POUZE POKUD EXISTUJE YOUTUBE ID) -->
-        {record.youtubeId && (
+<!-- MULTIMEDIÁLNÍ HLAVIČKA: VIDEO NEBO TITULNÍ OBRAZ -->
+        {record.youtubeId ? (
           <div class="rounded-2xl overflow-hidden border border-night-700 bg-night-950 aspect-video shadow-2xl relative">
             <iframe 
               class="w-full h-full"
@@ -178,7 +178,15 @@ const structuredData = record ? {
               allowfullscreen
             ></iframe>
           </div>
-        )}
+        ) : record.imageUrl ? (
+          <div class="rounded-2xl overflow-hidden border border-night-700 bg-night-950 max-h-[460px] shadow-2xl relative">
+            <img 
+              src={record.imageUrl} 
+              alt={record.title} 
+              class="w-full h-full object-cover filter brightness-90 contrast-105"
+            />
+          </div>
+        ) : null}
 
         <!-- LIŠTA PRO POSLECH (POUZE POKUD EXISTUJE SPOTIFY NEBO SEZNAM URL) -->
         {hasAudioPlatforms && (
