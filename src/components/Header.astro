@@ -1,42 +1,129 @@
 ---
-import { BookOpen, Compass, Heart, Feather } from "lucide-astro";
+import { Compass, BookOpen, Heart, Menu, X, ArrowRight } from "lucide-astro";
 
 const navItems = [
-{ href: '/archiv', label: 'Archiv badatelny', icon: Compass },
+  { href: '/archiv', label: 'Archiv badatelny', icon: Compass },
   { href: '/o-projektu', label: 'O badatelně', icon: BookOpen },
+  { href: '/podpora', label: 'Podpora', icon: Heart },
 ];
 ---
 
-<header class="sticky top-0 z-50 backdrop-blur-md bg-night-900/80 border-b border-night-700/60">
+<header class="sticky top-0 z-50 bg-night-950/90 backdrop-blur-md border-b border-night-700/60">
   <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-    <a href="/" class="group flex items-center gap-3">
-      <div class="w-10 h-10 rounded-full border border-amber-candle/30 flex items-center justify-center bg-night-800 text-amber-candle transition duration-300 group-hover:border-amber-candle group-hover:shadow-[0_0_15px_rgba(212,154,69,0.3)]">
-        <span class="font-serif font-bold text-lg">NK</span>
+    
+    <!-- LOGO BADATELNY -->
+    <a href="/" class="flex items-center gap-3 group">
+      <div class="w-10 h-10 rounded-full border border-amber-candle/40 bg-night-900 flex items-center justify-center text-amber-candle font-serif font-bold text-sm group-hover:border-amber-candle transition duration-300">
+        NK
       </div>
-      <div>
-        <span class="font-serif text-lg tracking-wider text-parchment-200 block group-hover:text-amber-candle transition">Noční Knihovna</span>
-        <span class="text-[10px] tracking-widest text-parchment-600 uppercase block font-sans">Badatelna archivářky</span>
+      <div class="flex flex-col">
+        <span class="font-serif text-lg tracking-wide text-parchment-200 group-hover:text-amber-candle transition duration-300 font-semibold leading-tight">
+          Noční Knihovna
+        </span>
+        <span class="text-[10px] uppercase tracking-widest text-parchment-600 font-mono">
+          Badatelna archivářky
+        </span>
       </div>
     </a>
 
-    <nav class="hidden md:flex items-center gap-8 text-sm">
+    <!-- DESKTOP NAVIGACE -->
+    <nav class="hidden md:flex items-center gap-8">
       {navItems.map((item) => (
         <a 
           href={item.href} 
-          class="text-parchment-400 hover:text-amber-candle transition flex items-center gap-2 py-1"
+          class="text-xs uppercase tracking-wider text-parchment-400 hover:text-amber-candle transition duration-200 font-medium"
         >
           {item.label}
         </a>
       ))}
     </nav>
 
+    <!-- PRAVÁ ČÁST: CTA TLAČÍTKO + MOBILNÍ HAMBURGER -->
     <div class="flex items-center gap-3">
+      <!-- Tlačítko na desktopu -->
       <a 
         href="/podpora" 
-        class="text-xs uppercase tracking-widest px-4 py-2 rounded-full border border-amber-candle/40 text-amber-candle hover:bg-amber-candle hover:text-night-950 transition duration-300"
+        class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-amber-brass/50 text-amber-candle hover:bg-amber-candle hover:text-night-950 transition duration-300 text-xs tracking-wider uppercase font-medium"
+      >
+        Vstoupit do čtenářského kruhu
+      </a>
+
+      <!-- Tlačítko mobilního menu (viditelné jen na telefonech) -->
+      <button 
+        type="button" 
+        id="mobileMenuToggle" 
+        class="md:hidden p-2 rounded-lg bg-night-900 border border-night-700 text-parchment-300 hover:text-amber-candle hover:border-amber-candle/40 transition focus:outline-none"
+        aria-label="Otevřít navigaci"
+      >
+        <Menu class="w-5 h-5" id="menuOpenIcon" />
+        <X class="w-5 h-5 hidden" id="menuCloseIcon" />
+      </button>
+    </div>
+
+  </div>
+
+  <!-- MOBILNÍ ROZBALOVACÍ MENU -->
+  <div 
+    id="mobileMenuDrawer" 
+    class="hidden md:hidden border-b border-night-700/80 bg-night-950/98 backdrop-blur-xl px-6 py-6 space-y-5 transition-all duration-300"
+  >
+    <nav class="flex flex-col space-y-3">
+      {navItems.map((item) => {
+        const IconComponent = item.icon;
+        return (
+          <a 
+            href={item.href} 
+            class="mobile-nav-link flex items-center justify-between p-3 rounded-xl bg-night-900/60 border border-night-800 text-parchment-200 hover:text-amber-candle hover:border-amber-candle/30 text-sm font-medium transition"
+          >
+            <span class="flex items-center gap-3">
+              <IconComponent class="w-4 h-4 text-amber-brass" />
+              {item.label}
+            </span>
+            <ArrowRight class="w-3.5 h-3.5 text-parchment-600" />
+          </a>
+        );
+      })}
+    </nav>
+
+    <div class="pt-2 border-t border-night-800">
+      <a 
+        href="/podpora" 
+        class="w-full text-center block py-3 rounded-xl bg-amber-candle text-night-950 font-semibold text-xs uppercase tracking-wider hover:bg-amber-300 transition"
       >
         Vstoupit do čtenářského kruhu
       </a>
     </div>
   </div>
 </header>
+
+<script>
+  const toggleBtn = document.getElementById('mobileMenuToggle');
+  const drawer = document.getElementById('mobileMenuDrawer');
+  const openIcon = document.getElementById('menuOpenIcon');
+  const closeIcon = document.getElementById('menuCloseIcon');
+  const navLinks = document.querySelectorAll('.mobile-nav-link');
+
+  function toggleMenu() {
+    const isOpen = !drawer?.classList.contains('hidden');
+    if (isOpen) {
+      drawer?.classList.add('hidden');
+      openIcon?.classList.remove('hidden');
+      closeIcon?.classList.add('hidden');
+    } else {
+      drawer?.classList.remove('hidden');
+      openIcon?.classList.add('hidden');
+      closeIcon?.classList.remove('hidden');
+    }
+  }
+
+  toggleBtn?.addEventListener('click', toggleMenu);
+
+  // Zavření po kliknutí na libovolný odkaz
+  navLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      drawer?.classList.add('hidden');
+      openIcon?.classList.remove('hidden');
+      closeIcon?.classList.add('hidden');
+    });
+  });
+</script>
