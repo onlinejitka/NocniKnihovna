@@ -8,6 +8,12 @@ const notion = new Client({
 
 const n2m = new NotionToMarkdown({ notionClient: notion });
 
+// Nastavení marked pro zachování běžných enterů a GitHub formátování
+marked.setOptions({
+  breaks: true,
+  gfm: true,
+});
+
 export function slugify(text: string): string {
   return text
     .toString()
