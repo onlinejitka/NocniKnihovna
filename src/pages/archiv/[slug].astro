@@ -8,15 +8,15 @@ import {
   ExternalLink, 
   Share2, 
   Volume2, 
-  ChevronRight,
-  BookX,
-  FileText
+  ChevronRight, 
+  BookX, 
+  FileText 
 } from 'lucide-astro';
 
 const param = Astro.params.slug || Astro.params.id;
 const data = param ? await getRecordBySlug(param) : null;
 
-// Automatický 301 redirect z ID na čistý slug
+// Automatické 301 přesměrování z ID na čistý slug
 if (data?.record && param !== data.record.slug) {
   return Astro.redirect(`/archiv/${data.record.slug}`, 301);
 }
@@ -33,7 +33,7 @@ const currentIndex = record ? allRecords.findIndex((r) => r.id === record.id) : 
 const prevRecord = currentIndex > 0 ? allRecords[currentIndex - 1] : null;
 const nextRecord = currentIndex >= 0 && currentIndex < allRecords.length - 1 ? allRecords[currentIndex + 1] : null;
 
-// Strukturovaná data pro SEO a AI
+// Strukturovaná data pro vyhledávače a AI
 const structuredData = record ? {
   "@context": "https://schema.org",
   "@type": "Article",
@@ -89,7 +89,7 @@ const structuredData = record ? {
       </div>
     ) : (
       <>
-        <!-- HLAVIČKA SPISU S METADATY A TLAČÍTKEM SDÍLENÍ -->
+        <!-- HLAVIČKA SPISU S METADATY A SDÍLECÍM CENTREM -->
         <header class="space-y-6 border-b border-night-700/60 pb-10">
           <div class="flex flex-wrap items-center justify-between gap-4 text-xs">
             <div class="flex flex-wrap items-center gap-3">
@@ -109,14 +109,50 @@ const structuredData = record ? {
               </span>
             </div>
 
-            <!-- Tlačítko sdílení přímo v hlavičce (vždy přístupné) -->
-            <button 
-              type="button" 
-              id="copyShareBtn" 
-              class="px-3 py-1.5 bg-night-900 border border-night-700 hover:border-amber-candle/50 text-parchment-400 hover:text-amber-candle text-xs rounded-lg inline-flex items-center gap-1.5 transition"
-            >
-              <Share2 class="w-3.5 h-3.5" /> <span id="copyText">Sdílet spis</span>
-            </button>
+            <!-- Tlačítko sdílení s rozbalovacím panelem -->
+            <div class="relative inline-block text-left" id="shareContainer">
+              <button 
+                type="button" 
+                id="mainShareBtn" 
+                class="px-3 py-1.5 bg-night-900 border border-night-700 hover:border-amber-candle/50 text-parchment-300 hover:text-amber-candle text-xs rounded-lg inline-flex items-center gap-1.5 transition"
+              >
+                <Share2 class="w-3.5 h-3.5" />
+                <span id="shareBtnLabel">Sdílet spis</span>
+              </button>
+
+              <!-- Rozbalovací nabídka (desktop) -->
+              <div 
+                id="shareDropdown" 
+                class="hidden absolute right-0 mt-2 w-48 rounded-xl bg-night-950 border border-night-700 shadow-2xl p-1.5 z-50 backdrop-blur"
+              >
+                <button 
+                  type="button" 
+                  id="copyLinkAction" 
+                  class="w-full text-left px-3 py-2 text-xs text-parchment-300 hover:text-night-950 hover:bg-amber-candle rounded-lg transition flex items-center justify-between"
+                >
+                  <span>Kopírovat odkaz</span>
+                  <span id="copyFeedback" class="text-[10px] uppercase font-mono text-amber-candle"></span>
+                </button>
+
+                <a 
+                  id="waShareLink" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  class="w-full px-3 py-2 text-xs text-parchment-300 hover:text-night-950 hover:bg-green-500 rounded-lg transition flex items-center gap-2"
+                >
+                  WhatsApp
+                </a>
+
+                <a 
+                  id="fbShareLink" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  class="w-full px-3 py-2 text-xs text-parchment-300 hover:text-night-950 hover:bg-blue-600 rounded-lg transition flex items-center gap-2"
+                >
+                  Facebook
+                </a>
+              </div>
+            </div>
           </div>
 
           <h1 class="font-serif text-3xl sm:text-4xl md:text-5xl text-parchment-200 font-semibold leading-[1.2]">
@@ -128,7 +164,7 @@ const structuredData = record ? {
           </p>
         </header>
 
-        <!-- VIDEO PŘEHRÁVAČ (ZOBRAZÍ SE POUZE PŘI VYPLNĚNÉM YOUTUBE ID) -->
+        <!-- VIDEO PŘEHRÁVAČ (Zobrazí se pouze při vyplněném YouTube ID) -->
         {record.youtubeId && (
           <div class="rounded-2xl overflow-hidden border border-night-700 bg-night-950 aspect-video shadow-2xl relative">
             <iframe 
@@ -142,7 +178,7 @@ const structuredData = record ? {
           </div>
         )}
 
-        <!-- LIŠTA PRO POSLECH (ZOBRAZÍ SE POUZE POKUD EXISTUJE SPOTIFY NEBO SEZNAM URL) -->
+        <!-- LIŠTA PRO POSLECH (Zobrazí se pouze pokud existuje Spotify nebo Seznam URL) -->
         {hasAudioPlatforms && (
           <div class="bg-night-800/70 border border-night-700/80 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
             <div class="flex items-center gap-3">
@@ -160,7 +196,7 @@ const structuredData = record ? {
                 <a 
                   href={record.spotifyUrl} 
                   target="_blank" 
-                  rel="noopener noreferrer"
+                  rel="noopener noreferrer" 
                   class="px-4 py-2 bg-night-900 border border-night-700 hover:border-green-500/50 text-parchment-300 hover:text-green-400 text-xs font-medium rounded-lg inline-flex items-center gap-1.5 transition"
                 >
                   Spotify <ExternalLink class="w-3 h-3" />
@@ -170,7 +206,7 @@ const structuredData = record ? {
                 <a 
                   href={record.seznamUrl} 
                   target="_blank" 
-                  rel="noopener noreferrer"
+                  rel="noopener noreferrer" 
                   class="px-4 py-2 bg-night-900 border border-night-700 hover:border-red-500/50 text-parchment-300 hover:text-red-400 text-xs font-medium rounded-lg inline-flex items-center gap-1.5 transition"
                 >
                   Seznam Médium <ExternalLink class="w-3 h-3" />
@@ -225,21 +261,66 @@ const structuredData = record ? {
 </Layout>
 
 <script>
-  const copyBtn = document.getElementById('copyShareBtn');
-  const copyText = document.getElementById('copyText');
+  const shareBtn = document.getElementById('mainShareBtn');
+  const dropdown = document.getElementById('shareDropdown');
+  const copyAction = document.getElementById('copyLinkAction');
+  const copyFeedback = document.getElementById('copyFeedback');
+  const waLink = document.getElementById('waShareLink') as HTMLAnchorElement;
+  const fbLink = document.getElementById('fbShareLink') as HTMLAnchorElement;
 
-  copyBtn?.addEventListener('click', async () => {
+  const pageUrl = window.location.href;
+  const pageTitle = document.title;
+
+  // Nastavení odkazů pro WhatsApp a Facebook
+  if (waLink) {
+    waLink.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(pageTitle + ' — ' + pageUrl)}`;
+  }
+  if (fbLink) {
+    fbLink.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`;
+  }
+
+  // Kliknutí na hlavní tlačítko
+  shareBtn?.addEventListener('click', async (e) => {
+    e.stopPropagation();
+
+    // Na mobilních telefonech otevře nativní systémové sdílení
+    if (navigator.share && window.innerWidth < 768) {
+      try {
+        await navigator.share({
+          title: pageTitle,
+          text: 'Záznam z noční badatelny Noční Knihovny:',
+          url: pageUrl,
+        });
+        return;
+      } catch (err) {
+        // Uživatel sdílení zrušil, není třeba nic hlásit
+      }
+    }
+
+    // Na počítači zobrazí/skryje menu
+    dropdown?.classList.toggle('hidden');
+  });
+
+  // Kopírování odkazu do schránky
+  copyAction?.addEventListener('click', async (e) => {
+    e.stopPropagation();
     try {
-      await navigator.clipboard.writeText(window.location.href);
-      if (copyText) {
-        copyText.textContent = 'Zkopírováno';
+      await navigator.clipboard.writeText(pageUrl);
+      if (copyFeedback) {
+        copyFeedback.textContent = '✓ Zkopírováno';
         setTimeout(() => {
-          copyText.textContent = 'Sdílet spis';
-        }, 2500);
+          copyFeedback.textContent = '';
+          dropdown?.classList.add('hidden');
+        }, 1500);
       }
     } catch (err) {
-      console.error('Chyba při kopírování', err);
+      console.error('Nepodařilo se zkopírovat odkaz', err);
     }
+  });
+
+  // Zavření menu kliknutím mimo něj
+  document.addEventListener('click', () => {
+    dropdown?.classList.add('hidden');
   });
 </script>
 
@@ -252,6 +333,7 @@ const structuredData = record ? {
     font-weight: 300;
   }
 
+  /* Nadpisy H2 */
   .badatelna-content h2 {
     font-family: 'Playfair Display', Georgia, serif;
     font-size: 1.75rem;
@@ -263,6 +345,7 @@ const structuredData = record ? {
     border-bottom: 1px solid rgba(212, 154, 69, 0.25);
   }
 
+  /* Menší podnadpisy H3 */
   .badatelna-content h3 {
     font-family: 'Playfair Display', Georgia, serif;
     font-size: 1.35rem;
@@ -272,11 +355,13 @@ const structuredData = record ? {
     margin-bottom: 0.75rem;
   }
 
+  /* Odstavce a mezery */
   .badatelna-content p {
     margin-bottom: 1.35rem;
     color: #d5cdbf;
   }
 
+  /* Odrážkové seznamy */
   .badatelna-content ul {
     list-style-type: disc !important;
     padding-left: 1.75rem !important;
@@ -284,6 +369,7 @@ const structuredData = record ? {
     margin-bottom: 1.75rem;
   }
 
+  /* Číslované seznamy */
   .badatelna-content ol {
     list-style-type: decimal !important;
     padding-left: 1.75rem !important;
@@ -291,6 +377,7 @@ const structuredData = record ? {
     margin-bottom: 1.75rem;
   }
 
+  /* Jednotlivé položky seznamu a jantarové odrážky */
   .badatelna-content li {
     margin-bottom: 0.6rem;
     line-height: 1.7;
@@ -301,6 +388,7 @@ const structuredData = record ? {
     color: #d49a45;
   }
 
+  /* Tučný text a kurzíva */
   .badatelna-content strong {
     color: #f5f0e6;
     font-weight: 600;
@@ -311,6 +399,7 @@ const structuredData = record ? {
     font-style: italic;
   }
 
+  /* Citace v rámečku */
   .badatelna-content blockquote {
     border-left: 3px solid #d49a45;
     background: rgba(22, 25, 34, 0.6);
@@ -321,12 +410,14 @@ const structuredData = record ? {
     color: #e8e2d5;
   }
 
+  /* Vodorovná oddělovací linka */
   .badatelna-content hr {
     border: 0;
     border-top: 1px solid #232836;
     margin: 3rem 0;
   }
 
+  /* Odkazy v textu */
   .badatelna-content a {
     color: #d49a45;
     text-decoration: underline;
