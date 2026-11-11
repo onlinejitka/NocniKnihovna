@@ -1,10 +1,9 @@
 ---
-import { Compass, BookOpen, Heart, Menu, X, ArrowRight } from "lucide-astro";
+import { Compass, BookOpen, Menu, X, ArrowRight } from "lucide-astro";
 
 const navItems = [
   { href: '/archiv', label: 'Archiv badatelny', icon: Compass },
   { href: '/o-projektu', label: 'O badatelně', icon: BookOpen },
-  { href: '/podpora', label: 'Podpora', icon: Heart },
 ];
 ---
 
@@ -38,9 +37,8 @@ const navItems = [
       ))}
     </nav>
 
-    <!-- PRAVÁ ČÁST: CTA TLAČÍTKO + MOBILNÍ HAMBURGER -->
+    <!-- PRAVÁ ČÁST: ČTENÁŘSKÝ KRUH + MOBILNÍ HAMBURGER -->
     <div class="flex items-center gap-3">
-      <!-- Tlačítko na desktopu -->
       <a 
         href="/podpora" 
         class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-amber-brass/50 text-amber-candle hover:bg-amber-candle hover:text-night-950 transition duration-300 text-xs tracking-wider uppercase font-medium"
@@ -48,7 +46,6 @@ const navItems = [
         Vstoupit do čtenářského kruhu
       </a>
 
-      <!-- Tlačítko mobilního menu (viditelné jen na telefonech) -->
       <button 
         type="button" 
         id="mobileMenuToggle" 
@@ -118,7 +115,6 @@ const navItems = [
 
   toggleBtn?.addEventListener('click', toggleMenu);
 
-  // Zavření po kliknutí na libovolný odkaz
   navLinks.forEach((link) => {
     link.addEventListener('click', () => {
       drawer?.classList.add('hidden');
