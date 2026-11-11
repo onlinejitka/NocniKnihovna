@@ -16,7 +16,7 @@ import {
 const param = Astro.params.slug || Astro.params.id;
 const data = param ? await getRecordBySlug(param) : null;
 
-// Automatický 301 redirect z ošklivého ID na hezký slug
+// Automatický 301 redirect z ošklivého ID na čistý slug
 if (data?.record && param !== data.record.slug) {
   return Astro.redirect(`/archiv/${data.record.slug}`, 301);
 }
@@ -24,16 +24,38 @@ if (data?.record && param !== data.record.slug) {
 const record = data?.record;
 const content = data?.content || "";
 
+// Načtení předchozího a následujícího spisu pro spodní navigaci
 const allRecords = await getArchiveRecords();
 const currentIndex = record ? allRecords.findIndex((r) => r.id === record.id) : -1;
 const prevRecord = currentIndex > 0 ? allRecords[currentIndex - 1] : null;
 const nextRecord = currentIndex >= 0 && currentIndex < allRecords.length - 1 ? allRecords[currentIndex + 1] : null;
+
+// Strukturovaná data pro vyhledávače a AI
+const structuredData = record ? {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": record.title,
+  "description": record.annotation,
+  "datePublished": record.date,
+  "author": {
+    "@type": "Person",
+    "name": "Archivářka Jitka"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Noční Knihovna"
+  }
+} : null;
 ---
 
 <Layout 
   title={record ? record.title : "Spis nenalezen"}
   description={record?.annotation || "Záznam nebyl v badatelně nalezen."}
 >
+  {structuredData && (
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  )}
+
   <article class="max-w-4xl mx-auto px-6 py-12 md:py-20 space-y-12">
     
     <!-- DROBEČKOVÁ NAVIGACE -->
@@ -146,7 +168,7 @@ const nextRecord = currentIndex >= 0 && currentIndex < allRecords.length - 1 ? a
                   id="copyShareBtn" 
                   class="px-3 py-2 bg-night-900 border border-night-700 hover:border-amber-candle/50 text-parchment-400 hover:text-amber-candle text-xs rounded-lg inline-flex items-center gap-1.5 transition"
                 >
-                  <Share2 class="w-3.5 h-3.5" /> <span id="copyText">Sdílet</span>
+                  <Share2 class="w-3.5 h-3.5" /> <span id="copyText">Sdílet spis</span>
                 </button>
               </div>
             </div>
@@ -160,14 +182,7 @@ const nextRecord = currentIndex >= 0 && currentIndex < allRecords.length - 1 ? a
             <span>Čtení a dochované záznamy</span>
           </div>
 
-          <div class="prose prose-invert max-w-none 
-            prose-headings:font-serif prose-headings:text-parchment-200
-            prose-h2:text-2xl prose-h2:border-b prose-h2:border-night-700/50 prose-h2:pb-3 prose-h2:mt-12 prose-h2:mb-6
-            prose-p:text-parchment-400 prose-p:font-light prose-p:leading-relaxed text-base sm:text-lg
-            prose-a:text-amber-candle hover:prose-a:text-amber-300
-            prose-ul:text-parchment-400
-            prose-blockquote:border-l-2 prose-blockquote:border-amber-candle/60 prose-blockquote:bg-night-800/40 prose-blockquote:py-2 prose-blockquote:px-5 prose-blockquote:rounded-r-lg prose-blockquote:italic
-          ">
+          <div class="badatelna-content">
             <Fragment set:html={content} />
           </div>
         </section>
@@ -214,7 +229,7 @@ const nextRecord = currentIndex >= 0 && currentIndex < allRecords.length - 1 ? a
       if (copyText) {
         copyText.textContent = 'Zkopírováno';
         setTimeout(() => {
-          copyText.textContent = 'Sdílet';
+          copyText.textContent = 'Sdílet spis';
         }, 2500);
       }
     } catch (err) {
@@ -222,3 +237,109 @@ const nextRecord = currentIndex >= 0 && currentIndex < allRecords.length - 1 ? a
     }
   });
 </script>
+
+<style is:global>
+  /* Formátování textů stažených z Notionu */
+  .badatelna-content {
+    color: #d5cdbf;
+    font-size: 1.0625rem;
+    line-height: 1.85;
+    font-weight: 300;
+  }
+
+  /* Nadpisy H2 (Časová osa, Prameny a literatura, Přepis) */
+  .badatelna-content h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.75rem;
+    color: #e8e2d5;
+    font-weight: 600;
+    margin-top: 3rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(212, 154, 69, 0.25);
+  }
+
+  /* Menší podnadpisy H3 */
+  .badatelna-content h3 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.35rem;
+    color: #d49a45;
+    font-weight: 500;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Odstavce a mezery po enteru */
+  .badatelna-content p {
+    margin-bottom: 1.35rem;
+    color: #d5cdbf;
+  }
+
+  /* Odrážkové seznamy (bullet points) */
+  .badatelna-content ul {
+    list-style-type: disc !important;
+    padding-left: 1.75rem !important;
+    margin-top: 1rem;
+    margin-bottom: 1.75rem;
+  }
+
+  /* Číslované seznamy */
+  .badatelna-content ol {
+    list-style-type: decimal !important;
+    padding-left: 1.75rem !important;
+    margin-top: 1rem;
+    margin-bottom: 1.75rem;
+  }
+
+  /* Jednotlivé položky seznamu a jantarové odrážky */
+  .badatelna-content li {
+    margin-bottom: 0.6rem;
+    line-height: 1.7;
+    color: #e8e2d5;
+  }
+
+  .badatelna-content li::marker {
+    color: #d49a45;
+  }
+
+  /* Tučný text a kurzíva */
+  .badatelna-content strong {
+    color: #f5f0e6;
+    font-weight: 600;
+  }
+
+  .badatelna-content em {
+    color: #e8e2d5;
+    font-style: italic;
+  }
+
+  /* Citace v rámečku */
+  .badatelna-content blockquote {
+    border-left: 3px solid #d49a45;
+    background: rgba(22, 25, 34, 0.6);
+    padding: 1rem 1.25rem;
+    margin: 2rem 0;
+    border-radius: 0 0.75rem 0.75rem 0;
+    font-style: italic;
+    color: #e8e2d5;
+  }
+
+  /* Vodorovná oddělovací linka */
+  .badatelna-content hr {
+    border: 0;
+    border-top: 1px solid #232836;
+    margin: 3rem 0;
+  }
+
+  /* Odkazy v textu */
+  .badatelna-content a {
+    color: #d49a45;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    transition: color 0.2s;
+  }
+
+  .badatelna-content a:hover {
+    color: #f5c06b;
+  }
+</style>
