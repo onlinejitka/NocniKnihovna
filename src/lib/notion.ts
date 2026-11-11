@@ -8,7 +8,6 @@ const notion = new Client({
 
 const n2m = new NotionToMarkdown({ notionClient: notion });
 
-// Nastavení marked pro zachování běžných enterů a GitHub formátování
 marked.setOptions({
   breaks: true,
   gfm: true,
@@ -40,7 +39,11 @@ export interface ArchiveRecord {
   duration?: string;
   seznamUrl?: string;
   hasMedia: boolean;
+  imageUrl?: string;
 }
+
+export type Episode = ArchiveRecord;
+export type Article = ArchiveRecord;
 
 const getPlainText = (property: any): string => {
   if (!property) return "";
@@ -53,12 +56,11 @@ const getPlainText = (property: any): string => {
   return "";
 };
 
-// Získání všech záznamů z archivu
 export async function getArchiveRecords(limit?: number): Promise<ArchiveRecord[]> {
   try {
     const dbId = (process.env.NOTION_EPISODES_DB_ID || process.env.NOTION_DATABASE_ID)?.trim();
     if (!dbId) {
-      console.error("CHYBA: Není nastaveno ID Notion databáze v proměnných prostředí.");
+      console.error("CHYBA: Není nastaveno ID Notion databáze.");
       return [];
     }
 
@@ -84,6 +86,20 @@ export async function getArchiveRecords(limit?: number): Promise<ArchiveRecord[]
       const youtubeId = getPlainText(props["YouTube ID"]);
       const spotifyUrl = props["Spotify URL"]?.url || "";
 
+      // Zjištění obrázku: 1. Cover v Notionu, 2. Sloupec "Obrázek", 3. YouTube thumbnail
+      let imageUrl: string | undefined = undefined;
+
+      if (page.cover) {
+        imageUrl = page.cover.type === "external" ? page.cover.external.url : page.cover.file?.url;
+      } else if (props["Obrázek"]?.files?.[0]) {
+        const fileObj = props["Obrázek"].files[0];
+        imageUrl = fileObj.type === "external" ? fileObj.external.url : fileObj.file?.url;
+      } else if (props["Obrázek URL"]?.url) {
+        imageUrl = props["Obrázek URL"].url;
+      } else if (youtubeId) {
+        imageUrl = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+      }
+
       return {
         id: page.id,
         slug: manualSlug ? slugify(manualSlug) : slugify(title),
@@ -98,6 +114,7 @@ export async function getArchiveRecords(limit?: number): Promise<ArchiveRecord[]
         duration: getPlainText(props["Stopáž"]),
         seznamUrl: props["Seznam Médium URL"]?.url || undefined,
         hasMedia: Boolean(youtubeId || spotifyUrl),
+        imageUrl,
       };
     });
   } catch (error: any) {
@@ -106,13 +123,11 @@ export async function getArchiveRecords(limit?: number): Promise<ArchiveRecord[]
   }
 }
 
-// Získání nejnovějšího spisu pro Hero sekci
 export async function getLatestRecord(): Promise<ArchiveRecord | null> {
   const records = await getArchiveRecords(1);
   return records.length > 0 ? records[0] : null;
 }
 
-// Detail spisu podle slugu nebo ID
 export async function getRecordBySlug(param: string) {
   try {
     if (!param) return null;
@@ -137,9 +152,15 @@ export async function getRecordBySlug(param: string) {
       htmlContent = "<p class='italic text-parchment-600'>K tomuto spisu zatím nebyl připojen textový přepis.</p>";
     }
 
-    return { record, content: htmlContent };
+    return { record, episode: record, article: record, content: htmlContent };
   } catch (error: any) {
     console.error(`CHYBA při stahování spisu (${param}):`, error?.message || error);
     return null;
   }
 }
+
+export const getEpisodes = getArchiveRecords;
+export const getLatestEpisode = getLatestRecord;
+export const getEpisodeBySlug = getRecordBySlug;
+export const getArticles = getArchiveRecords;
+export const getArticleBySlug = getRecordBySlug;
