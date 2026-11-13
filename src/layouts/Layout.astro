@@ -18,9 +18,12 @@ const {
   publishedTime
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, "https://nocniknihovna.cz");
-const socialImageURL = new URL(image, "https://nocniknihovna.cz");
+const canonicalURL = new URL(Astro.url.pathname, "https://www.nocniknihovna.cz");
+const socialImageURL = new URL(image, "https://www.nocniknihovna.cz");
 const siteTitle = title.includes("Noční Knihovna") ? title : `${title} | Noční Knihovna`;
+
+// Měřicí ID pro Google Analytics 4
+const gaId = import.meta.env.PUBLIC_GA_ID || "G-2VFL08QREV";
 ---
 
 <!doctype html>
@@ -54,14 +57,26 @@ const siteTitle = title.includes("Noční Knihovna") ? title : `${title} | Nočn
     <meta property="twitter:title" content={siteTitle} />
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={socialImageURL} />
-    
-<!-- Vzhled pro mobilní prohlížeče -->
+
     <meta name="theme-color" content="#0f1115" />
 
     <!-- Google Fonts: Playfair Display -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
+    <!-- Google Analytics 4 -->
+    {gaId && import.meta.env.PROD && (
+      <>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
+        <script is:inline define:vars={{ gaId }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', gaId);
+        </script>
+      </>
+    )}
   </head>
   <body class="min-h-screen flex flex-col bg-night-950 text-parchment-300 font-sans selection:bg-amber-candle/30 selection:text-parchment-100">
     <Header />
@@ -71,20 +86,3 @@ const siteTitle = title.includes("Noční Knihovna") ? title : `${title} | Nočn
     <Footer />
   </body>
 </html>
-
-<style is:global>
-  /* Dark Academia scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #0f1115;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #232836;
-    border-radius: 4px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #b87333;
-  }
-</style>
