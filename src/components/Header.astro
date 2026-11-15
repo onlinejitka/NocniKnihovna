@@ -14,7 +14,7 @@ const navItems = [
     <a href="/" class="flex items-center gap-3.5 group">
       <div class="w-11 h-11 rounded-full overflow-hidden border border-amber-candle/30 bg-[#1c1c1a] shrink-0 group-hover:border-amber-candle transition duration-300 shadow-md">
         <img 
-          src="/NocniKnihovna-logo-3d.png" 
+          src="/NocniKnihovna-logo.jpeg" 
           alt="Noční Knihovna" 
           class="w-full h-full object-cover scale-110 group-hover:scale-125 transition duration-300"
         />
@@ -29,26 +29,27 @@ const navItems = [
       </div>
     </a>
 
-    <!-- DESKTOP NAVIGACE -->
-    <nav class="hidden md:flex items-center gap-8">
-      {navItems.map((item) => (
-        <a 
-          href={item.href} 
-          class="text-xs uppercase tracking-wider text-parchment-400 hover:text-amber-candle transition duration-200 font-medium"
-        >
-          {item.label}
-        </a>
-      ))}
-    </nav>
+    <!-- PRAVÁ ČÁST: DESKTOP NAVIGACE + MOBILNÍ HAMBURGER -->
+    <div class="flex items-center gap-8">
+      <nav class="hidden md:flex items-center gap-8">
+        {navItems.map((item) => (
+          <a 
+            href={item.href} 
+            class="text-xs uppercase tracking-wider text-parchment-400 hover:text-amber-candle transition duration-200 font-medium"
+          >
+            {item.label}
+          </a>
+        ))}
+      </nav>
 
-    <!-- PRAVÁ ČÁST: ČTENÁŘSKÝ KRUH + MOBILNÍ HAMBURGER -->
-    <div class="flex items-center gap-3">
+      {/* DOČASNĚ SKRYTO: Čtenářský kruh (desktop)
       <a 
         href="/podpora" 
         class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-amber-brass/50 text-amber-candle hover:bg-amber-candle hover:text-night-950 transition duration-300 text-xs tracking-wider uppercase font-medium"
       >
         Vstoupit do čtenářského kruhu
       </a>
+      */}
 
       <button 
         type="button" 
@@ -86,6 +87,7 @@ const navItems = [
       })}
     </nav>
 
+    {/* DOČASNĚ SKRYTO: Čtenářský kruh (mobil)
     <div class="pt-2 border-t border-night-800">
       <a 
         href="/podpora" 
@@ -94,6 +96,7 @@ const navItems = [
         Vstoupit do čtenářského kruhu
       </a>
     </div>
+    */}
   </div>
 </header>
 
