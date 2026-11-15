@@ -7,7 +7,7 @@ import { Play, ArrowRight, BookOpen, ExternalLink, Headphones } from 'lucide-ast
 const latestRecord = await getLatestRecord();
 const allRecords = await getArchiveRecords(7);
 // Pokud máme více než 1 záznam, vezmeme další do mřížky; pokud je 1, ukážeme ho i dole
-const recentRecords = allRecords.length > 1 ? allRecords.slice(1, 7) : allRecords;
+const recentRecords = allRecords.length > 1 ? allRecords.slice(0, 7) : allRecords;
 ---
 
 <Layout title="Noční badatelna archivářky">
@@ -20,7 +20,7 @@ const recentRecords = allRecords.length > 1 ? allRecords.slice(1, 7) : allRecord
 
         <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-parchment-200 leading-[1.15] font-semibold">
           Dějiny nejsou učebnice. <br />
-          <span class="italic font-normal text-amber-candle">Jsou to lidské osudy</span>.
+          <span class="italic font-normal text-amber-candle">Jsou to lidské osudy.</span>
         </h1>
 
         <p class="text-parchment-400 text-base sm:text-lg font-light leading-relaxed max-w-xl">
