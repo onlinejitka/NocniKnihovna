@@ -50,8 +50,10 @@ export interface MovieRecord {
   year: string;
   platform: string;
   description: string;
+  csfdUrl?: string;
   link?: string;
   imageUrl?: string;
+  order: number;
 }
 
 export type Episode = ArchiveRecord;
@@ -69,6 +71,18 @@ const getPlainText = (property: any): string => {
     return String(property.number);
   }
   return "";
+};
+
+const getUrlValue = (property: any): string | undefined => {
+  if (!property) return undefined;
+  if (property.type === "url" && property.url) {
+    return property.url.trim();
+  }
+  const textVal = getPlainText(property).trim();
+  if (textVal && (textVal.startsWith("http://") || textVal.startsWith("https://"))) {
+    return textVal;
+  }
+  return undefined;
 };
 
 const extractImage = (page: any, props: any, youtubeId?: string): string | undefined => {
@@ -141,7 +155,6 @@ export async function getArchiveRecords(limit?: number): Promise<ArchiveRecord[]
   }
 }
 
-// Získání historických filmů a seriálů z druhé Notion databáze
 export async function getMovies(): Promise<MovieRecord[]> {
   try {
     const moviesDbId = process.env.NOTION_MOVIES_DB_ID?.trim();
@@ -149,35 +162,36 @@ export async function getMovies(): Promise<MovieRecord[]> {
       return [];
     }
 
+    // Bez parametru sorts vrací Notion položky v jejich přirozeném pořadí v databázi
     const response = await notion.databases.query({
       database_id: moviesDbId,
-      sorts: [
-        {
-          timestamp: "created_time",
-          direction: "descending",
-        },
-      ],
       page_size: 100,
     });
 
-    return response.results
+    const movies = response.results
       .filter((page: any) => {
         const props = page.properties;
         const statusName = props["Stav"]?.status?.name || props["Stav"]?.select?.name;
-        // Pokud sloupec Stav existuje, zobrazíme jen publikované položky
         return !statusName || statusName === "Publikováno";
       })
       .map((page: any) => {
         const props = page.properties;
         const title = getPlainText(props["Název"] || props["Name"]) || "Bez názvu";
         
-        // Podpora pro Multi-select i běžný text u platformy
         let platform = "";
         if (props["Kde sledovat"]?.multi_select?.length > 0) {
           platform = props["Kde sledovat"].multi_select.map((s: any) => s.name).join(", ");
         } else {
           platform = getPlainText(props["Kde sledovat"]);
         }
+
+        const csfdUrl = getUrlValue(
+          props["ČSFD"] || props["ČSFD URL"] || props["CSFD"] || props["CSFD URL"]
+        );
+        const link = getUrlValue(props["Odkaz"] || props["Trailer"]);
+
+        const orderValue = props["Pořadí"]?.number;
+        const order = typeof orderValue === "number" ? orderValue : Number.MAX_SAFE_INTEGER;
 
         return {
           id: page.id,
@@ -187,10 +201,15 @@ export async function getMovies(): Promise<MovieRecord[]> {
           year: getPlainText(props["Rok"]),
           platform,
           description: getPlainText(props["Popis"] || props["Anotace"]),
-          link: props["Odkaz"]?.url || undefined,
+          csfdUrl,
+          link,
           imageUrl: extractImage(page, props),
+          order,
         };
       });
+
+    // Zachová ruční pořadí z Notionu, a pokud je vyplněný sloupec "Pořadí", seřadí podle něj
+    return movies.sort((a, b) => a.order - b.order);
   } catch (error: any) {
     console.error("CHYBA NOTION API (getMovies):", error?.message || error);
     return [];
