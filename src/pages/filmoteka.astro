@@ -79,7 +79,7 @@ const eras = Array.from(new Set(movies.map((m) => m.era).filter(Boolean)));
         </p>
       </div>
     ) : (
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7" id="moviesGrid">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="moviesGrid">
         {movies.map((movie) => (
           <article 
             class="movie-card group bg-night-800/60 border border-night-700/70 rounded-2xl overflow-hidden flex flex-col justify-between transition duration-300 hover:border-amber-candle/40 hover:bg-night-800"
@@ -87,26 +87,36 @@ const eras = Array.from(new Set(movies.map((m) => m.era).filter(Boolean)));
             data-era={movie.era}
           >
             <div>
-              <!-- OBRÁZEK / PLAKÁT -->
-              <div class="relative aspect-video overflow-hidden bg-night-950 border-b border-night-700/60">
+              <!-- PLAKÁT NA VÝŠKU (POMĚR 2:3) -->
+              <div class="relative aspect-[2/3] overflow-hidden bg-night-950 border-b border-night-700/60">
                 {movie.imageUrl ? (
-                  <img 
-                    src={movie.imageUrl} 
-                    alt={movie.title}
-                    class="w-full h-full object-cover group-hover:scale-105 transition duration-500 filter brightness-95"
-                    loading="lazy"
-                  />
+                  <>
+                    <img 
+                      src={movie.imageUrl} 
+                      alt={movie.title}
+                      class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-500 filter brightness-95"
+                      loading="lazy"
+                    />
+                    <!-- Jemné ztmavení okrajů pro čitelnost štítků -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-night-950/75 via-transparent to-night-950/35 pointer-events-none"></div>
+                  </>
                 ) : (
-                  <div class="w-full h-full bg-gradient-to-br from-night-900 via-night-950 to-night-900 flex items-center justify-center p-6 text-center">
-                    <span class="font-serif italic text-parchment-400 text-base">
-                      {movie.title}
-                    </span>
+                  <div class="w-full h-full bg-gradient-to-b from-night-900 via-night-950 to-night-900 p-6 flex items-center justify-center text-center">
+                    <div class="w-full h-full border border-amber-candle/20 rounded-xl flex flex-col items-center justify-center p-6 space-y-3">
+                      <Film class="w-6 h-6 text-amber-brass/40" />
+                      <span class="font-serif italic text-parchment-300 text-lg leading-snug">
+                        {movie.title}
+                      </span>
+                      {movie.year && (
+                        <span class="text-xs font-mono text-parchment-600">{movie.year}</span>
+                      )}
+                    </div>
                   </div>
                 )}
 
                 <!-- Štítek Film / Seriál -->
                 <div class="absolute top-3 left-3 flex items-center gap-1.5">
-                  <span class="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-0.5 rounded bg-night-950/85 backdrop-blur border border-amber-candle/30 text-amber-candle">
+                  <span class="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded bg-night-950/85 backdrop-blur border border-amber-candle/30 text-amber-candle shadow-sm">
                     {movie.type === 'Seriál' ? <Tv class="w-3 h-3" /> : <Film class="w-3 h-3" />}
                     {movie.type}
                   </span>
@@ -115,100 +125,4 @@ const eras = Array.from(new Set(movies.map((m) => m.era).filter(Boolean)));
                 <!-- Historické období -->
                 {movie.era && (
                   <div class="absolute bottom-3 right-3">
-                    <span class="text-[11px] px-2 py-0.5 rounded bg-night-950/85 backdrop-blur border border-night-700 text-parchment-300 font-mono">
-                      {movie.era}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              <!-- TEXTOVÝ OBSAH KARTY -->
-              <div class="p-6 space-y-3">
-                <div class="flex items-center justify-between gap-2">
-                  <h2 class="font-serif text-xl text-parchment-200 font-semibold leading-snug group-hover:text-amber-candle transition">
-                    {movie.title}
-                  </h2>
-                  {movie.year && (
-                    <span class="text-xs font-mono text-parchment-600 shrink-0 flex items-center gap-1">
-                      <Calendar class="w-3 h-3 text-amber-brass" /> {movie.year}
-                    </span>
-                  )}
-                </div>
-
-                <p class="text-parchment-300 text-sm leading-relaxed font-light whitespace-pre-line">
-                  {movie.description}
-                </p>
-              </div>
-            </div>
-
-            <!-- SPODNÍ LIŠTA: KDE SLEDOVAT A ODKAZ -->
-            {(movie.platform || movie.link) && (
-              <div class="px-6 py-4 border-t border-night-700/50 bg-night-900/30 flex items-center justify-between gap-3 text-xs">
-                {movie.platform ? (
-                  <div class="flex items-center gap-1.5 text-parchment-400">
-                    <Sparkles class="w-3.5 h-3.5 text-amber-brass shrink-0" />
-                    <span class="truncate">{movie.platform}</span>
-                  </div>
-                ) : <div />}
-
-                {movie.link && (
-                  <a 
-                    href={movie.link} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    class="text-amber-candle hover:text-amber-300 font-medium inline-flex items-center gap-1 shrink-0 transition"
-                  >
-                    Detail <ExternalLink class="w-3 h-3" />
-                  </a>
-                )}
-              </div>
-            )}
-          </article>
-        ))}
-      </div>
-    )}
-  </section>
-</Layout>
-
-<script>
-  const typeButtons = document.querySelectorAll('.filter-type-btn');
-  const eraSelect = document.getElementById('eraSelect') as HTMLSelectElement | null;
-  const cards = document.querySelectorAll('.movie-card');
-
-  let activeType = 'all';
-  let activeEra = 'all';
-
-  function filterMovies() {
-    cards.forEach((card) => {
-      const el = card as HTMLElement;
-      const cardType = el.dataset.type || '';
-      const cardEra = el.dataset.era || '';
-
-      const matchesType = activeType === 'all' || cardType.toLowerCase() === activeType.toLowerCase();
-      const matchesEra = activeEra === 'all' || cardEra === activeEra;
-
-      el.style.display = matchesType && matchesEra ? 'flex' : 'none';
-    });
-  }
-
-  typeButtons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      activeType = (btn as HTMLElement).dataset.type || 'all';
-
-      typeButtons.forEach((b) => {
-        b.classList.remove('bg-amber-candle', 'text-night-950');
-        b.classList.add('bg-night-900', 'border', 'border-night-700', 'text-parchment-300');
-      });
-
-      btn.classList.remove('bg-night-900', 'border', 'border-night-700', 'text-parchment-300');
-      btn.classList.add('bg-amber-candle', 'text-night-950');
-
-      filterMovies();
-    });
-  });
-
-  eraSelect?.addEventListener('change', () => {
-    activeEra = eraSelect.value;
-    filterMovies();
-  });
-</script>
+                    <span class="text-[11px] px
