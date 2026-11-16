@@ -85,6 +85,23 @@ const getUrlValue = (property: any): string | undefined => {
   return undefined;
 };
 
+const getOrderValue = (props: any): number => {
+  const prop = props["Pořadí"] || props["Poradi"] || props["Order"] || props["#"];
+  if (!prop) return Number.MAX_SAFE_INTEGER;
+  if (prop.type === "number" && typeof prop.number === "number") {
+    return prop.number;
+  }
+  if (prop.type === "unique_id" && typeof prop.unique_id?.number === "number") {
+    return prop.unique_id.number;
+  }
+  const textVal = getPlainText(prop).trim();
+  if (textVal) {
+    const parsed = Number(textVal.replace(",", "."));
+    if (!Number.isNaN(parsed)) return parsed;
+  }
+  return Number.MAX_SAFE_INTEGER;
+};
+
 const extractImage = (page: any, props: any, youtubeId?: string): string | undefined => {
   if (page.cover) {
     return page.cover.type === "external" ? page.cover.external.url : page.cover.file?.url;
@@ -162,7 +179,6 @@ export async function getMovies(): Promise<MovieRecord[]> {
       return [];
     }
 
-    // Bez parametru sorts vrací Notion položky v jejich přirozeném pořadí v databázi
     const response = await notion.databases.query({
       database_id: moviesDbId,
       page_size: 100,
@@ -190,9 +206,6 @@ export async function getMovies(): Promise<MovieRecord[]> {
         );
         const link = getUrlValue(props["Odkaz"] || props["Trailer"]);
 
-        const orderValue = props["Pořadí"]?.number;
-        const order = typeof orderValue === "number" ? orderValue : Number.MAX_SAFE_INTEGER;
-
         return {
           id: page.id,
           title,
@@ -204,11 +217,10 @@ export async function getMovies(): Promise<MovieRecord[]> {
           csfdUrl,
           link,
           imageUrl: extractImage(page, props),
-          order,
+          order: getOrderValue(props),
         };
       });
 
-    // Zachová ruční pořadí z Notionu, a pokud je vyplněný sloupec "Pořadí", seřadí podle něj
     return movies.sort((a, b) => a.order - b.order);
   } catch (error: any) {
     console.error("CHYBA NOTION API (getMovies):", error?.message || error);
