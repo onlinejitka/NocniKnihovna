@@ -1,0 +1,214 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getMovies } from '../lib/notion';
+import { Film, Tv, Calendar, ExternalLink, Sparkles } from 'lucide-astro';
+
+const movies = await getMovies();
+const eras = Array.from(new Set(movies.map((m) => m.era).filter(Boolean)));
+---
+
+<Layout 
+  title="Historická filmotéka"
+  description="Výběr historických filmů a seriálů s atmosférou, dobovými detaily a pohledem archivářky."
+>
+  <section class="max-w-6xl mx-auto px-6 py-14 md:py-20 space-y-12">
+    
+    <!-- HLAVIČKA SEKCE -->
+    <header class="max-w-3xl space-y-4">
+      <div class="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-amber-candle font-medium">
+        <Film class="w-4 h-4" />
+        <span>Doporučení pro dlouhé večery</span>
+      </div>
+      <h1 class="font-serif text-3xl sm:text-5xl text-parchment-200 font-semibold leading-tight">
+        Historická filmotéka
+      </h1>
+      <p class="text-parchment-400 text-base sm:text-lg font-light leading-relaxed">
+        Snímky a série, které dokázaly zachytit ducha doby, lidskou mentalitu i kulisy minulosti bez zbytečného pozlátka. Výběr toho nejlepšího očima archivářky.
+      </p>
+    </header>
+
+    <!-- FILTRY (VŠE / FILMY / SERIÁLY + OBDOBÍ) -->
+    {movies.length > 0 && (
+      <div class="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-night-700/60">
+        <div class="flex flex-wrap items-center gap-2" id="typeFilters">
+          <button 
+            type="button" 
+            data-type="all"
+            class="filter-type-btn px-4 py-2 rounded-lg text-xs font-medium bg-amber-candle text-night-950 transition"
+          >
+            Vše ({movies.length})
+          </button>
+          <button 
+            type="button" 
+            data-type="Film"
+            class="filter-type-btn px-4 py-2 rounded-lg text-xs font-medium bg-night-900 border border-night-700 text-parchment-300 hover:border-amber-candle/40 transition"
+          >
+            Filmy
+          </button>
+          <button 
+            type="button" 
+            data-type="Seriál"
+            class="filter-type-btn px-4 py-2 rounded-lg text-xs font-medium bg-night-900 border border-night-700 text-parchment-300 hover:border-amber-candle/40 transition"
+          >
+            Seriály
+          </button>
+        </div>
+
+        {eras.length > 1 && (
+          <select 
+            id="eraSelect"
+            aria-label="Filtrovat podle období"
+            class="px-4 py-2 rounded-lg bg-night-900 border border-night-700 text-parchment-300 text-xs focus:outline-none focus:border-amber-candle"
+          >
+            <option value="all">Všechna období</option>
+            {eras.map((era) => (
+              <option value={era}>{era}</option>
+            ))}
+          </select>
+        )}
+      </div>
+    )}
+
+    <!-- MŘÍŽKA FILMŮ A SERIÁLŮ -->
+    {movies.length === 0 ? (
+      <div class="text-center py-20 border border-dashed border-night-700 rounded-2xl bg-night-800/20 space-y-3">
+        <Film class="w-10 h-10 text-amber-candle/50 mx-auto" />
+        <p class="font-serif text-xl text-parchment-200">Katalog promítání se právě připravuje</p>
+        <p class="text-parchment-400 text-sm font-light max-w-md mx-auto">
+          Brzy zde najdete první tipy na historické filmy a seriály z badatelny.
+        </p>
+      </div>
+    ) : (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7" id="moviesGrid">
+        {movies.map((movie) => (
+          <article 
+            class="movie-card group bg-night-800/60 border border-night-700/70 rounded-2xl overflow-hidden flex flex-col justify-between transition duration-300 hover:border-amber-candle/40 hover:bg-night-800"
+            data-type={movie.type}
+            data-era={movie.era}
+          >
+            <div>
+              <!-- OBRÁZEK / PLAKÁT -->
+              <div class="relative aspect-video overflow-hidden bg-night-950 border-b border-night-700/60">
+                {movie.imageUrl ? (
+                  <img 
+                    src={movie.imageUrl} 
+                    alt={movie.title}
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-500 filter brightness-95"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="w-full h-full bg-gradient-to-br from-night-900 via-night-950 to-night-900 flex items-center justify-center p-6 text-center">
+                    <span class="font-serif italic text-parchment-400 text-base">
+                      {movie.title}
+                    </span>
+                  </div>
+                )}
+
+                <!-- Štítek Film / Seriál -->
+                <div class="absolute top-3 left-3 flex items-center gap-1.5">
+                  <span class="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-0.5 rounded bg-night-950/85 backdrop-blur border border-amber-candle/30 text-amber-candle">
+                    {movie.type === 'Seriál' ? <Tv class="w-3 h-3" /> : <Film class="w-3 h-3" />}
+                    {movie.type}
+                  </span>
+                </div>
+
+                <!-- Historické období -->
+                {movie.era && (
+                  <div class="absolute bottom-3 right-3">
+                    <span class="text-[11px] px-2 py-0.5 rounded bg-night-950/85 backdrop-blur border border-night-700 text-parchment-300 font-mono">
+                      {movie.era}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <!-- TEXTOVÝ OBSAH KARTY -->
+              <div class="p-6 space-y-3">
+                <div class="flex items-center justify-between gap-2">
+                  <h2 class="font-serif text-xl text-parchment-200 font-semibold leading-snug group-hover:text-amber-candle transition">
+                    {movie.title}
+                  </h2>
+                  {movie.year && (
+                    <span class="text-xs font-mono text-parchment-600 shrink-0 flex items-center gap-1">
+                      <Calendar class="w-3 h-3 text-amber-brass" /> {movie.year}
+                    </span>
+                  )}
+                </div>
+
+                <p class="text-parchment-300 text-sm leading-relaxed font-light whitespace-pre-line">
+                  {movie.description}
+                </p>
+              </div>
+            </div>
+
+            <!-- SPODNÍ LIŠTA: KDE SLEDOVAT A ODKAZ -->
+            {(movie.platform || movie.link) && (
+              <div class="px-6 py-4 border-t border-night-700/50 bg-night-900/30 flex items-center justify-between gap-3 text-xs">
+                {movie.platform ? (
+                  <div class="flex items-center gap-1.5 text-parchment-400">
+                    <Sparkles class="w-3.5 h-3.5 text-amber-brass shrink-0" />
+                    <span class="truncate">{movie.platform}</span>
+                  </div>
+                ) : <div />}
+
+                {movie.link && (
+                  <a 
+                    href={movie.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="text-amber-candle hover:text-amber-300 font-medium inline-flex items-center gap-1 shrink-0 transition"
+                  >
+                    Detail <ExternalLink class="w-3 h-3" />
+                  </a>
+                )}
+              </div>
+            )}
+          </article>
+        ))}
+      </div>
+    )}
+  </section>
+</Layout>
+
+<script>
+  const typeButtons = document.querySelectorAll('.filter-type-btn');
+  const eraSelect = document.getElementById('eraSelect') as HTMLSelectElement | null;
+  const cards = document.querySelectorAll('.movie-card');
+
+  let activeType = 'all';
+  let activeEra = 'all';
+
+  function filterMovies() {
+    cards.forEach((card) => {
+      const el = card as HTMLElement;
+      const cardType = el.dataset.type || '';
+      const cardEra = el.dataset.era || '';
+
+      const matchesType = activeType === 'all' || cardType.toLowerCase() === activeType.toLowerCase();
+      const matchesEra = activeEra === 'all' || cardEra === activeEra;
+
+      el.style.display = matchesType && matchesEra ? 'flex' : 'none';
+    });
+  }
+
+  typeButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      activeType = (btn as HTMLElement).dataset.type || 'all';
+
+      typeButtons.forEach((b) => {
+        b.classList.remove('bg-amber-candle', 'text-night-950');
+        b.classList.add('bg-night-900', 'border', 'border-night-700', 'text-parchment-300');
+      });
+
+      btn.classList.remove('bg-night-900', 'border', 'border-night-700', 'text-parchment-300');
+      btn.classList.add('bg-amber-candle', 'text-night-950');
+
+      filterMovies();
+    });
+  });
+
+  eraSelect?.addEventListener('change', () => {
+    activeEra = eraSelect.value;
+    filterMovies();
+  });
+</script>
